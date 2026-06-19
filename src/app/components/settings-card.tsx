@@ -1,0 +1,121 @@
+/**
+ * Carte de réglages avancés IPPOO — à insérer dans la page Profil.
+ *   - Thème (clair/sombre)
+ *   - Mode basse data
+ *   - Langue (FR/Fon/Yoruba/EN)
+ *   - Contacts d'urgence SOS (jusqu'à 5)
+ */
+import { useEffect, useState } from "react";
+import { Plus, Trash2, ShieldAlert } from "lucide-react";
+import { toast } from "sonner";
+import { ThemeToggle, LowDataToggle, LanguagePicker, haptic } from "./ui-extras";
+import { getEmergencyContacts, setEmergencyContacts, type EmergencyContact } from "../services/sos";
+import { PhoneBJSchema } from "../types/domain";
+
+export function SettingsCard() {
+  const [contacts, setContacts] = useState<EmergencyContact[]>([]);
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+
+  useEffect(() => { setContacts(getEmergencyContacts()); }, []);
+
+  const addContact = () => {
+    const parsed = PhoneBJSchema.safeParse(phone.trim());
+    if (!parsed.success) { toast.error("Numéro béninois invalide"); return; }
+    if (!name.trim()) { toast.error("Nom requis"); return; }
+    if (contacts.length >= 5) { toast.error("Maximum 5 contacts"); return; }
+    const next = [...contacts, { name: name.trim(), phone: parsed.data }];
+    setContacts(next); setEmergencyContacts(next);
+    setName(""); setPhone(""); haptic();
+    toast.success("Contact ajouté");
+  };
+
+  const removeContact = (idx: number) => {
+    const next = contacts.filter((_, i) => i !== idx);
+    setContacts(next); setEmergencyContacts(next); haptic();
+  };
+
+  return (
+    <section
+      aria-labelledby="settings-title"
+      className="bg-white rounded-2xl p-4 mb-4 border border-gray-100"
+    >
+      <h2 id="settings-title" className="mb-3">Réglages</h2>
+
+      {/* Préférences */}
+      <div className="space-y-3 mb-5">
+        <div className="flex items-center justify-between">
+          <span className="text-gray-700">Apparence</span>
+          <ThemeToggle />
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-gray-700">Économie de données</span>
+          <LowDataToggle />
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-gray-700">Langue</span>
+          <LanguagePicker />
+        </div>
+      </div>
+
+      {/* Contacts d'urgence */}
+      <div className="border-t border-gray-100 pt-4">
+        <div className="flex items-center gap-2 mb-2">
+          <ShieldAlert className="w-4 h-4 text-[#D62828]" aria-hidden />
+          <h3>Contacts d'urgence ({contacts.length}/5)</h3>
+        </div>
+        <p className="text-xs text-gray-500 mb-3">
+          Ces contacts recevront un SMS avec votre position lors d'un SOS.
+        </p>
+
+        <ul className="space-y-2 mb-3" role="list">
+          {contacts.map((c, i) => (
+            <li
+              key={`${c.phone}-${i}`}
+              className="flex items-center justify-between p-2 rounded-lg bg-gray-50"
+            >
+              <div>
+                <div>{c.name}</div>
+                <div className="text-xs text-gray-500">{c.phone}</div>
+              </div>
+              <button
+                aria-label={`Supprimer ${c.name}`}
+                onClick={() => removeContact(i)}
+                className="p-2 text-red-600"
+              >
+                <Trash2 className="w-4 h-4" aria-hidden />
+              </button>
+            </li>
+          ))}
+        </ul>
+
+        {contacts.length < 5 && (
+          <div className="grid grid-cols-[1fr_1fr_auto] gap-2">
+            <input
+              aria-label="Nom du contact"
+              placeholder="Nom"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="px-3 py-2 rounded-lg border border-gray-200"
+            />
+            <input
+              aria-label="Téléphone du contact"
+              placeholder="+22997…"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              inputMode="tel"
+              className="px-3 py-2 rounded-lg border border-gray-200"
+            />
+            <button
+              onClick={addContact}
+              aria-label="Ajouter le contact"
+              className="px-3 rounded-lg bg-[#F77F00] text-white flex items-center justify-center"
+            >
+              <Plus className="w-4 h-4" aria-hidden />
+            </button>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}

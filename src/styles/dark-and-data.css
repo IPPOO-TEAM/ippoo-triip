@@ -1,0 +1,113 @@
+/* ─── IPPOO : Dark mode + Mode basse data ─── */
+
+/* Dark mode — appliqué via [data-theme="dark"] sur <html> */
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --ippoo-bg: #0F1419;
+  --ippoo-surface: #1A1F26;
+  --ippoo-surface-2: #232932;
+  --ippoo-text: #E8EAED;
+  --ippoo-text-muted: #9AA0A6;
+  --ippoo-border: #2D343D;
+}
+
+html[data-theme="dark"] body {
+  background: var(--ippoo-bg);
+  color: var(--ippoo-text);
+}
+
+html[data-theme="dark"] .bg-white {
+  background-color: var(--ippoo-surface) !important;
+}
+html[data-theme="dark"] .bg-gray-50 {
+  background-color: var(--ippoo-bg) !important;
+}
+html[data-theme="dark"] .bg-gray-100 {
+  background-color: var(--ippoo-surface-2) !important;
+}
+html[data-theme="dark"] .text-gray-900,
+html[data-theme="dark"] .text-black {
+  color: var(--ippoo-text) !important;
+}
+html[data-theme="dark"] .text-gray-600,
+html[data-theme="dark"] .text-gray-500 {
+  color: var(--ippoo-text-muted) !important;
+}
+html[data-theme="dark"] .border-gray-100,
+html[data-theme="dark"] .border-gray-200 {
+  border-color: var(--ippoo-border) !important;
+}
+
+/* Mode basse data — désactive animations, gradients, ombres, images de fond */
+html[data-low-data="1"] *,
+html[data-low-data="1"] *::before,
+html[data-low-data="1"] *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
+
+html[data-low-data="1"] img {
+  image-rendering: auto;
+}
+
+html[data-low-data="1"] .bg-gradient-to-r,
+html[data-low-data="1"] .bg-gradient-to-b,
+html[data-low-data="1"] .bg-gradient-to-br,
+html[data-low-data="1"] [class*="bg-gradient"] {
+  background-image: none !important;
+}
+
+html[data-low-data="1"] .shadow-lg,
+html[data-low-data="1"] .shadow-xl,
+html[data-low-data="1"] .shadow-2xl {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+}
+
+html[data-low-data="1"] .backdrop-blur,
+html[data-low-data="1"] [class*="backdrop-blur"] {
+  backdrop-filter: none !important;
+}
+
+/* Indicateur visible mode hors-ligne */
+.ippoo-offline-banner {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  background: #D62828;
+  color: white;
+  text-align: center;
+  font-size: 12px;
+  padding: 4px 8px;
+  z-index: 100;
+}
+
+/* Respecte prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Skip link pour accessibilité clavier */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 8px;
+  background: #1E6091;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  z-index: 9999;
+  transition: top 0.2s;
+}
+.skip-link:focus {
+  top: 8px;
+}
+
+/* Focus visible standardisé */
+*:focus-visible {
+  outline: 2px solid #F77F00;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
