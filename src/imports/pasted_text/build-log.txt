@@ -1,0 +1,105 @@
+2026-06-19T18:13:05.456Z	Initializing build environment...
+2026-06-19T18:13:05.456Z	Initializing build environment...
+2026-06-19T18:13:40.938Z	Success: Finished initializing build environment
+2026-06-19T18:13:41.673Z	Cloning repository...
+2026-06-19T18:13:45.257Z	No build output detected to cache. Skipping.
+2026-06-19T18:13:45.257Z	No dependencies detected to cache. Skipping.
+2026-06-19T18:13:45.268Z	Detected the following tools from environment: bun@1.2.15, nodejs@22.16.0
+2026-06-19T18:13:45.271Z	Installing project dependencies: bun install
+2026-06-19T18:13:46.274Z	bun install v1.2.15 (df017990)
+2026-06-19T18:13:46.350Z	Resolving dependencies
+2026-06-19T18:13:53.202Z	Resolved, downloaded and extracted [1328]
+2026-06-19T18:13:53.203Z	warn: incorrect peer dependency "react@19.2.7"
+2026-06-19T18:13:53.203Z	
+2026-06-19T18:13:53.204Z	warn: incorrect peer dependency "react@19.2.7"
+2026-06-19T18:13:53.204Z	
+2026-06-19T18:13:53.204Z	warn: incorrect peer dependency "react-dom@19.2.7"
+2026-06-19T18:13:56.690Z	Saved lockfile
+2026-06-19T18:13:56.691Z	
+2026-06-19T18:13:56.691Z	+ @tailwindcss/vite@4.1.12 (v4.3.1 available)
+2026-06-19T18:13:56.691Z	+ @vitejs/plugin-react@4.7.0 (v6.0.2 available)
+2026-06-19T18:13:56.692Z	+ tailwindcss@4.1.12 (v4.3.1 available)
+2026-06-19T18:13:56.692Z	+ vite@6.3.5 (v8.0.16 available)
+2026-06-19T18:13:56.692Z	+ @emotion/react@11.14.0
+2026-06-19T18:13:56.692Z	+ @emotion/styled@11.14.1
+2026-06-19T18:13:56.693Z	+ @mui/icons-material@7.3.5 (v9.1.1 available)
+2026-06-19T18:13:56.693Z	+ @mui/material@7.3.5 (v9.1.1 available)
+2026-06-19T18:13:56.693Z	+ @popperjs/core@2.11.8
+2026-06-19T18:13:56.693Z	+ @radix-ui/react-accordion@1.2.3 (v1.2.14 available)
+2026-06-19T18:13:56.693Z	+ @radix-ui/react-alert-dialog@1.1.6 (v1.1.17 available)
+2026-06-19T18:13:56.693Z	+ @radix-ui/react-aspect-ratio@1.1.2 (v1.1.10 available)
+2026-06-19T18:13:56.694Z	+ @radix-ui/react-avatar@1.1.3 (v1.2.0 available)
+2026-06-19T18:13:56.694Z	+ @radix-ui/react-checkbox@1.1.4 (v1.3.5 available)
+2026-06-19T18:13:56.694Z	+ @radix-ui/react-collapsible@1.1.3 (v1.1.14 available)
+2026-06-19T18:13:56.694Z	+ @radix-ui/react-context-menu@2.2.6 (v2.3.1 available)
+2026-06-19T18:13:56.695Z	+ @radix-ui/react-dialog@1.1.6 (v1.1.17 available)
+2026-06-19T18:13:56.695Z	+ @radix-ui/react-dropdown-menu@2.1.6 (v2.1.18 available)
+2026-06-19T18:13:56.695Z	+ @radix-ui/react-hover-card@1.1.6 (v1.1.17 available)
+2026-06-19T18:13:56.695Z	+ @radix-ui/react-label@2.1.2 (v2.1.10 available)
+2026-06-19T18:13:56.695Z	+ @radix-ui/react-menubar@1.1.6 (v1.1.18 available)
+2026-06-19T18:13:56.695Z	+ @radix-ui/react-navigation-menu@1.2.5 (v1.2.16 available)
+2026-06-19T18:13:56.695Z	+ @radix-ui/react-popover@1.1.6 (v1.1.17 available)
+2026-06-19T18:13:56.696Z	+ @radix-ui/react-progress@1.1.2 (v1.1.10 available)
+2026-06-19T18:13:56.697Z	+ @radix-ui/react-radio-group@1.2.3 (v1.4.1 available)
+2026-06-19T18:13:56.697Z	+ @radix-ui/react-scroll-area@1.2.3 (v1.2.12 available)
+2026-06-19T18:13:56.697Z	+ @radix-ui/react-select@2.1.6 (v2.3.1 available)
+2026-06-19T18:13:56.697Z	+ @radix-ui/react-separator@1.1.2 (v1.1.10 available)
+2026-06-19T18:13:56.697Z	+ @radix-ui/react-slider@1.2.3 (v1.4.1 available)
+2026-06-19T18:13:56.698Z	+ @radix-ui/react-slot@1.1.2 (v1.3.0 available)
+2026-06-19T18:13:56.698Z	+ @radix-ui/react-switch@1.1.3 (v1.3.1 available)
+2026-06-19T18:13:56.698Z	+ @radix-ui/react-tabs@1.1.3 (v1.1.15 available)
+2026-06-19T18:13:56.698Z	+ @radix-ui/react-toggle@1.1.2 (v1.1.12 available)
+2026-06-19T18:13:56.698Z	+ @radix-ui/react-toggle-group@1.1.2 (v1.1.13 available)
+2026-06-19T18:13:56.698Z	+ @radix-ui/react-tooltip@1.1.8 (v1.2.10 available)
+2026-06-19T18:13:56.698Z	+ @types/leaflet@1.9.21
+2026-06-19T18:13:56.698Z	+ canvas-confetti@1.9.4
+2026-06-19T18:13:56.698Z	+ class-variance-authority@0.7.1
+2026-06-19T18:13:56.698Z	+ clsx@2.1.1
+2026-06-19T18:13:56.699Z	+ cmdk@1.1.1
+2026-06-19T18:13:56.699Z	+ date-fns@3.6.0 (v4.4.0 available)
+2026-06-19T18:13:56.699Z	+ embla-carousel-react@8.6.0
+2026-06-19T18:13:56.699Z	+ input-otp@1.4.2
+2026-06-19T18:13:56.699Z	+ leaflet@1.9.4
+2026-06-19T18:13:56.699Z	+ lucide-react@0.487.0 (v1.21.0 available)
+2026-06-19T18:13:56.700Z	+ motion@12.23.24 (v12.40.0 available)
+2026-06-19T18:13:56.700Z	+ next-themes@0.4.6
+2026-06-19T18:13:56.700Z	+ qrcode.react@4.2.0
+2026-06-19T18:13:56.700Z	+ react-day-picker@8.10.1 (v10.0.1 available)
+2026-06-19T18:13:56.701Z	+ react-dnd@16.0.1
+2026-06-19T18:13:56.701Z	+ react-dnd-html5-backend@16.0.1
+2026-06-19T18:13:56.701Z	+ react-hook-form@7.55.0 (v7.79.0 available)
+2026-06-19T18:13:56.701Z	+ react-leaflet@5.0.0
+2026-06-19T18:13:56.701Z	+ react-popper@2.3.0
+2026-06-19T18:13:56.701Z	+ react-resizable-panels@2.1.7 (v4.11.2 available)
+2026-06-19T18:13:56.701Z	+ react-responsive-masonry@2.7.1 (v2.7.2 available)
+2026-06-19T18:13:56.701Z	+ react-router@7.13.0 (v8.0.1 available)
+2026-06-19T18:13:56.702Z	+ react-slick@0.31.0
+2026-06-19T18:13:56.702Z	+ recharts@2.15.2 (v3.8.1 available)
+2026-06-19T18:13:56.702Z	+ sonner@2.0.3 (v2.0.7 available)
+2026-06-19T18:13:56.702Z	+ tailwind-merge@3.2.0 (v3.6.0 available)
+2026-06-19T18:13:56.702Z	+ tw-animate-css@1.3.8 (v1.4.0 available)
+2026-06-19T18:13:56.702Z	+ vaul@1.1.2
+2026-06-19T18:13:56.702Z	+ zod@4.4.3
+2026-06-19T18:13:56.703Z	
+2026-06-19T18:13:56.703Z	298 packages installed [10.48s]
+2026-06-19T18:13:56.703Z	
+2026-06-19T18:13:56.703Z	Blocked 1 postinstall. Run `bun pm untrusted` for details.
+2026-06-19T18:13:57.247Z	Executing user build command: npm run build
+2026-06-19T18:13:58.301Z	
+2026-06-19T18:13:58.301Z	> @figma/my-make-file@0.0.1 build
+2026-06-19T18:13:58.302Z	> vite build
+2026-06-19T18:13:58.302Z	
+2026-06-19T18:13:59.074Z	vite v6.3.5 building for production...
+2026-06-19T18:13:59.236Z	transforming...
+2026-06-19T18:14:03.224Z	✓ 1089 modules transformed.
+2026-06-19T18:14:03.231Z	✗ Build failed in 4.07s
+2026-06-19T18:14:03.232Z	error during build:
+2026-06-19T18:14:03.235Z	[vite:asset] Could not load /opt/buildhome/repo/src/assets/article3.jpg (imported by src/app/components/history-page.tsx): ENOENT: no such file or directory, open '/opt/buildhome/repo/src/assets/article3.jpg'
+2026-06-19T18:14:03.235Z	    at async open (node:internal/fs/promises:633:25)
+2026-06-19T18:14:03.235Z	    at async Object.readFile (node:internal/fs/promises:1237:14)
+2026-06-19T18:14:03.235Z	    at async fileToBuiltUrl (file:///opt/buildhome/repo/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:10563:19)
+2026-06-19T18:14:03.236Z	    at async Object.handler (file:///opt/buildhome/repo/node_modules/vite/dist/node/chunks/dep-DBxKXgDP.js:10420:19)
+2026-06-19T18:14:03.236Z	    at async PluginDriver.hookFirstAndGetPlugin (file:///opt/buildhome/repo/node_modules/rollup/dist/es/shared/node-entry.js:22908:28)
+2026-06-19T18:14:03.236Z	    at async file:///opt/buildhome/repo/node_modules/rollup/dist/es/shared/node-entry.js:21894:33
+2026-06-19T18:14:03.236Z	    at async Queue.work (file:///opt/buildhome/repo/node_modules/rollup/dist/es/shared/node-entry.js:23136:32)
+2026-06-19T18:14:03.345Z	Failed: error occurred while running build command
