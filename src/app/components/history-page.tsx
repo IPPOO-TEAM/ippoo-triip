@@ -141,10 +141,10 @@ export function HistoryPage() {
   const totalSpent = items.filter(i => i.status === "completed").reduce((s, i) => s + i.priceNum, 0);
 
   const handleRebook = (item: HistoryItem) => {
-    if (item.cat === "courses") navigate("/book-ride");
-    else if (item.cat === "livraisons") navigate("/delivery");
-    else if (item.cat === "biens") navigate("/heavy-transport");
-    else if (item.cat === "groupees") navigate("/group-orders");
+    if (item.cat === "courses") navigate("/app/book-ride");
+    else if (item.cat === "livraisons") navigate("/app/delivery");
+    else if (item.cat === "biens") navigate("/app/heavy-transport");
+    else if (item.cat === "groupees") navigate("/app/group-orders");
     toast(`Reprise du trajet ${item.from} → ${item.to}`);
   };
 
@@ -367,7 +367,7 @@ export function HistoryPage() {
             </div>
 
             {selectedItem.status === "completed" && !selectedItem.userRating && (
-              <button onClick={() => { navigate("/tracking"); setSelectedItem(null); toast("Notez cette course"); }}
+              <button onClick={() => { navigate("/app/tracking"); setSelectedItem(null); toast("Notez cette course"); }}
                 className="w-full mt-3 flex items-center justify-center gap-2 bg-amber-50 text-amber-600 py-3 rounded-xl text-sm border border-amber-200">
                 <Star className="w-4 h-4" /> Noter cette course
               </button>

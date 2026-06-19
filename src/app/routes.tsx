@@ -47,6 +47,10 @@ import { AdminSettingsPage } from "./components/admin/admin-settings";
 
 export const router = createBrowserRouter([
   {
+    path: "/",
+    Component: LandingPage,
+  },
+  {
     path: "/landing",
     Component: LandingPage,
   },
@@ -88,7 +92,7 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    path: "/",
+    path: "/app",
     Component: AppLayout,
     children: [
       { index: true, Component: HomePage },
@@ -114,5 +118,9 @@ export const router = createBrowserRouter([
       { path: "referral", Component: ReferralPage },
       { path: "*", Component: NotFoundPage },
     ],
+  },
+  {
+    path: "*",
+    Component: NotFoundPage,
   },
 ]);

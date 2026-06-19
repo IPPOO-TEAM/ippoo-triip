@@ -229,7 +229,7 @@ export function RideTrackingPage() {
     if (rideId) api.post(`/rides/${rideId}/cancel`, { reason: cancelReason }).catch(() => {});
     toast("Course annulee", { description: cancelReason });
     setShowCancel(false);
-    setTimeout(() => navigate("/"), 800);
+    setTimeout(() => navigate("/app"), 800);
   };
 
   const handleShare = (method: string) => {
@@ -622,11 +622,11 @@ export function RideTrackingPage() {
 
               {/* Final actions */}
               <div className="flex gap-3">
-                <button onClick={() => navigate("/book-ride")}
+                <button onClick={() => navigate("/app/book-ride")}
                   className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3.5 rounded-2xl text-sm shadow-lg shadow-blue-500/25 active:scale-[0.98] transition">
                   Reprendre ce trajet
                 </button>
-                <button onClick={() => navigate("/")}
+                <button onClick={() => navigate("/app")}
                   className="flex-1 bg-slate-100 text-slate-700 py-3.5 rounded-2xl text-sm active:scale-[0.98] transition">
                   Accueil
                 </button>

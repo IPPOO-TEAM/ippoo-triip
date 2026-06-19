@@ -16,7 +16,7 @@ export function PromoDetailPage() {
       <div className="min-h-screen flex flex-col items-center justify-center bg-white px-5">
         <p className="text-gray-500 mb-4">Promotion introuvable</p>
         <button
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/app")}
           className="bg-gradient-to-r from-[#F77F00] to-[#E9C46A] text-white px-6 py-3 rounded-xl"
         >
           Retour a l'accueil
@@ -170,7 +170,7 @@ export function PromoDetailPage() {
               };
               navigate(serviceMap[promo.cta] || "/");
             } else {
-              navigate("/");
+              navigate("/app");
             }
           }}
           className="w-full mt-5 mb-8 bg-gradient-to-r from-[#F77F00] to-[#E9C46A] text-white py-4 rounded-2xl shadow-lg shadow-orange-400/30 active:scale-[0.98] transition-transform"

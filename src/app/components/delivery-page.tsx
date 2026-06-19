@@ -83,7 +83,7 @@ export function DeliveryPage() {
     toast.success("Commande envoyee !", {
       description: `${selectedType.label} ${deliveryType === "express" ? "Express" : "Standard"} · ${pickupAddress} → ${deliveryAddress} · ${price.toLocaleString()} FCFA`,
     });
-    setTimeout(() => navigate("/tracking"), 1500);
+    setTimeout(() => navigate("/app/tracking"), 1500);
   };
 
   return (

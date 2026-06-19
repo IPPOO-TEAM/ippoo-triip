@@ -212,7 +212,7 @@ export function LOARotationPage() {
         <div className="absolute bottom-0 left-0 w-36 h-36 bg-[#E9C46A]/15 rounded-full -ml-16 -mb-10 blur-3xl" />
         <div className="relative z-10 px-5 pt-14 pb-6">
           <div className="flex items-center gap-3 mb-5">
-            <button onClick={() => navigate("/loa")} className="w-10 h-10 bg-white/15 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/15">
+            <button onClick={() => navigate("/app/loa")} className="w-10 h-10 bg-white/15 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/15">
               <ChevronLeft className="w-5 h-5 text-white" />
             </button>
             <div className="flex-1" />

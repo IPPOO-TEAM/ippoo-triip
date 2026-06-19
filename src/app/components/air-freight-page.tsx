@@ -502,7 +502,7 @@ export function AirFreightPage() {
             <button onClick={() => setShowShare(true)} className="py-3 bg-[#1E6091] text-white rounded-2xl text-xs flex items-center justify-center gap-2">
               <Share2 className="w-4 h-4" /> Partager le suivi
             </button>
-            <button onClick={() => navigate("/")} className="py-3 bg-slate-100 text-slate-600 rounded-2xl text-xs flex items-center justify-center gap-2">
+            <button onClick={() => navigate("/app")} className="py-3 bg-slate-100 text-slate-600 rounded-2xl text-xs flex items-center justify-center gap-2">
               Retour à l'accueil
             </button>
           </div>
@@ -977,7 +977,7 @@ export function AirFreightPage() {
 
         {/* ── Referral Banner ── */}
         <button
-          onClick={() => navigate("/referral")}
+          onClick={() => navigate("/app/referral")}
           className="w-full flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-[#E9C46A]/15 to-[#F77F00]/15 border border-[#E9C46A]/30"
         >
           <div className="w-10 h-10 bg-gradient-to-br from-[#E9C46A] to-[#F77F00] rounded-xl flex items-center justify-center shadow-md shadow-amber-400/25">

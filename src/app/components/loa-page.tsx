@@ -167,7 +167,7 @@ export function LOAPage() {
 
           {/* Rotation CTA */}
           <button
-            onClick={() => navigate("/loa/rotation")}
+            onClick={() => navigate("/app/loa/rotation")}
             className="w-full bg-gradient-to-r from-[#1E6091] to-[#2A9D8F] rounded-2xl p-4 shadow-lg shadow-blue-400/20 text-left active:scale-[0.98] transition flex items-center gap-3"
           >
             <div className="w-11 h-11 bg-white/15 rounded-2xl flex items-center justify-center backdrop-blur-sm">

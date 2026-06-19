@@ -69,7 +69,7 @@ export function HeavyTransportPage() {
     toast.success("Commande confirmée !", {
       description: `${selectedVehicle.label} · ${pickupAddr} → ${deliveryAddr} · ${total.toLocaleString()} FCFA`,
     });
-    setTimeout(() => navigate("/tracking"), 1500);
+    setTimeout(() => navigate("/app/tracking"), 1500);
   };
 
   return (

@@ -13,23 +13,23 @@ export function AppLayout() {
   });
 
   useEffect(() => {
-    if (location.pathname === "/notifications") {
+    if (location.pathname === "/app/notifications") {
       setUnreadCount(0);
       localStorage.setItem(UNREAD_NOTIF_KEY, "0");
     }
   }, [location.pathname]);
 
   const tabs = [
-    { path: "/", icon: Home, label: "Accueil" },
-    { path: "/history", icon: Clock, label: "Historique" },
-    { path: "/wallet", icon: Wallet, label: "Cash" },
-    { path: "/notifications", icon: Bell, label: "Alertes" },
-    { path: "/profile", icon: User, label: "Profil" },
+    { path: "/app", icon: Home, label: "Accueil" },
+    { path: "/app/history", icon: Clock, label: "Historique" },
+    { path: "/app/wallet", icon: Wallet, label: "Cash" },
+    { path: "/app/notifications", icon: Bell, label: "Alertes" },
+    { path: "/app/profile", icon: User, label: "Profil" },
   ];
 
   const isActive = (path: string) => {
-    if (path === "/") return location.pathname === "/";
-    return location.pathname === path;
+    if (path === "/app") return location.pathname === "/app";
+    return location.pathname.startsWith(path);
   };
 
   return (

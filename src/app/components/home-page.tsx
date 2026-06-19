@@ -287,7 +287,7 @@ export function HomePage() {
           {/* Top bar — Avatar + Greeting + Notifications */}
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
-              <button onClick={() => navigate("/profile")} className="relative">
+              <button onClick={() => navigate("/app/profile")} className="relative">
                 <ProfileAvatar initials="DA" size={52} className="rounded-2xl border-2 border-white/40 shadow-lg shadow-black/20" />
                 <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-[#2A9D8F] rounded-full border-2 border-white flex items-center justify-center">
                   <div className="w-1.5 h-1.5 bg-white rounded-full" />
@@ -304,7 +304,7 @@ export function HomePage() {
             <div className="flex items-center gap-2.5">
               {/* Wallet quick view */}
               <button
-                onClick={() => navigate("/wallet")}
+                onClick={() => navigate("/app/wallet")}
                 className="flex items-center gap-2 bg-white/15 backdrop-blur-md px-3.5 py-2.5 rounded-2xl border border-white/20 hover:bg-white/20 transition"
               >
                 <Wallet className="w-4 h-4 text-[#E9C46A]" strokeWidth={1.8} />
@@ -315,7 +315,7 @@ export function HomePage() {
               </button>
               {/* Notifications */}
               <button
-                onClick={() => navigate("/notifications")}
+                onClick={() => navigate("/app/notifications")}
                 className="relative w-11 h-11 bg-white/15 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20 hover:bg-white/20 transition"
               >
                 <Bell className="w-5 h-5 text-white" strokeWidth={1.8} />
@@ -495,7 +495,7 @@ export function HomePage() {
       <div className="mt-6">
         <div className="flex items-center justify-between mb-4 px-5">
           <h3 className="text-gray-800">Promotions</h3>
-          <button onClick={() => navigate("/coupons")} className="flex items-center gap-1.5 text-blue-500 text-xs bg-blue-50 px-3 py-1.5 rounded-full">
+          <button onClick={() => navigate("/app/coupons")} className="flex items-center gap-1.5 text-blue-500 text-xs bg-blue-50 px-3 py-1.5 rounded-full">
             <Ticket className="w-3 h-3" /> Voir tout
           </button>
         </div>
@@ -549,7 +549,7 @@ export function HomePage() {
           {nearbyDrivers.map((d, i) => (
             <button
               key={i}
-              onClick={() => navigate("/book-ride")}
+              onClick={() => navigate("/app/book-ride")}
               className="w-full bg-white rounded-2xl p-3.5 flex items-center gap-3.5 shadow-sm shadow-blue-100/40 hover:shadow-md hover:shadow-blue-100/60 transition-all active:scale-[0.99] border border-blue-50"
             >
               <ProfileAvatar initials={d.initials} size={44} className="rounded-2xl shadow-lg shadow-blue-500/20" gradient={d.gradient} />

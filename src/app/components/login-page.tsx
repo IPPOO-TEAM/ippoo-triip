@@ -444,14 +444,14 @@ export function LoginPage() {
           await new Promise(r => setTimeout(r, 1800));
           setLoading(false);
           toast.success("Authentification biométrique réussie !");
-          navigate("/");
+          navigate("/app");
           return;
         }
       } catch (_) {}
     }
     // Fallback pour navigateurs sans WebAuthn
     toast("Vérification biométrique...", { description: "Placez votre doigt sur le capteur" });
-    setTimeout(() => { setLoading(false); toast.success("Authentification réussie !"); navigate("/"); }, 2000);
+    setTimeout(() => { setLoading(false); toast.success("Authentification réussie !"); navigate("/app"); }, 2000);
   };
 
   const stepMeta = {

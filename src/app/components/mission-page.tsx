@@ -91,7 +91,7 @@ export function MissionPage() {
     setTimeout(() => {
       setSubmitting(false);
       toast.success("Mission créée !", { description: `${missionType === "course" ? "Course" : missionType === "livraison" ? "Livraison" : "Commande"} · ${filledStops.length} arrêts · ${selectedDate} ${selectedSlot}` });
-      navigate("/tracking");
+      navigate("/app/tracking");
     }, 1500);
   };
 

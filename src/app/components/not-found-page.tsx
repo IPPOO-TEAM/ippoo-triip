@@ -14,7 +14,7 @@ export function NotFoundPage() {
         La page que vous cherchez n'existe pas ou a ete deplacee.
       </p>
       <button
-        onClick={() => navigate("/")}
+        onClick={() => navigate("/app")}
         className="flex items-center gap-2 bg-gradient-to-r from-[#F77F00] to-[#E9C46A] text-white px-8 py-3.5 rounded-2xl shadow-lg shadow-orange-400/25 active:scale-[0.98] transition-transform"
       >
         <Home className="w-4 h-4" /> Retour a l'accueil

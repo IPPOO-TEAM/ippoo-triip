@@ -13,13 +13,6 @@ import "./services/logger";
 export default function App() {
   useEffect(() => {
     installOfflineSync();
-    const done = localStorage.getItem("ippoo_onboarding_done");
-    if (!done) {
-      const path = window.location.pathname;
-      if (path === "/" || path === "") {
-        router.navigate("/onboarding", { replace: true });
-      }
-    }
   }, []);
 
   return (

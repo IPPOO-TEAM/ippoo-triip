@@ -373,7 +373,7 @@ export function ProfilePage() {
   const closePanel = () => { setActivePanel(null); setPersonalErrors({}); setSaving(false); };
 
   const handleMenuClick = (item: (typeof menuSections)[0]["items"][0]) => {
-    if (item.label === "Mes coupons") navigate("/coupons");
+    if (item.label === "Mes coupons") navigate("/app/coupons");
     else if (item.panel) setActivePanel(item.panel);
   };
 
@@ -570,21 +570,21 @@ export function ProfilePage() {
       <div className="px-5 -mt-16 relative z-10">
         <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/60 p-5 border border-white/80">
           <div className="grid grid-cols-3 gap-4">
-            <button onClick={() => navigate("/history")} className="text-center group">
+            <button onClick={() => navigate("/app/history")} className="text-center group">
               <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-2 group-active:scale-90 transition">
                 <Award className="w-4 h-4 text-blue-600" />
               </div>
               <p className="text-blue-600 text-xl" style={{ fontFamily: "Space Grotesk, sans-serif" }}>24</p>
               <p className="text-[10px] text-slate-400 uppercase tracking-wide">Courses</p>
             </button>
-            <button onClick={() => navigate("/history")} className="text-center border-x border-slate-100 group">
+            <button onClick={() => navigate("/app/history")} className="text-center border-x border-slate-100 group">
               <div className="w-10 h-10 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-2 group-active:scale-90 transition">
                 <Award className="w-4 h-4 text-orange-500" />
               </div>
               <p className="text-orange-500 text-xl" style={{ fontFamily: "Space Grotesk, sans-serif" }}>12</p>
               <p className="text-[10px] text-slate-400 uppercase tracking-wide">Livraisons</p>
             </button>
-            <button onClick={() => navigate("/wallet")} className="text-center group">
+            <button onClick={() => navigate("/app/wallet")} className="text-center group">
               <div className="w-10 h-10 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-2 group-active:scale-90 transition">
                 <Award className="w-4 h-4 text-emerald-500" />
               </div>
@@ -632,7 +632,7 @@ export function ProfilePage() {
         <div>
           <p className="text-[10px] text-slate-400 tracking-widest mb-2.5 px-1">AIDE</p>
           <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
-            <button onClick={() => navigate("/support")} className="w-full flex items-center gap-3.5 px-4 py-3.5 hover:bg-slate-50 transition active:bg-slate-100 border-b border-slate-50">
+            <button onClick={() => navigate("/app/support")} className="w-full flex items-center gap-3.5 px-4 py-3.5 hover:bg-slate-50 transition active:bg-slate-100 border-b border-slate-50">
               <div className="w-9 h-9 bg-gradient-to-br from-pink-400 to-rose-500 rounded-xl flex items-center justify-center shadow-sm">
                 <HelpCircle className="w-4 h-4 text-white" />
               </div>
