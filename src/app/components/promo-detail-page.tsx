@@ -126,7 +126,7 @@ export function PromoDetailPage() {
           <div className="mb-5">
             <div className="flex items-center gap-2 mb-3">
               <Sparkles className="w-4 h-4 text-[#F77F00]" strokeWidth={1.8} />
-              <h3 className="text-gray-800">Description</h3>
+              <h3 className="title-gradient">Description</h3>
             </div>
             <p className="text-sm text-gray-600 leading-relaxed">{promo.description}</p>
           </div>
@@ -135,7 +135,7 @@ export function PromoDetailPage() {
           <div className="mb-5">
             <div className="flex items-center gap-2 mb-3">
               <CheckCircle className="w-4 h-4 text-[#2A9D8F]" strokeWidth={1.8} />
-              <h3 className="text-gray-800">Conditions</h3>
+              <h3 className="title-gradient">Conditions</h3>
             </div>
             <div className="space-y-2.5">
               {promo.conditions?.map((c, i) => (

@@ -8,8 +8,8 @@ import {
 } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { getAvatar } from "./avatars";
-import logoImg from "../../imports/IPPOO_Transport_&_Logistique_1-1.png";
-import logoNewImg from "../../imports/IPPOO_Transport_&_Logistique-1.png";
+import { BrandLogo } from "./brand-logo";
+import { usePlatformConfig, findOffer } from "../store/platform-config";
 
 /* ─── Local Images ─── */
 import imgCovoiturage from "../../imports/Covoiturage-Côte-d-Ivoire-770x460.jpg";
@@ -22,6 +22,14 @@ import imgHandoff from "../../imports/images_-_2026-04-10T164424.655.jpeg";
 import imgDelivery from "../../imports/images_-_2026-04-10T164336.787.jpeg";
 import imgArticle from "../../imports/article3-1.jpg";
 
+/* ─── Logos partenaires (sourcés depuis Wikimedia Commons) ─── */
+import logoMtn from "../../imports/partner-mtn.png";
+import logoMoov from "../../imports/partner-moov.png";
+import logoSobebra from "../../imports/partner-sobebra.png";
+import logoGlo from "../../imports/partner-glo.png";
+import logoEcobank from "../../imports/partner-ecobank.png";
+import logoUba from "../../imports/partner-uba.png";
+
 /* ─── Images ─── */
 const IMG_HERO = "https://images.unsplash.com/photo-1765475467677-579353b25ce0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3ZXN0JTIwYWZyaWNhJTIwYWVyaWFsJTIwY2l0eSUyMHZpZXd8ZW58MXx8fHwxNzc1OTI2OTkxfDA&ixlib=rb-4.1.0&q=80&w=1080";
 const IMG_MOTO = "https://images.unsplash.com/photo-1766087124181-0677409b73eb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhZnJpY2FuJTIwY2l0eSUyMG1vdG9yY3ljbGUlMjB0YXhpJTIwdHJhbnNwb3J0fGVufDF8fHx8MTc3NTkyNjk4OXww&ixlib=rb-4.1.0&q=80&w=1080";
@@ -31,31 +39,15 @@ const IMG_CARPOOL = "https://images.unsplash.com/photo-1708347456816-f4d28505c85
 const IMG_TRUCK = "https://images.unsplash.com/photo-1738507869660-b44ea20ab037?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cnVjayUyMGxvZ2lzdGljcyUyMGNhcmdvJTIwYWZyaWNhbiUyMHJvYWR8ZW58MXx8fHwxNzc1OTI2OTkxfDA&ixlib=rb-4.1.0&q=80&w=1080";
 
 /* ─── Data ─── */
-const services = [
-  {
-    icon: Bike, title: "Taxi-Moto", description: "Déplacez-vous rapidement à travers la ville sur nos motos sécurisées. Chauffeurs vérifiés, casques fournis, tarifs transparents.",
-    color: "#F77F00", bg: "bg-orange-50", img: imgCovoiturage, stats: "2 min de temps d'attente moyen"
-  },
-  {
-    icon: Package, title: "Livraison de colis", description: "Envoyez vos colis, documents et paquets partout en ville. Suivi en temps réel, photo de preuve à la livraison, confirmation OTP.",
-    color: "#2A9D8F", bg: "bg-emerald-50", img: imgLivreur, stats: "30 min de livraison moyenne"
-  },
-  {
-    icon: Truck, title: "Transport de biens lourds", description: "Déménagements, meubles, équipements. Camionnettes, pickups et camions avec manutentionnaires qualifiés.",
-    color: "#D62828", bg: "bg-red-50", img: imgCamion, stats: "Jusqu'à 5 tonnes"
-  },
-  {
-    icon: Users, title: "Commandes groupées", description: "Regroupez vos commandes entre voisins, collègues ou amis. Partagez les frais de livraison et économisez ensemble.",
-    color: "#8B5CF6", bg: "bg-violet-50", img: imgHandoff, stats: "Jusqu'à 60% d'économie"
-  },
-  {
-    icon: Globe, title: "Covoiturage", description: "Partagez vos trajets longue distance entre Cotonou, Porto-Novo, Parakou et au-delà. Confortable, économique, écologique.",
-    color: "#06B6D4", bg: "bg-cyan-50", img: imgFamille, stats: "12 villes desservies"
-  },
-  {
-    icon: Plane, title: "IPPOO AIR", description: "Transport aérien complet : passagers, colis & documents, fret cargo. Du domicile à l'aéroport et retour, avec suivi intégral.",
-    color: "#1E6091", bg: "bg-blue-50", img: imgWarehouse, stats: "8 aéroports connectés"
-  },
+/* Visuel uniquement — le nom, la fiche, l'accroche et le prix proviennent du
+   store central (éditables depuis le back office admin), reliés par `id`. */
+const serviceVisuals = [
+  { id: "taxi", icon: Bike, color: "#F77F00", bg: "bg-orange-50", img: imgCovoiturage },
+  { id: "delivery", icon: Package, color: "#2A9D8F", bg: "bg-emerald-50", img: imgLivreur },
+  { id: "heavy", icon: Truck, color: "#D62828", bg: "bg-red-50", img: imgCamion },
+  { id: "group", icon: Users, color: "#8B5CF6", bg: "bg-violet-50", img: imgHandoff },
+  { id: "carpool", icon: Globe, color: "#06B6D4", bg: "bg-cyan-50", img: imgFamille },
+  { id: "air", icon: Plane, color: "#1E6091", bg: "bg-blue-50", img: imgWarehouse },
 ];
 
 const stats = [
@@ -66,10 +58,10 @@ const stats = [
 ];
 
 const features = [
-  { icon: Smartphone, title: "Application intuitive", desc: "Interface simple et moderne, conçue pour tous les utilisateurs d'Afrique de l'Ouest" },
+  { icon: Smartphone, title: "Application intuitive", desc: "Interface simple et moderne, conçue pour tous les utilisateurs à travers l'Afrique" },
   { icon: Shield, title: "Sécurité maximale", desc: "Chauffeurs vérifiés, géolocalisation en temps réel, bouton SOS, partage de trajet" },
   { icon: CreditCard, title: "Paiement flexible", desc: "IPPOO Cash, Mobile Money (MTN, Moov), paiement à l'arrivée" },
-  { icon: Clock, title: "Disponible 24h/24", desc: "Service continu jour et nuit, 7 jours sur 7, partout au Bénin et bientôt au-delà" },
+  { icon: Clock, title: "Disponible 24h/24", desc: "Service continu jour et nuit, 7 jours sur 7, dans les villes d'Afrique" },
   { icon: Headphones, title: "Support réactif", desc: "Chat en direct avec nos agents, assistance vocale, FAQ complète intégrée" },
   { icon: Lock, title: "Données protégées", desc: "Chiffrement de bout en bout, biométrie WebAuthn, aucune donnée partagée à des tiers" },
 ];
@@ -104,7 +96,46 @@ const howItWorks = [
 ];
 
 const partners = [
-  "MTN Bénin", "Moov Africa", "SOBEBRA", "Glo Mobile", "Ecobank", "UBA",
+  { name: "MTN", logo: logoMtn },
+  { name: "Moov Africa", logo: logoMoov },
+  { name: "SOBEBRA", logo: logoSobebra },
+  { name: "Glo", logo: logoGlo },
+  { name: "Ecobank", logo: logoEcobank },
+  { name: "UBA", logo: logoUba },
+];
+
+/* ─── Réseaux sociaux (icônes de marque SVG officielles) ─── */
+const socials = [
+  {
+    name: "WhatsApp",
+    url: "https://wa.me/22997000000",
+    path: "M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z",
+  },
+  {
+    name: "Facebook",
+    url: "https://facebook.com/ippootriip",
+    path: "M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073Z",
+  },
+  {
+    name: "TikTok",
+    url: "https://tiktok.com/@ippootriip",
+    path: "M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07Z",
+  },
+  {
+    name: "Instagram",
+    url: "https://instagram.com/ippootriip",
+    path: "M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0Zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03Zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162ZM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4Zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439Z",
+  },
+  {
+    name: "LinkedIn",
+    url: "https://linkedin.com/company/ippootriip",
+    path: "M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z",
+  },
+  {
+    name: "X",
+    url: "https://x.com/ippootriip",
+    path: "M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z",
+  },
 ];
 
 /* ─── Component ─── */
@@ -140,20 +171,36 @@ export function LandingPage() {
   }, []);
 
   const isVisible = (id: string) => visibleSections.has(id);
-  const headerOpaque = scrollY > 60;
+
+  // Offres affichées = visuels + contenu/prix édités depuis le back office admin
+  const config = usePlatformConfig();
+  const services = serviceVisuals
+    .map((v) => {
+      const offer = findOffer(config, v.id);
+      return offer && offer.active
+        ? {
+            ...v,
+            title: offer.name,
+            description: offer.description,
+            stats: offer.tagline,
+            priceFrom: offer.priceFrom,
+          }
+        : null;
+    })
+    .filter((s): s is NonNullable<typeof s> => s !== null);
 
   return (
     <div ref={scrollRef} className="min-h-screen bg-white overflow-y-auto" style={{ height: "100vh" }}>
 
       {/* ═══════════ NAVBAR ═══════════ */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${headerOpaque ? "bg-white/95 backdrop-blur-lg shadow-sm" : "bg-transparent"}`}>
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
         <div className="max-w-6xl mx-auto px-5 md:px-8 flex items-center justify-between h-16">
-          <img src={logoNewImg} alt="IPPOO" className="h-8 md:h-9 object-contain" />
+          <BrandLogo height={28} plain />
 
           {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-8">
             {["Services", "Fonctionnalités", "Témoignages", "Contact"].map(item => (
-              <a key={item} href={`#${item.toLowerCase()}`} className={`text-sm transition ${headerOpaque ? "text-slate-600 hover:text-[#1E6091]" : "text-white/90 hover:text-white"}`}>
+              <a key={item} href={`#${item.toLowerCase()}`} className="text-sm transition text-slate-600 hover:text-[#1E6091]">
                 {item}
               </a>
             ))}
@@ -168,8 +215,8 @@ export function LandingPage() {
           {/* Mobile hamburger */}
           <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden w-10 h-10 flex items-center justify-center">
             {mobileMenuOpen
-              ? <X className={`w-6 h-6 ${headerOpaque ? "text-slate-700" : "text-white"}`} />
-              : <Menu className={`w-6 h-6 ${headerOpaque ? "text-slate-700" : "text-white"}`} />
+              ? <X className="w-6 h-6 text-slate-700" />
+              : <Menu className="w-6 h-6 text-slate-700" />
             }
           </button>
         </div>
@@ -215,7 +262,7 @@ export function LandingPage() {
 
             <p className="text-white/80 text-sm md:text-base mb-8 max-w-lg" style={{ lineHeight: 1.7 }}>
               Taxi-moto, livraison de colis, transport lourd, covoiturage et fret aérien.
-              Une seule application pour tous vos besoins de transport au Bénin et en Afrique de l'Ouest.
+              Une seule application pour tous vos besoins de transport, partout en Afrique.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3">
@@ -253,12 +300,47 @@ export function LandingPage() {
         </div>
       </section>
 
+      {/* ═══════════ À PROPOS ═══════════ */}
+      <section id="apropos" data-animate className="py-16 md:py-24 bg-slate-50">
+        <div className={`max-w-4xl mx-auto px-5 md:px-8 text-center transition-all duration-700 ${isVisible("apropos") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+          <div className="inline-flex items-center gap-2 bg-[#1E6091]/10 rounded-full px-4 py-2 mb-4">
+            <BadgeCheck className="w-4 h-4 text-[#1E6091]" />
+            <span className="text-[#1E6091] text-xs">À propos</span>
+          </div>
+          <h2 className="text-2xl md:text-4xl title-gradient mb-5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            Qu'est-ce qu'IPPOO TRIIP ?
+          </h2>
+          <p className="text-slate-500 text-sm md:text-base mb-4" style={{ lineHeight: 1.8 }}>
+            <span className="text-slate-700">IPPOO TRIIP</span> est la super-app africaine de mobilité et de logistique. Sur une seule plateforme, elle réunit le taxi-moto, la livraison de colis, le transport de biens lourds, les commandes groupées, le covoiturage longue distance et le fret aérien · pour les particuliers comme pour les professionnels.
+          </p>
+          <p className="text-slate-500 text-sm md:text-base mb-10" style={{ lineHeight: 1.8 }}>
+            Pensée pour les réalités du continent · paiement Mobile Money, mode hors-ligne, chauffeurs vérifiés, bouton SOS et suivi GPS en temps réel · IPPOO TRIIP connecte passagers, commerçants et transporteurs à travers l'Afrique, du trajet quotidien à l'expédition professionnelle. Notre mission : rendre chaque déplacement et chaque livraison simple, sûr et accessible, partout sur le continent.
+          </p>
+
+          <div className="grid grid-cols-3 gap-4 md:gap-6">
+            {[
+              { icon: Globe, value: "6 services", label: "réunis en une app" },
+              { icon: Shield, value: "100% vérifiés", label: "chauffeurs & partenaires" },
+              { icon: Heart, value: "Made for Africa", label: "pensé pour le continent" },
+            ].map((item) => (
+              <div key={item.value} className="bg-white rounded-2xl border border-slate-100 p-5 flex flex-col items-center gap-2">
+                <div className="w-11 h-11 bg-gradient-to-br from-[#1E6091] to-[#2A9D8F] rounded-xl flex items-center justify-center shadow-sm">
+                  <item.icon className="w-5 h-5 text-white" />
+                </div>
+                <p className="text-slate-700 text-sm">{item.value}</p>
+                <p className="text-slate-400 text-[10px] md:text-xs text-center">{item.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ═══════════ SERVICES ═══════════ */}
       <section id="services" data-animate className="py-16 md:py-24 bg-white">
         <div className={`max-w-6xl mx-auto px-5 md:px-8 transition-all duration-700 ${isVisible("services") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
           <div className="text-center mb-12 md:mb-16">
             
-            <h2 className="text-2xl md:text-4xl text-slate-900 mb-3" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <h2 className="text-2xl md:text-4xl title-gradient mb-3" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
               Tout le transport en <span className="text-[#F77F00]">une seule app</span>
             </h2>
             <p className="text-slate-500 text-sm md:text-base max-w-lg mx-auto">
@@ -288,6 +370,14 @@ export function LandingPage() {
                 {/* Content */}
                 <div className="p-5">
                   <p className="text-slate-500 text-xs mb-4" style={{ lineHeight: 1.7 }}>{s.description}</p>
+                  {s.priceFrom > 0 && (
+                    <p className="text-xs text-slate-400 mb-3">
+                      À partir de{" "}
+                      <span style={{ color: s.color, fontFamily: "'Space Grotesk', monospace" }}>
+                        {s.priceFrom.toLocaleString("fr-FR")} FCFA
+                      </span>
+                    </p>
+                  )}
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] px-3 py-1 rounded-full" style={{ background: `${s.color}15`, color: s.color }}>{s.stats}</span>
                     <button onClick={() => navigate("/login")} className="text-xs flex items-center gap-1 transition" style={{ color: s.color }}>
@@ -306,7 +396,7 @@ export function LandingPage() {
         <div className={`max-w-6xl mx-auto px-5 md:px-8 transition-all duration-700 ${isVisible("comment") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
           <div className="text-center mb-12 md:mb-16">
             
-            <h2 className="text-2xl md:text-4xl text-slate-900 mb-3" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <h2 className="text-2xl md:text-4xl title-gradient mb-3" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
               3 étapes, c'est <span className="text-[#2A9D8F]">tout</span>
             </h2>
           </div>
@@ -321,7 +411,7 @@ export function LandingPage() {
                 <div className="w-16 h-16 bg-gradient-to-br from-[#1E6091] to-[#2A9D8F] rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg shadow-blue-400/25">
                   <span className="text-white text-xl" style={{ fontFamily: "'Space Grotesk', monospace" }}>{h.step}</span>
                 </div>
-                <h3 className="text-slate-800 mb-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{h.title}</h3>
+                <h3 className="title-gradient mb-2" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{h.title}</h3>
                 <p className="text-slate-500 text-xs" style={{ lineHeight: 1.7 }}>{h.desc}</p>
                 {i < howItWorks.length - 1 && (
                   <div className="hidden md:block absolute right-0 top-1/2 -translate-y-1/2">
@@ -365,7 +455,7 @@ export function LandingPage() {
         <div className={`max-w-6xl mx-auto px-5 md:px-8 transition-all duration-700 ${isVisible("fonctionnalités") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
           <div className="text-center mb-12 md:mb-16">
             
-            <h2 className="text-2xl md:text-4xl text-slate-900 mb-3" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <h2 className="text-2xl md:text-4xl title-gradient mb-3" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
               Conçu pour <span className="text-[#F77F00]">vous</span>
             </h2>
             <p className="text-slate-500 text-sm md:text-base max-w-lg mx-auto">
@@ -383,7 +473,7 @@ export function LandingPage() {
                 <div className="w-12 h-12 bg-gradient-to-br from-[#1E6091] to-[#2A9D8F] rounded-xl flex items-center justify-center mb-4 shadow-md shadow-blue-400/15">
                   <f.icon className="w-5 h-5 text-white" />
                 </div>
-                <h3 className="text-slate-800 text-sm mb-2">{f.title}</h3>
+                <h3 className="title-gradient text-sm mb-2">{f.title}</h3>
                 <p className="text-slate-500 text-xs" style={{ lineHeight: 1.7 }}>{f.desc}</p>
               </div>
             ))}
@@ -399,7 +489,7 @@ export function LandingPage() {
               <Star className="w-4 h-4 text-[#E9C46A] fill-[#E9C46A]" />
               <span className="text-amber-700 text-xs">Témoignages</span>
             </div>
-            <h2 className="text-2xl md:text-4xl text-slate-900 mb-3" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <h2 className="text-2xl md:text-4xl title-gradient mb-3" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
               Ils nous font <span className="text-[#E9C46A]">confiance</span>
             </h2>
           </div>
@@ -434,11 +524,17 @@ export function LandingPage() {
       <section data-animate id="partenaires" className="py-12 md:py-16 bg-white border-t border-slate-100">
         <div className={`max-w-6xl mx-auto px-5 md:px-8 transition-all duration-700 ${isVisible("partenaires") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
           <p className="text-center text-slate-400 text-xs mb-8">Nos partenaires de confiance</p>
-          <div className="flex flex-wrap justify-center gap-6 md:gap-12">
-            {partners.map((p, i) => (
-              <div key={i} className="flex items-center gap-2 px-5 py-3 bg-slate-50 rounded-xl">
-                <BadgeCheck className="w-4 h-4 text-[#2A9D8F]" />
-                <span className="text-slate-500 text-xs">{p}</span>
+          <div className="flex flex-wrap justify-center items-center gap-4 md:gap-6">
+            {partners.map((p) => (
+              <div
+                key={p.name}
+                className="flex items-center justify-center h-16 w-28 md:w-36 px-4 bg-slate-50 rounded-xl border border-slate-100"
+              >
+                <ImageWithFallback
+                  src={p.logo}
+                  alt={p.name}
+                  className="max-h-9 w-auto object-contain grayscale opacity-70 hover:grayscale-0 hover:opacity-100 transition duration-300"
+                />
               </div>
             ))}
           </div>
@@ -450,7 +546,9 @@ export function LandingPage() {
         <div className="absolute -right-20 -top-20 w-80 h-80 bg-[#F77F00]/15 rounded-full blur-[100px]" />
         <div className="absolute -left-20 -bottom-20 w-60 h-60 bg-[#E9C46A]/15 rounded-full blur-[80px]" />
         <div className={`relative z-10 max-w-3xl mx-auto px-5 md:px-8 text-center transition-all duration-700 ${isVisible("cta") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-          <img src={logoNewImg} alt="IPPOO" className="h-12 md:h-14 object-contain mx-auto mb-6 drop-shadow-xl" />
+          <div className="flex justify-center mb-6">
+            <BrandLogo height={52} />
+          </div>
           <h2 className="text-white text-2xl md:text-4xl mb-4" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             Commencez dès maintenant
           </h2>
@@ -483,20 +581,34 @@ export function LandingPage() {
       </section>
 
       {/* ═══════════ FOOTER ═══════════ */}
-      <footer id="contact" className="bg-slate-900 text-white py-12 md:py-16">
-        <div className="max-w-6xl mx-auto px-5 md:px-8">
+      <footer id="contact" className="bg-slate-900 text-white">
+        {/* Bande blanche avec le logo centré */}
+        <div className="bg-white py-6 flex justify-center">
+          <BrandLogo height={36} plain />
+        </div>
+
+        <div className="max-w-6xl mx-auto px-5 md:px-8 py-12 md:py-16">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12 mb-10">
             {/* Brand */}
             <div className="md:col-span-1">
-              <img src={logoImg} alt="IPPOO" className="h-10 object-contain mb-4 brightness-0 invert" />
               <p className="text-slate-400 text-xs mb-4" style={{ lineHeight: 1.7 }}>
-                La plateforme de transport et logistique de référence en Afrique de l'Ouest. Du taxi-moto au fret aérien.
+                IPPOO TRIIP, la super-app africaine de mobilité et de logistique : taxi-moto, livraison, transport de biens, commandes groupées, covoiturage et fret aérien, réunis en une seule plateforme à travers l'Afrique.
               </p>
-              <div className="flex gap-3">
-                {["Facebook", "Twitter", "Instagram"].map((s, i) => (
-                  <button key={i} className="w-9 h-9 bg-slate-800 rounded-xl flex items-center justify-center text-slate-400 hover:bg-[#F77F00] hover:text-white transition">
-                    <Globe className="w-4 h-4" />
-                  </button>
+              <div className="flex flex-wrap gap-2">
+                {socials.map((s) => (
+                  <a
+                    key={s.name}
+                    href={s.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={s.name}
+                    title={s.name}
+                    className="w-9 h-9 bg-slate-800 rounded-xl flex items-center justify-center text-slate-400 hover:bg-[#F77F00] hover:text-white transition"
+                  >
+                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4" aria-hidden="true">
+                      <path d={s.path} />
+                    </svg>
+                  </a>
                 ))}
               </div>
             </div>
@@ -505,8 +617,17 @@ export function LandingPage() {
             <div>
               <h4 className="text-slate-300 text-xs mb-4">Services</h4>
               <div className="space-y-2.5">
-                {["Taxi-Moto", "Livraison de colis", "Transport lourd", "Commandes groupées", "Covoiturage", "IPPOO AIR"].map((s, i) => (
-                  <p key={i} className="text-slate-500 text-xs hover:text-white cursor-pointer transition">{s}</p>
+                {[
+                  { label: "Taxi-Moto", path: "/app/book-ride" },
+                  { label: "Livraison de colis", path: "/app/delivery" },
+                  { label: "Transport lourd", path: "/app/heavy-transport" },
+                  { label: "Commandes groupées", path: "/app/group-orders" },
+                  { label: "Covoiturage", path: "/app/carpool" },
+                  { label: "IPPOO AIR", path: "/app/air-freight" },
+                ].map((s) => (
+                  <button key={s.label} onClick={() => navigate(s.path)} className="block text-left text-slate-500 text-xs hover:text-white cursor-pointer transition">
+                    {s.label}
+                  </button>
                 ))}
               </div>
             </div>
@@ -515,8 +636,15 @@ export function LandingPage() {
             <div>
               <h4 className="text-slate-300 text-xs mb-4">Entreprise</h4>
               <div className="space-y-2.5">
-                {["À propos", "Carrières", "Partenaires", "Presse", "Blog", "CGU & Confidentialité"].map((s, i) => (
-                  <p key={i} className="text-slate-500 text-xs hover:text-white cursor-pointer transition">{s}</p>
+                {[
+                  { label: "À propos", href: "#apropos" },
+                  { label: "Carrières", href: "#cta" },
+                  { label: "Partenaires", href: "#partenaires" },
+                  { label: "Presse", href: "#partenaires" },
+                  { label: "Blog", href: "#services" },
+                  { label: "CGU & Confidentialité", href: `mailto:${config.contact.email}?subject=CGU%20%26%20Confidentialit%C3%A9` },
+                ].map((s) => (
+                  <a key={s.label} href={s.href} className="block text-slate-500 text-xs hover:text-white cursor-pointer transition">{s.label}</a>
                 ))}
               </div>
             </div>
@@ -525,18 +653,23 @@ export function LandingPage() {
             <div>
               <h4 className="text-slate-300 text-xs mb-4">Contact</h4>
               <div className="space-y-3">
-                <div className="flex items-center gap-3">
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(config.contact.mapsQuery)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 group"
+                >
                   <MapPin className="w-4 h-4 text-[#F77F00] shrink-0" />
-                  <span className="text-slate-400 text-xs">Carrefour Cadjehoun, Cotonou, Bénin</span>
-                </div>
-                <div className="flex items-center gap-3">
+                  <span className="text-slate-400 text-xs group-hover:text-white transition">{config.contact.address}</span>
+                </a>
+                <a href={`tel:${config.contact.phone.replace(/\s+/g, "")}`} className="flex items-center gap-3 group">
                   <Phone className="w-4 h-4 text-[#2A9D8F] shrink-0" />
-                  <span className="text-slate-400 text-xs">+229 97 00 00 00</span>
-                </div>
-                <div className="flex items-center gap-3">
+                  <span className="text-slate-400 text-xs group-hover:text-white transition">{config.contact.phone}</span>
+                </a>
+                <a href={`mailto:${config.contact.email}`} className="flex items-center gap-3 group">
                   <Mail className="w-4 h-4 text-[#1E6091] shrink-0" />
-                  <span className="text-slate-400 text-xs">contact@ippoo.app</span>
-                </div>
+                  <span className="text-slate-400 text-xs group-hover:text-white transition break-all">{config.contact.email}</span>
+                </a>
               </div>
             </div>
           </div>
@@ -544,8 +677,12 @@ export function LandingPage() {
           <div className="border-t border-slate-800 pt-6 flex flex-col md:flex-row items-center justify-between gap-3">
             <p className="text-slate-500 text-[10px]">&copy; 2026 IPPOO TRIIP. Tous droits réservés.</p>
             <div className="flex gap-4">
-              {["Politique de confidentialité", "Conditions d'utilisation", "Mentions légales"].map((l, i) => (
-                <span key={i} className="text-slate-500 text-[10px] hover:text-white cursor-pointer transition">{l}</span>
+              {[
+                { label: "Politique de confidentialité", href: `mailto:${config.contact.email}?subject=Politique%20de%20confidentialit%C3%A9` },
+                { label: "Conditions d'utilisation", href: `mailto:${config.contact.email}?subject=Conditions%20d%27utilisation` },
+                { label: "Mentions légales", href: `mailto:${config.contact.email}?subject=Mentions%20l%C3%A9gales` },
+              ].map((l) => (
+                <a key={l.label} href={l.href} className="text-slate-500 text-[10px] hover:text-white cursor-pointer transition">{l.label}</a>
               ))}
             </div>
           </div>

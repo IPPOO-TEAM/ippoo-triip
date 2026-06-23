@@ -7,15 +7,18 @@ import { IconMoto, IconTricycle, IconVoiture, IconMinibus, AfricanPattern, Badge
 import { toast } from "sonner";
 import { getGPSPosition } from "./utils";
 import { api } from "../api/client";
+import { usePlatformConfig } from "../store/platform-config";
 
 /** Coordonnée par défaut (centre Cotonou) pour seeder les points sans GPS. */
 const COTONOU = { lat: 6.3654, lng: 2.4183 };
 
-const vehicles = [
-  { id: "moto", Icon: IconMoto, label: "Moto", basePrice: 500, maxPrice: 1500, time: "5 min", gradient: "from-blue-500 to-indigo-600", shadow: "shadow-blue-500/25", lightBg: "bg-blue-50", lightColor: "text-blue-600", accent: "border-blue-500" },
-  { id: "tricycle", Icon: IconTricycle, label: "Tricycle", basePrice: 800, maxPrice: 2000, time: "8 min", gradient: "from-cyan-500 to-teal-600", shadow: "shadow-cyan-500/25", lightBg: "bg-cyan-50", lightColor: "text-cyan-600", accent: "border-cyan-500" },
-  { id: "voiture", Icon: IconVoiture, label: "Voiture", basePrice: 1500, maxPrice: 4000, time: "7 min", gradient: "from-emerald-500 to-green-600", shadow: "shadow-green-500/25", lightBg: "bg-emerald-50", lightColor: "text-emerald-600", accent: "border-emerald-500" },
-  { id: "minibus", Icon: IconMinibus, label: "Mini-bus", basePrice: 3000, maxPrice: 8000, time: "12 min", gradient: "from-violet-500 to-purple-600", shadow: "shadow-violet-500/25", lightBg: "bg-violet-50", lightColor: "text-violet-600", accent: "border-violet-500" },
+/* Visuel uniquement — les tarifs (basePrice/maxPrice/perKm) et le libellé
+   proviennent du store central, éditables depuis le back office admin. */
+const vehicleVisuals = [
+  { id: "moto", Icon: IconMoto, label: "Moto", time: "5 min", gradient: "from-blue-500 to-indigo-600", shadow: "shadow-blue-500/25", lightBg: "bg-blue-50", lightColor: "text-blue-600", accent: "border-blue-500" },
+  { id: "tricycle", Icon: IconTricycle, label: "Tricycle", time: "8 min", gradient: "from-cyan-500 to-teal-600", shadow: "shadow-cyan-500/25", lightBg: "bg-cyan-50", lightColor: "text-cyan-600", accent: "border-cyan-500" },
+  { id: "voiture", Icon: IconVoiture, label: "Voiture", time: "7 min", gradient: "from-emerald-500 to-green-600", shadow: "shadow-green-500/25", lightBg: "bg-emerald-50", lightColor: "text-emerald-600", accent: "border-emerald-500" },
+  { id: "minibus", Icon: IconMinibus, label: "Mini-bus", time: "12 min", gradient: "from-violet-500 to-purple-600", shadow: "shadow-violet-500/25", lightBg: "bg-violet-50", lightColor: "text-violet-600", accent: "border-violet-500" },
 ];
 
 const suggestedPlaces = [
@@ -30,6 +33,22 @@ const suggestedPlaces = [
 export function BookRidePage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const config = usePlatformConfig();
+
+  // Véhicules = visuels + tarifs édités depuis le back office admin (actifs uniquement)
+  const vehicles = useMemo(
+    () =>
+      vehicleVisuals
+        .map((v) => {
+          const rc = config.rideVehicles.find((r) => r.id === v.id);
+          return rc && rc.active
+            ? { ...v, label: rc.label, basePrice: rc.basePrice, maxPrice: rc.maxPrice, perKm: rc.perKm }
+            : null;
+        })
+        .filter((v): v is NonNullable<typeof v> => v !== null),
+    [config.rideVehicles],
+  );
+
   const typeParam = searchParams.get("type");
   const driverName = searchParams.get("driverName");
   const driverRating = searchParams.get("driverRating");
@@ -46,19 +65,23 @@ export function BookRidePage() {
   const [ordering, setOrdering] = useState(false);
   const [gpsLoading, setGpsLoading] = useState(false);
 
-  const selectedVehicle = vehicles.find(v => v.id === selected)!;
+  const selectedVehicle = vehicles.find(v => v.id === selected) ?? vehicles[0];
   const hasRoute = departure.trim().length > 2 && arrival.trim().length > 2;
 
   // Stabilise les estimations avec useMemo — recalcule uniquement si la route ou le véhicule change
   const { estimatedPrice, estimatedDist, estimatedTime } = useMemo(() => {
-    if (!hasRoute) return { estimatedPrice: 0, estimatedDist: "—", estimatedTime: "—" };
-    const v = vehicles.find(vv => vv.id === selected)!;
+    if (!hasRoute) return { estimatedPrice: 0, estimatedDist: "", estimatedTime: "" };
+    const v = vehicles.find(vv => vv.id === selected) ?? vehicles[0];
+    if (!v) return { estimatedPrice: 0, estimatedDist: "", estimatedTime: "" };
+    // Tarif réel : prix de base + (tarif au km × distance), plafonné au prix max
+    const dist = Math.random() * 8 + 1.5;
+    const raw = v.basePrice + Math.round(v.perKm * dist);
     return {
-      estimatedPrice: v.basePrice + Math.floor(Math.random() * 300 + 200),
-      estimatedDist: (Math.random() * 8 + 1.5).toFixed(1),
+      estimatedPrice: Math.min(raw, v.maxPrice),
+      estimatedDist: dist.toFixed(1),
       estimatedTime: `${Math.floor(Math.random() * 15 + 5)} min`,
     };
-  }, [hasRoute, selected]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [hasRoute, selected, vehicles]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const filteredPlaces = (query: string) =>
     suggestedPlaces.filter(p =>
@@ -266,7 +289,7 @@ export function BookRidePage() {
 
       {/* Vehicle selection */}
       <div className="px-5 mt-5">
-        <h3 className="mb-3 text-gray-800">Choisir le vehicule</h3>
+        <h3 className="mb-3 title-gradient">Choisir le vehicule</h3>
         <div className="space-y-2.5">
           {vehicles.map((v) => {
             const isSelected = selected === v.id;
@@ -322,7 +345,7 @@ export function BookRidePage() {
             </div>
             <div className="text-center">
               <p className="text-xs text-gray-400">Prix</p>
-              <p className="text-emerald-600" style={{ fontFamily: "'Space Grotesk', monospace" }}>{hasRoute ? `${estimatedPrice.toLocaleString()} F` : "— F"}</p>
+              <p className="text-emerald-600" style={{ fontFamily: "'Space Grotesk', monospace" }}>{hasRoute ? `${estimatedPrice.toLocaleString()} F` : ""}</p>
             </div>
           </div>
         </div>

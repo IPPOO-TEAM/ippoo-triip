@@ -5,10 +5,14 @@ import { AfricanPattern } from "./icons";
 import { toast } from "sonner";
 import { getGPSPosition } from "./utils";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { usePlatformConfig, findOffer } from "../store/platform-config";
 
 const HEAVY_IMG = "https://images.unsplash.com/photo-1757454122792-147411c3c695?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhZnJpY2FuJTIwdHJ1Y2slMjBjYXJnbyUyMG1vdmluZyUyMGxvZ2lzdGljc3xlbnwxfHx8fDE3NzU5MTY0NTh8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
 
-const vehicles = [
+/** Base de référence (Pickup) servant à mettre les tarifs à l'échelle. */
+const HEAVY_REF_BASE = 5000;
+
+const vehiclesBase = [
   { id: "pickup", Icon: Truck, label: "Pickup", desc: "Petits déménagements", basePrice: 5000, gradient: "from-blue-500 to-indigo-600", accent: "border-blue-400" },
   { id: "tricycle", Icon: Truck, label: "Tricycle cargo", desc: "Marchandises moyennes", basePrice: 3500, gradient: "from-cyan-500 to-teal-600", accent: "border-cyan-400" },
   { id: "camionnette", Icon: Truck, label: "Camionnette", desc: "Gros volumes", basePrice: 8000, gradient: "from-orange-400 to-rose-500", accent: "border-orange-400" },
@@ -16,6 +20,11 @@ const vehicles = [
 
 export function HeavyTransportPage() {
   const navigate = useNavigate();
+  // Tarifs pilotés par le back office (mise à l'échelle selon l'offre « biens lourds »)
+  const config = usePlatformConfig();
+  const heavyOffer = findOffer(config, "heavy");
+  const priceRatio = (heavyOffer?.priceFrom ?? HEAVY_REF_BASE) / HEAVY_REF_BASE;
+  const vehicles = vehiclesBase.map((v) => ({ ...v, basePrice: Math.round(v.basePrice * priceRatio) }));
   const [selected, setSelected] = useState("pickup");
   const [labor, setLabor] = useState(false);
   const [insurance, setInsurance] = useState(false);

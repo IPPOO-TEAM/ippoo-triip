@@ -12,10 +12,10 @@ const RIDES = [
   { id: "IP-9002", type: "livraison" as const, service: "Livraison", client: "Fifamè Dossou-Yovo", clientInit: "FD", driver: "Sèdégan Houéfa", driverInit: "AD", from: "Tokpa Hoho", to: "Akpakpa", distance: "6.8 km", fare: "1,500 FCFA", commission: "300 FCFA", status: "in_progress" as const, time: "14:15", date: "11 Avr 2026", duration: "En cours" },
   { id: "IP-9003", type: "transport" as const, service: "Transport lourd", client: "Sessinou Akotègnon", clientInit: "SA", driver: "Togbédji Mensah", driverInit: "TM", from: "Zone Industrielle", to: "Ganhi", distance: "8.5 km", fare: "15,000 FCFA", commission: "3,000 FCFA", status: "completed" as const, time: "13:45", date: "11 Avr 2026", duration: "35 min" },
   { id: "IP-9004", type: "course" as const, service: "Covoiturage", client: "Aïdatou Bello", clientInit: "AB", driver: "Aïdatou Bello", driverInit: "AB", from: "Abomey-Calavi", to: "Cotonou Centre", distance: "15.2 km", fare: "2,500 FCFA", commission: "500 FCFA", status: "in_progress" as const, time: "14:00", date: "11 Avr 2026", duration: "En cours" },
-  { id: "IP-9005", type: "livraison" as const, service: "Livraison", client: "Gbètoho Bocco", clientInit: "GB", driver: "Koffi Adjibadé", driverInit: "GB", from: "Fidjrossè", to: "Haie Vive", distance: "3.1 km", fare: "1,000 FCFA", commission: "200 FCFA", status: "cancelled" as const, time: "13:20", date: "11 Avr 2026", duration: "—" },
+  { id: "IP-9005", type: "livraison" as const, service: "Livraison", client: "Gbètoho Bocco", clientInit: "GB", driver: "Koffi Adjibadé", driverInit: "GB", from: "Fidjrossè", to: "Haie Vive", distance: "3.1 km", fare: "1,000 FCFA", commission: "200 FCFA", status: "cancelled" as const, time: "13:20", date: "11 Avr 2026", duration: "" },
   { id: "IP-9006", type: "course" as const, service: "Taxi-Moto", client: "Togbédji Mensah", clientInit: "TM", driver: "Hounkpatin Akotchaye", driverInit: "HA", from: "Stade de l'Amitié", to: "Étoile Rouge", distance: "2.8 km", fare: "600 FCFA", commission: "120 FCFA", status: "completed" as const, time: "12:50", date: "11 Avr 2026", duration: "9 min" },
-  { id: "IP-9007", type: "groupee" as const, service: "Commande groupée", client: "Adjovi Ganfon", clientInit: "AD", driver: "Fifamè Agbodjèlou", driverInit: "FD", from: "Marché Ganhi", to: "Zogbohouè", distance: "5.4 km", fare: "3,200 FCFA", commission: "640 FCFA", status: "pending" as const, time: "14:40", date: "11 Avr 2026", duration: "—" },
-  { id: "IP-9008", type: "course" as const, service: "IPPOO AIR", client: "Sessinou Akotègnon", clientInit: "SA", driver: "—", driverInit: "SA", from: "Aéroport Cadjéhoun", to: "Hôtel du Lac", distance: "7.2 km", fare: "25,000 FCFA", commission: "5,000 FCFA", status: "pending" as const, time: "15:00", date: "11 Avr 2026", duration: "—" },
+  { id: "IP-9007", type: "groupee" as const, service: "Commande groupée", client: "Adjovi Ganfon", clientInit: "AD", driver: "Fifamè Agbodjèlou", driverInit: "FD", from: "Marché Ganhi", to: "Zogbohouè", distance: "5.4 km", fare: "3,200 FCFA", commission: "640 FCFA", status: "pending" as const, time: "14:40", date: "11 Avr 2026", duration: "" },
+  { id: "IP-9008", type: "course" as const, service: "IPPOO AIR", client: "Sessinou Akotègnon", clientInit: "SA", driver: "", driverInit: "SA", from: "Aéroport Cadjéhoun", to: "Hôtel du Lac", distance: "7.2 km", fare: "25,000 FCFA", commission: "5,000 FCFA", status: "pending" as const, time: "15:00", date: "11 Avr 2026", duration: "" },
 ];
 
 const statusConfig: Record<string, { label: string; color: string; bg: string; icon: any }> = {
@@ -51,7 +51,7 @@ export function AdminRidesPage() {
     <div className="p-4 md:p-6 space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Courses & Missions</h1>
+          <h1 className="title-gradient" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Courses & Missions</h1>
           <p className="text-slate-500 text-xs mt-1">Suivi en temps réel de toutes les courses et livraisons</p>
         </div>
         <button className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-xl text-xs">
@@ -113,7 +113,7 @@ export function AdminRidesPage() {
                 {(() => { const Icon = serviceIcons[selectedRide.service] || Bike; return <Icon className="w-6 h-6" style={{ color: statusConfig[selectedRide.status].color }} />; })()}
               </div>
               <div>
-                <h2 className="text-slate-900">{selectedRide.id}</h2>
+                <h2 className="title-gradient">{selectedRide.id}</h2>
                 <p className="text-slate-400 text-xs">{selectedRide.service} · {selectedRide.date} à {selectedRide.time}</p>
               </div>
             </div>

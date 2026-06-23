@@ -117,7 +117,7 @@ export function RideTrackingPage() {
       try {
         const r = await api.get<any>(`/rides/${rideId}`);
         if (cancelled || !r) return;
-        if (r.driverName && r.driverName !== "—") {
+        if (r.driverName && r.driverName !== "") {
           const parts = r.driverName.trim().split(" ").filter(Boolean);
           setDriver((prev) => ({
             ...prev,
@@ -344,7 +344,7 @@ export function RideTrackingPage() {
                   <Navigation className="w-8 h-8 text-white" />
                 </div>
               </div>
-              <h3 className="text-slate-800">Recherche d'un chauffeur...</h3>
+              <h3 className="title-gradient">Recherche d'un chauffeur...</h3>
               <p className="text-sm text-slate-400 mt-1 mb-4">Veuillez patienter quelques instants</p>
 
               {/* Animated dots */}
@@ -444,7 +444,7 @@ export function RideTrackingPage() {
                 <div className="bg-blue-50 rounded-2xl p-3 text-center">
                   <p className="text-[10px] text-slate-400 uppercase tracking-wide">ETA</p>
                   <p className="text-blue-600 mt-1" style={{ fontFamily: "'Space Grotesk', monospace" }}>
-                    {rideState === "arrived" ? "Arrive !" : rideState === "completed" ? "—" : `${Math.ceil(eta)} min`}
+                    {rideState === "arrived" ? "Arrive !" : rideState === "completed" ? "" : `${Math.ceil(eta)} min`}
                   </p>
                 </div>
                 <div className="bg-cyan-50 rounded-2xl p-3 text-center">
@@ -508,7 +508,7 @@ export function RideTrackingPage() {
                 <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl shadow-green-500/30">
                   <Check className="w-8 h-8 text-white" strokeWidth={2.5} />
                 </div>
-                <h3 className="text-slate-800">Course terminee !</h3>
+                <h3 className="title-gradient">Course terminee !</h3>
                 <p className="text-2xl text-emerald-500 mt-1" style={{ fontFamily: "'Space Grotesk', monospace" }}>{ridePrice.toLocaleString()} FCFA</p>
                 <p className="text-xs text-slate-400 mt-1">Paye via IPPOO Cash</p>
               </div>

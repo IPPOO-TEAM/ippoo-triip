@@ -451,7 +451,7 @@ export function SupportPage() {
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <HelpCircle className="w-4 h-4 text-blue-500" />
-                <h3 className="text-slate-800">Questions fréquentes</h3>
+                <h3 className="title-gradient">Questions fréquentes</h3>
               </div>
               <button onClick={() => setView("faq")} className="text-xs text-blue-500 flex items-center gap-1">
                 Voir tout <ChevronRight className="w-3 h-3" />
@@ -479,7 +479,7 @@ export function SupportPage() {
           {/* Tickets preview */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-slate-800">Tickets récents</h3>
+              <h3 className="title-gradient">Tickets récents</h3>
               <button onClick={() => setView("newTicket")} className="text-xs bg-orange-50 text-orange-600 px-3 py-1.5 rounded-full flex items-center gap-1">
                 <Plus className="w-3 h-3" /> Nouveau
               </button>

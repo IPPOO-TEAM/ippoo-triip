@@ -2,6 +2,8 @@ import { useNavigate } from "react-router";
 import { Search, MapPin, Bell, ChevronRight, Star, Ticket, Home, Briefcase, Store, GraduationCap, Megaphone, Wallet, Sun, Moon, CloudSun, Zap, ArrowRight, CreditCard, Car, Users, Route, Gift } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { ProfileAvatar } from "./profile-avatar";
+import { BrandLogo } from "./brand-logo";
+import { usePlatformConfig } from "../store/platform-config";
 import {
   IconCourse, IconLivraison, IconGroupOrder, IconCovoiturage,
   IconGrosColis, IconFretAerien, IconWallet, IconHistorique, IconSupport,
@@ -41,12 +43,12 @@ export interface PromoSlide {
 }
 
 const services = [
-  { Icon: IconCourse, label: "Course", path: "/book-ride", gradient: "from-blue-500 to-blue-600", shadow: "shadow-blue-500/30", bg: "bg-blue-50" },
-  { Icon: IconLivraison, label: "Livraison", path: "/delivery", gradient: "from-orange-400 to-orange-500", shadow: "shadow-orange-400/30", bg: "bg-orange-50" },
-  { Icon: IconGroupOrder, label: "Groupee", path: "/group-orders", gradient: "from-violet-500 to-purple-500", shadow: "shadow-violet-500/30", bg: "bg-violet-50" },
-  { Icon: IconCovoiturage, label: "Covoiturage", path: "/carpool", gradient: "from-cyan-400 to-cyan-500", shadow: "shadow-cyan-400/30", bg: "bg-cyan-50" },
-  { Icon: IconGrosColis, label: "Gros colis", path: "/heavy-transport", gradient: "from-rose-400 to-rose-500", shadow: "shadow-rose-400/30", bg: "bg-rose-50" },
-  { Icon: IconFretAerien, label: "IPPOO AIR", path: "/air-freight", gradient: "from-sky-400 to-blue-600", shadow: "shadow-sky-400/30", bg: "bg-sky-50" },
+  { Icon: IconCourse, label: "Course", path: "/book-ride", offerId: "taxi", gradient: "from-blue-500 to-blue-600", shadow: "shadow-blue-500/30", bg: "bg-blue-50" },
+  { Icon: IconLivraison, label: "Livraison", path: "/delivery", offerId: "delivery", gradient: "from-orange-400 to-orange-500", shadow: "shadow-orange-400/30", bg: "bg-orange-50" },
+  { Icon: IconGroupOrder, label: "Groupee", path: "/group-orders", offerId: "group", gradient: "from-violet-500 to-purple-500", shadow: "shadow-violet-500/30", bg: "bg-violet-50" },
+  { Icon: IconCovoiturage, label: "Covoiturage", path: "/carpool", offerId: "carpool", gradient: "from-cyan-400 to-cyan-500", shadow: "shadow-cyan-400/30", bg: "bg-cyan-50" },
+  { Icon: IconGrosColis, label: "Gros colis", path: "/heavy-transport", offerId: "heavy", gradient: "from-rose-400 to-rose-500", shadow: "shadow-rose-400/30", bg: "bg-rose-50" },
+  { Icon: IconFretAerien, label: "IPPOO AIR", path: "/air-freight", offerId: "air", gradient: "from-sky-400 to-blue-600", shadow: "shadow-sky-400/30", bg: "bg-sky-50" },
   { Icon: IconWallet, label: "IPPOO Cash", path: "/wallet", gradient: "from-emerald-400 to-emerald-500", shadow: "shadow-emerald-400/30", bg: "bg-emerald-50" },
   { Icon: IconHistorique, label: "Historique", path: "/history", gradient: "from-gray-400 to-gray-500", shadow: "shadow-gray-400/20", bg: "bg-gray-50" },
   { Icon: IconSupport, label: "Support", path: "/support", gradient: "from-amber-400 to-amber-500", shadow: "shadow-amber-400/30", bg: "bg-amber-50" },
@@ -225,6 +227,11 @@ const nearbyDrivers = [
 
 export function HomePage() {
   const navigate = useNavigate();
+  // Masque les services dont l'offre a été désactivée depuis le back office admin
+  const config = usePlatformConfig();
+  const visibleServices = services.filter(
+    (s) => !s.offerId || config.offers.find((o) => o.id === s.offerId)?.active !== false,
+  );
   const [activeSlide, setActiveSlide] = useState(0);
   const [searchDest, setSearchDest] = useState("");
   const slideRef = useRef<HTMLDivElement>(null);
@@ -283,7 +290,12 @@ export function HomePage() {
         <img src={headerHeroImg} alt="" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-b from-[#0047AB]/85 via-[#0047AB]/70 to-[#0047AB]/95" />
 
-        <div className="relative z-10 px-5 pt-14 pb-6">
+        <div className="relative z-10 px-5 pt-12 pb-6">
+          {/* Brand bar — logo officiel sur pastille blanche, compact mobile */}
+          <div className="flex items-center mb-4">
+            <BrandLogo height={20} />
+          </div>
+
           {/* Top bar — Avatar + Greeting + Notifications */}
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
@@ -379,7 +391,7 @@ export function HomePage() {
               <div className="w-7 h-7 bg-gradient-to-br from-[#F77F00] to-[#E9C46A] rounded-lg flex items-center justify-center">
                 <Zap className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
               </div>
-              <h3 className="text-gray-800">Services</h3>
+              <h3 className="title-gradient">Services</h3>
             </div>
             <button className="text-[#1E6091] text-xs flex items-center gap-0.5 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100 hover:bg-blue-100 transition">
               Voir tout <ArrowRight className="w-3 h-3 ml-0.5" />
@@ -388,7 +400,7 @@ export function HomePage() {
 
           {/* 2 rows × 4 cols grid */}
           <div className="grid grid-cols-4 gap-y-4 gap-x-2">
-            {services.map((s) => (
+            {visibleServices.map((s) => (
               <button
                 key={s.label}
                 onClick={() => navigate(s.path)}
@@ -413,7 +425,7 @@ export function HomePage() {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Megaphone className="w-4 h-4 text-[#F77F00]" />
-            <h3 className="text-gray-800">Annonces</h3>
+            <h3 className="title-gradient">Annonces</h3>
             <span className="text-[10px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{activeSlide + 1}/{promoSlides.length}</span>
           </div>
           <div className="flex items-center gap-2">
@@ -494,7 +506,7 @@ export function HomePage() {
       {/* Promos carousel */}
       <div className="mt-6">
         <div className="flex items-center justify-between mb-4 px-5">
-          <h3 className="text-gray-800">Promotions</h3>
+          <h3 className="title-gradient">Promotions</h3>
           <button onClick={() => navigate("/app/coupons")} className="flex items-center gap-1.5 text-blue-500 text-xs bg-blue-50 px-3 py-1.5 rounded-full">
             <Ticket className="w-3 h-3" /> Voir tout
           </button>
@@ -509,7 +521,7 @@ export function HomePage() {
       {/* ═══════════════ ESPACE MEMBRE — Quick access ═══════════════ */}
       <div className="px-5 mt-6">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-gray-800">Espace Membre</h3>
+          <h3 className="title-gradient">Espace Membre</h3>
         </div>
         <div className="grid grid-cols-2 gap-3">
           {[
@@ -540,7 +552,7 @@ export function HomePage() {
       {/* Nearby drivers */}
       <div className="px-5 mt-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-gray-800">Chauffeurs proches</h3>
+          <h3 className="title-gradient">Chauffeurs proches</h3>
           <div className="flex items-center gap-1.5 bg-emerald-50 px-2.5 py-1 rounded-full text-[10px] text-emerald-600 border border-emerald-100">
             <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" /> EN LIGNE
           </div>

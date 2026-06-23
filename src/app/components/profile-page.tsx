@@ -14,6 +14,7 @@ import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { toast } from "sonner";
 import { AVATARS } from "./avatars";
 import { SettingsCard } from "./settings-card";
+import { BrandLogo } from "./brand-logo";
 import { api } from "../api/client";
 
 /* ─── Types ─── */
@@ -656,7 +657,8 @@ export function ProfilePage() {
         </div>
 
         {/* App version */}
-        <div className="text-center py-2">
+        <div className="flex flex-col items-center gap-2 py-2">
+          <BrandLogo height={22} />
           <p className="text-[10px] text-slate-300">IPPOO TRIIP · v1.4.2</p>
         </div>
 

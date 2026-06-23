@@ -246,7 +246,7 @@ export function GroupOrdersPage() {
               return (
                 <div key={g.id} className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm">
                   <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-slate-800">{g.name}</h4>
+                    <h4 className="title-gradient">{g.name}</h4>
                     <span className={`text-[10px] px-2.5 py-1 rounded-full flex items-center gap-1.5 ${st.color}`}>
                       <span className={`w-1.5 h-1.5 rounded-full ${st.dot}`} />
                       {st.label}
@@ -335,7 +335,7 @@ export function GroupOrdersPage() {
 
             <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-slate-800">{selectedGroup.name}</h3>
+                <h3 className="title-gradient">{selectedGroup.name}</h3>
                 <span className={`text-[10px] px-2.5 py-1 rounded-full ${statusConfig[selectedGroup.status].color}`}>
                   {statusConfig[selectedGroup.status].label}
                 </span>

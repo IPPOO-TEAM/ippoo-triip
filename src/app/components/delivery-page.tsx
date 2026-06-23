@@ -7,7 +7,11 @@ import {
 import { AfricanPattern } from "./icons";
 import { toast } from "sonner";
 import { getGPSPosition } from "./utils";
+import { usePlatformConfig, findOffer } from "../store/platform-config";
 import deliveryHeaderImg from "figma:asset/c3680b506d82e1e5ee8aa062c6524415e9f21293.png";
+
+/** Base de référence (prix « paquet standard ») servant à mettre la grille à l'échelle. */
+const DELIVERY_REF_BASE = 1500;
 
 const parcelTypes = [
   { id: "document", icon: FileText, label: "Document", weight: "< 1 kg", gradient: "from-blue-500 to-indigo-600", shadow: "shadow-blue-500/25", lightBg: "bg-blue-50", lightColor: "text-blue-600", accent: "border-blue-400" },
@@ -46,7 +50,12 @@ export function DeliveryPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const price = pricingMap[parcelType]?.[deliveryType] ?? 1500;
+  // Tarifs pilotés par le back office : la grille est mise à l'échelle selon le
+  // prix de départ de l'offre « Livraison » défini par l'admin.
+  const config = usePlatformConfig();
+  const deliveryOffer = findOffer(config, "delivery");
+  const priceRatio = (deliveryOffer?.priceFrom ?? DELIVERY_REF_BASE) / DELIVERY_REF_BASE;
+  const price = Math.round((pricingMap[parcelType]?.[deliveryType] ?? DELIVERY_REF_BASE) * priceRatio);
   const selectedType = parcelTypes.find(t => t.id === parcelType)!;
 
   const handleTakePhoto = () => {

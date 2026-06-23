@@ -50,7 +50,7 @@ const historyItems: HistoryItem[] = [
   { id: "IPP-20260409", cat: "livraisons", title: "Livraison colis", from: "Boulevard St-Michel", to: "Godomey, rue 312", date: "09 Avr 2026", time: "11:15", price: "1 500 F", priceNum: 1500, status: "completed", statusLabel: "Livree", statusColor: "bg-emerald-50 text-emerald-600", gradient: "from-orange-400 to-rose-500", Icon: Package, driver: "Togbédji M.", driverRating: 4.6, vehicle: "Moto cargo", distance: "6.8 km", duration: "25 min", paymentMethod: "IPPOO Cash", userRating: 4 },
   { id: "IPP-20260408", cat: "courses", title: "Course voiture", from: "Aeroport Cadjehoun", to: "Hotel du Lac", date: "08 Avr 2026", time: "16:45", price: "3 500 F", priceNum: 3500, status: "completed", statusLabel: "Terminee", statusColor: "bg-emerald-50 text-emerald-600", gradient: "from-blue-500 to-indigo-600", Icon: Bike, driver: "Fifamè D.", driverRating: 4.9, vehicle: "Toyota Yaris", distance: "8.1 km", duration: "18 min", paymentMethod: "IPPOO Cash", userRating: null },
   { id: "IPP-20260407", cat: "groupees", title: "Commande campus", from: "Marche Dantokpa", to: "Campus UAC", date: "07 Avr 2026", time: "09:20", price: "800 F", priceNum: 800, status: "completed", statusLabel: "Livree", statusColor: "bg-emerald-50 text-emerald-600", gradient: "from-violet-500 to-purple-600", Icon: Users, driver: "Sessinou K.", driverRating: 4.7, vehicle: "Tricycle", distance: "5.3 km", duration: "20 min", paymentMethod: "IPPOO Cash", userRating: 5 },
-  { id: "IPP-20260406", cat: "courses", title: "Course moto", from: "Quartier Zongo", to: "CNHU", date: "06 Avr 2026", time: "08:00", price: "600 F", priceNum: 600, status: "cancelled", statusLabel: "Annulee", statusColor: "bg-red-50 text-red-500", gradient: "from-slate-400 to-slate-500", Icon: Bike, driver: "—", driverRating: 0, vehicle: "—", distance: "—", duration: "—", paymentMethod: "Rembourse", userRating: null },
+  { id: "IPP-20260406", cat: "courses", title: "Course moto", from: "Quartier Zongo", to: "CNHU", date: "06 Avr 2026", time: "08:00", price: "600 F", priceNum: 600, status: "cancelled", statusLabel: "Annulee", statusColor: "bg-red-50 text-red-500", gradient: "from-slate-400 to-slate-500", Icon: Bike, driver: "", driverRating: 0, vehicle: "", distance: "", duration: "", paymentMethod: "Rembourse", userRating: null },
   { id: "IPP-20260405", cat: "biens", title: "Demenagement", from: "Cotonou Centre", to: "Abomey-Calavi", date: "05 Avr 2026", time: "10:00", price: "7 500 F", priceNum: 7500, status: "completed", statusLabel: "Terminee", statusColor: "bg-emerald-50 text-emerald-600", gradient: "from-rose-400 to-red-500", Icon: Truck, driver: "Akotègnon B.", driverRating: 4.5, vehicle: "Camionnette", distance: "12.4 km", duration: "35 min", paymentMethod: "IPPOO Cash", userRating: 4 },
   { id: "IPP-20260404", cat: "livraisons", title: "Document express", from: "Bureau, Bd St-Michel", to: "Tribunal de Cotonou", date: "04 Avr 2026", time: "13:10", price: "1 000 F", priceNum: 1000, status: "completed", statusLabel: "Livree", statusColor: "bg-emerald-50 text-emerald-600", gradient: "from-orange-400 to-rose-500", Icon: Package, driver: "Aїdatou T.", driverRating: 4.8, vehicle: "Moto", distance: "3.1 km", duration: "10 min", paymentMethod: "IPPOO Cash", userRating: 5 },
 ];
@@ -80,8 +80,8 @@ function rideToHistoryItem(r: any): HistoryItem {
     id: r.id,
     cat: svc.cat,
     title: svc.title,
-    from: r.origin?.label ?? "—",
-    to: r.destination?.label ?? "—",
+    from: r.origin?.label ?? "",
+    to: r.destination?.label ?? "",
     date: d.toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric" }),
     time: d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }),
     price: `${priceNum.toLocaleString("fr-FR")} F`,
@@ -91,11 +91,11 @@ function rideToHistoryItem(r: any): HistoryItem {
     statusColor: st.statusColor,
     gradient: r.status === "cancelled" ? "from-slate-400 to-slate-500" : svc.gradient,
     Icon: svc.Icon,
-    driver: r.driverName ?? "—",
+    driver: r.driverName ?? "",
     driverRating: r.driverRating ?? 0,
-    vehicle: r.vehicle ?? "—",
-    distance: r.distanceKm ? `${r.distanceKm} km` : "—",
-    duration: r.durationMin ? `${r.durationMin} min` : "—",
+    vehicle: r.vehicle ?? "",
+    distance: r.distanceKm ? `${r.distanceKm} km` : "",
+    duration: r.durationMin ? `${r.durationMin} min` : "",
     paymentMethod: r.status === "cancelled" ? "Remboursé" : "IPPOO Cash",
     userRating: null,
   };
@@ -325,10 +325,10 @@ export function HistoryPage() {
             <div className="space-y-2.5 mb-5">
               <DetailRow label="Date" value={`${selectedItem.date} a ${selectedItem.time}`} />
               <DetailRow label="Reference" value={selectedItem.id} mono />
-              {selectedItem.driver !== "—" && <DetailRow label="Chauffeur" value={`${selectedItem.driver} (${selectedItem.driverRating}★)`} />}
-              {selectedItem.vehicle !== "—" && <DetailRow label="Vehicule" value={selectedItem.vehicle} />}
-              {selectedItem.distance !== "—" && <DetailRow label="Distance" value={selectedItem.distance} mono />}
-              {selectedItem.duration !== "—" && <DetailRow label="Duree" value={selectedItem.duration} mono />}
+              {selectedItem.driver !== "" && <DetailRow label="Chauffeur" value={`${selectedItem.driver} (${selectedItem.driverRating}★)`} />}
+              {selectedItem.vehicle !== "" && <DetailRow label="Vehicule" value={selectedItem.vehicle} />}
+              {selectedItem.distance !== "" && <DetailRow label="Distance" value={selectedItem.distance} mono />}
+              {selectedItem.duration !== "" && <DetailRow label="Duree" value={selectedItem.duration} mono />}
               <DetailRow label="Paiement" value={selectedItem.paymentMethod} />
               {selectedItem.userRating && (
                 <div className="flex items-center justify-between py-2">

@@ -9,7 +9,7 @@ export function NotFoundPage() {
       <div className="w-20 h-20 bg-gradient-to-br from-[#F77F00] to-[#E9C46A] rounded-3xl flex items-center justify-center mb-6 shadow-xl shadow-orange-400/30">
         <AlertTriangle className="w-9 h-9 text-white" strokeWidth={1.8} />
       </div>
-      <h2 className="text-gray-800 mb-2">Page introuvable</h2>
+      <h2 className="title-gradient mb-2">Page introuvable</h2>
       <p className="text-sm text-gray-400 mb-8 max-w-[260px]">
         La page que vous cherchez n'existe pas ou a ete deplacee.
       </p>

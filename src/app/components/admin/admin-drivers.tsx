@@ -47,7 +47,7 @@ export function AdminDriversPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Gestion des Chauffeurs / Agents</h1>
+          <h1 className="title-gradient" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Gestion des Chauffeurs / Agents</h1>
           <p className="text-slate-500 text-xs mt-1">{DRIVERS.length} chauffeurs enregistrés</p>
         </div>
         <div className="flex gap-2">
@@ -106,7 +106,7 @@ export function AdminDriversPage() {
             <div className="flex items-center gap-4 mb-6">
               <img src={getAvatar(selectedDriver.initials) || ""} alt="" className="w-16 h-16 rounded-2xl object-cover" />
               <div>
-                <h2 className="text-slate-900">{selectedDriver.name}</h2>
+                <h2 className="title-gradient">{selectedDriver.name}</h2>
                 <p className="text-slate-400 text-xs">{selectedDriver.id} · {selectedDriver.type}</p>
                 <div className="flex items-center gap-2 mt-1">
                   <span className={`text-[10px] px-2 py-0.5 rounded-full ${statusConfig[selectedDriver.status].bg}`} style={{ color: statusConfig[selectedDriver.status].color }}>

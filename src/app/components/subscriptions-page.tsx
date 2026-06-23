@@ -198,7 +198,7 @@ export function SubscriptionsPage() {
 
           {/* Avantages membres */}
           <div>
-            <h2 className="text-slate-800 mb-3 flex items-center gap-2">
+            <h2 className="title-gradient mb-3 flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-[#F77F00]" />
               Avantages Membre
             </h2>
@@ -221,7 +221,7 @@ export function SubscriptionsPage() {
           {/* Historique paiements */}
           <div>
             <button onClick={() => setShowPayments(!showPayments)} className="w-full flex items-center justify-between mb-3">
-              <h2 className="text-slate-800 flex items-center gap-2">
+              <h2 className="title-gradient flex items-center gap-2">
                 <Clock className="w-4 h-4 text-[#1E6091]" />
                 Historique des paiements
               </h2>
@@ -278,7 +278,7 @@ export function SubscriptionsPage() {
           {/* Quota Card */}
           <div className="bg-white rounded-3xl p-5 shadow-md">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-slate-800 flex items-center gap-2">
+              <h3 className="title-gradient flex items-center gap-2">
                 <Gauge className="w-4 h-4 text-[#2A9D8F]" />
                 Consommation du jour
               </h3>
@@ -333,7 +333,7 @@ export function SubscriptionsPage() {
 
           {/* Rules */}
           <div className="bg-white rounded-2xl p-4 shadow-sm space-y-3">
-            <h3 className="text-slate-800 flex items-center gap-2">
+            <h3 className="title-gradient flex items-center gap-2">
               <Shield className="w-4 h-4 text-[#1E6091]" />
               Règles du forfait
             </h3>
@@ -370,7 +370,7 @@ export function SubscriptionsPage() {
 
           {/* Historique mensuel */}
           <div className="bg-white rounded-2xl p-4 shadow-sm">
-            <h3 className="text-slate-800 text-xs mb-3">Historique mensuel</h3>
+            <h3 className="title-gradient text-xs mb-3">Historique mensuel</h3>
             {[
               { month: "Avril 2026", used: 18, total: 60, saved: 4200 },
               { month: "Mars 2026", used: 56, total: 60, saved: 12600 },

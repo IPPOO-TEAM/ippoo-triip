@@ -5,6 +5,7 @@ import { ProfileAvatar } from "./profile-avatar";
 import { toast } from "sonner";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { api } from "../api/client";
+import { usePlatformConfig, findOffer } from "../store/platform-config";
 
 const CARPOOL_IMG = "https://images.unsplash.com/photo-1766330301316-9db45ccf9bb5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhZnJpY2FuJTIwY2l0eSUyMGNhcnBvb2wlMjByaWRlJTIwc2hhcmluZ3xlbnwxfHx8fDE3NzU5MTYyNjl8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
 
@@ -24,6 +25,8 @@ const initialsOf = (name: string) => {
 
 export function CarpoolPage() {
   const navigate = useNavigate();
+  const config = usePlatformConfig();
+  const carpoolPriceHint = String(findOffer(config, "carpool")?.priceFrom ?? 500);
   const [tab, setTab] = useState<"find" | "offer">("find");
   const [searchFrom, setSearchFrom] = useState("");
   const [searchTo, setSearchTo] = useState("");
@@ -62,8 +65,8 @@ export function CarpoolPage() {
             id: i + 1,
             backendId: c.id,
             driver: c.driverName,
-            from: c.origin?.label ?? "—",
-            to: c.destination?.label ?? "—",
+            from: c.origin?.label ?? "",
+            to: c.destination?.label ?? "",
             time: dep.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }),
             date: dep.toDateString() === today ? "Aujourd'hui" : "Demain",
             seats: c.seatsLeft,
@@ -183,7 +186,7 @@ export function CarpoolPage() {
         {tab === "find" && (
           <>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-slate-800">Trajets disponibles</h3>
+              <h3 className="title-gradient">Trajets disponibles</h3>
               <span className="text-[10px] bg-cyan-50 text-cyan-600 px-2.5 py-1 rounded-full">{filteredTrips.length} trajets</span>
             </div>
 
@@ -335,7 +338,7 @@ export function CarpoolPage() {
                 <span className="text-sm text-slate-400">F</span>
                 <input
                   type="number"
-                  placeholder="500"
+                  placeholder={carpoolPriceHint}
                   value={offerPrice}
                   onChange={(e) => setOfferPrice(e.target.value)}
                   className="flex-1 bg-transparent outline-none text-sm"

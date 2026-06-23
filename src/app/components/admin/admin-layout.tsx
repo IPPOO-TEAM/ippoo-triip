@@ -2,13 +2,15 @@ import { Outlet, useNavigate, useLocation } from "react-router";
 import { useState } from "react";
 import {
   LayoutDashboard, Users, Car, Route, Wallet, Headphones, Settings, Bell,
-  ChevronLeft, ChevronRight, LogOut, Search, Menu, X, Shield
+  ChevronLeft, ChevronRight, LogOut, Search, Menu, X, Shield, Tag
 } from "lucide-react";
 import { getAvatar } from "../avatars";
+import { PWAInstallPrompt } from "../pwa-install-prompt";
 import logoImg from "../../../imports/IPPOO_Transport_&_Logistique-1.png";
 
 const NAV_ITEMS = [
   { path: "/admin", icon: LayoutDashboard, label: "Tableau de bord", exact: true },
+  { path: "/admin/offers", icon: Tag, label: "Offres & Tarifs" },
   { path: "/admin/users", icon: Users, label: "Clients" },
   { path: "/admin/drivers", icon: Car, label: "Chauffeurs / Agents" },
   { path: "/admin/rides", icon: Route, label: "Courses & Missions" },
@@ -91,6 +93,7 @@ export function AdminLayout() {
 
   return (
     <div className="flex h-screen bg-slate-100 overflow-hidden">
+      <PWAInstallPrompt />
       {/* Desktop Sidebar */}
       <aside
         className={`hidden lg:block relative bg-[#0F172A] shrink-0 transition-all duration-300 ${collapsed ? "w-[68px]" : "w-[240px]"}`}
@@ -118,7 +121,7 @@ export function AdminLayout() {
             </button>
             <div className="flex items-center gap-2">
               <Shield className="w-4 h-4 text-[#1E6091]" />
-              <h1 className="text-slate-800 text-sm hidden sm:block">{currentPage}</h1>
+              <h1 className="title-gradient text-sm hidden sm:block">{currentPage}</h1>
             </div>
           </div>
 

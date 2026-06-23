@@ -136,7 +136,7 @@ export function MissionPage() {
 
         {/* Date selection */}
         <div>
-          <h3 className="text-slate-800 mb-2 flex items-center gap-2">
+          <h3 className="title-gradient mb-2 flex items-center gap-2">
             <Calendar className="w-4 h-4 text-[#1E6091]" />
             Date
           </h3>
@@ -157,7 +157,7 @@ export function MissionPage() {
 
         {/* Time slots */}
         <div>
-          <h3 className="text-slate-800 mb-2 flex items-center gap-2">
+          <h3 className="title-gradient mb-2 flex items-center gap-2">
             <Clock className="w-4 h-4 text-[#2A9D8F]" />
             Créneau horaire
           </h3>
@@ -179,7 +179,7 @@ export function MissionPage() {
         {/* Stops */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-slate-800 flex items-center gap-2">
+            <h3 className="title-gradient flex items-center gap-2">
               <Route className="w-4 h-4 text-[#F77F00]" />
               Arrêts ({stops.length})
             </h3>
@@ -241,7 +241,7 @@ export function MissionPage() {
         {missionType === "livraison" && (
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-slate-800 flex items-center gap-2">
+              <h3 className="title-gradient flex items-center gap-2">
                 <Package className="w-4 h-4 text-[#F77F00]" />
                 Colis ({parcels.length})
               </h3>
@@ -292,7 +292,7 @@ export function MissionPage() {
 
         {/* Scheduled Missions */}
         <div>
-          <h2 className="text-slate-800 mb-3 flex items-center gap-2">
+          <h2 className="title-gradient mb-3 flex items-center gap-2">
             <Calendar className="w-4 h-4 text-[#1E6091]" />
             Missions planifiées
           </h2>

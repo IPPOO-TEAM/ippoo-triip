@@ -1,6 +1,7 @@
 import { Outlet, useNavigate, useLocation } from "react-router";
 import { useEffect, useState } from "react";
 import { Home, Clock, Wallet, User, Bell, Navigation } from "lucide-react";
+import { PWAInstallPrompt } from "../pwa-install-prompt";
 
 const UNREAD_NOTIF_KEY = "ippoo_driver_unread_notifs";
 
@@ -34,6 +35,7 @@ export function DriverLayout() {
 
   return (
     <div className="flex flex-col max-w-md mx-auto bg-white" style={{ height: "100dvh" }}>
+      <PWAInstallPrompt />
       <div className="flex-1 min-h-0 overflow-y-auto">
         <Outlet />
       </div>

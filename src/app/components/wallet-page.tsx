@@ -236,7 +236,7 @@ export function WalletPage() {
         {/* Transactions */}
         <div className="mt-6 mb-4">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-gray-800">Transactions</h3>
+            <h3 className="title-gradient">Transactions</h3>
             <div className="flex gap-1.5">
               {([["all", "Tout"], ["credit", "Entrées"], ["debit", "Sorties"]] as const).map(([key, label]) => (
                 <button key={key} onClick={() => setTxFilter(key)}

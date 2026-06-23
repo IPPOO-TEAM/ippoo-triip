@@ -267,9 +267,9 @@ registerMock("GET", "/rides", ({ path }) => {
     const dr = r.driverId ? d.drivers[r.driverId] : undefined;
     return {
       ...r,
-      driverName: dr?.fullName ?? "—",
+      driverName: dr?.fullName ?? "",
       driverRating: dr?.rating ?? 0,
-      vehicle: dr?.vehiclePlate ?? "—",
+      vehicle: dr?.vehiclePlate ?? "",
     };
   });
   return paginate(enriched, path);
@@ -292,11 +292,11 @@ registerMock("GET", /^\/rides\/[^/]+$/, ({ path }) => {
   // Clés supplémentaires ignorées par RideSchema (consommateurs Zod), utiles au suivi UI
   return {
     ...advanced,
-    driverName: dr?.fullName ?? "—",
-    driverPlate: dr?.vehiclePlate ?? "—",
+    driverName: dr?.fullName ?? "",
+    driverPlate: dr?.vehiclePlate ?? "",
     driverRating: dr?.rating ?? 0,
     driverTrips: dr?.totalRides ?? 0,
-    driverVehicle: dr ? VEHICLE_LABEL[dr.vehicleType] ?? dr.vehicleType : "—",
+    driverVehicle: dr ? VEHICLE_LABEL[dr.vehicleType] ?? dr.vehicleType : "",
   };
 });
 
@@ -552,8 +552,8 @@ registerMock("POST", "/air-freight", ({ body }) => {
   const d = db();
   const ship = {
     id: uid("af"), clientId: "u_me",
-    fromAirport: body?.fromAirport ?? "COO — Cotonou Cadjèhoun",
-    toAirport: body?.toAirport ?? "LFW — Lomé",
+    fromAirport: body?.fromAirport ?? "COO · Cotonou Cadjèhoun",
+    toAirport: body?.toAirport ?? "LFW · Lomé",
     weightKg: Number(body?.weightKg ?? 1),
     category: body?.category ?? "parcel",
     priceXOF: Number(body?.priceXOF ?? 45000),

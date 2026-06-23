@@ -8,13 +8,13 @@ import { getAvatar } from "../avatars";
 
 /* ─── Mock Data ─── */
 const TICKETS = [
-  { id: "TK-1247", subject: "Chauffeur impoli — Course IP-8842", from: "Dossou Akotchédjé", fromInit: "DA", fromType: "client" as const, priority: "high" as const, status: "open" as const, category: "Plainte chauffeur", created: "11 Avr 14:20", lastMessage: "Le chauffeur a refusé de mettre le casque et roulait trop vite...", messages: 3 },
+  { id: "TK-1247", subject: "Chauffeur impoli · Course IP-8842", from: "Dossou Akotchédjé", fromInit: "DA", fromType: "client" as const, priority: "high" as const, status: "open" as const, category: "Plainte chauffeur", created: "11 Avr 14:20", lastMessage: "Le chauffeur a refusé de mettre le casque et roulait trop vite...", messages: 3 },
   { id: "TK-1246", subject: "Paiement non reçu pour course terminée", from: "Hounkpatin Akotchaye", fromInit: "HA", fromType: "driver" as const, priority: "medium" as const, status: "in_progress" as const, category: "Problème paiement", created: "11 Avr 13:45", lastMessage: "Ma course IP-9001 est terminée depuis 2h mais le montant n'apparaît pas...", messages: 5 },
   { id: "TK-1245", subject: "Colis endommagé à la livraison", from: "Fifamè Dossou-Yovo", fromInit: "FD", fromType: "client" as const, priority: "high" as const, status: "open" as const, category: "Livraison", created: "11 Avr 12:30", lastMessage: "Le colis est arrivé avec l'emballage déchiré et le contenu cassé...", messages: 2 },
-  { id: "TK-1244", subject: "Demande de remboursement — course annulée", from: "Aïdatou Bello", fromInit: "AB", fromType: "client" as const, priority: "low" as const, status: "resolved" as const, category: "Remboursement", created: "11 Avr 10:00", lastMessage: "Merci pour le remboursement rapide !", messages: 4 },
+  { id: "TK-1244", subject: "Demande de remboursement · course annulée", from: "Aïdatou Bello", fromInit: "AB", fromType: "client" as const, priority: "low" as const, status: "resolved" as const, category: "Remboursement", created: "11 Avr 10:00", lastMessage: "Merci pour le remboursement rapide !", messages: 4 },
   { id: "TK-1243", subject: "Problème GPS sur l'application", from: "Togbédji Mensah", fromInit: "TM", fromType: "driver" as const, priority: "medium" as const, status: "in_progress" as const, category: "Bug technique", created: "10 Avr 22:15", lastMessage: "Le GPS ne se met plus à jour depuis la dernière mise à jour...", messages: 6 },
   { id: "TK-1242", subject: "Alerte SOS déclenchée par erreur", from: "Gbètoho Bocco", fromInit: "GB", fromType: "client" as const, priority: "high" as const, status: "resolved" as const, category: "Sécurité", created: "10 Avr 20:00", lastMessage: "Désolé, c'était une fausse manipulation.", messages: 3 },
-  { id: "TK-1241", subject: "Document expiré — renouvellement en cours", from: "Fifamè Agbodjèlou", fromInit: "FD", fromType: "driver" as const, priority: "low" as const, status: "open" as const, category: "Documents", created: "10 Avr 18:30", lastMessage: "J'ai téléchargé mon nouveau permis, pouvez-vous le valider ?", messages: 2 },
+  { id: "TK-1241", subject: "Document expiré · renouvellement en cours", from: "Fifamè Agbodjèlou", fromInit: "FD", fromType: "driver" as const, priority: "low" as const, status: "open" as const, category: "Documents", created: "10 Avr 18:30", lastMessage: "J'ai téléchargé mon nouveau permis, pouvez-vous le valider ?", messages: 2 },
 ];
 
 const priorityConfig: Record<string, { label: string; color: string; bg: string }> = {
@@ -51,7 +51,7 @@ export function AdminSupportPage() {
     <div className="p-4 md:p-6 space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Support & Tickets</h1>
+          <h1 className="title-gradient" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Support & Tickets</h1>
           <p className="text-slate-500 text-xs mt-1">Gestion des requêtes clients et chauffeurs</p>
         </div>
       </div>
@@ -111,7 +111,7 @@ export function AdminSupportPage() {
                   {statusConfig[selectedTicket.status].label}
                 </span>
               </div>
-              <h2 className="text-slate-900">{selectedTicket.subject}</h2>
+              <h2 className="title-gradient">{selectedTicket.subject}</h2>
               <div className="flex items-center gap-2 mt-2">
                 <img src={getAvatar(selectedTicket.fromInit) || ""} alt="" className="w-6 h-6 rounded-full object-cover" />
                 <span className="text-xs text-slate-500">{selectedTicket.from}</span>

@@ -69,7 +69,7 @@ export function AdminSettingsPage() {
     <div className="p-4 md:p-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Paramètres</h1>
+          <h1 className="title-gradient" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Paramètres</h1>
           <p className="text-slate-500 text-xs mt-1">Configuration de la plateforme IPPOO</p>
         </div>
         <button
@@ -107,7 +107,7 @@ export function AdminSettingsPage() {
           {/* General */}
           {activeSection === "general" && (
             <div className="bg-white rounded-2xl border border-slate-100 p-6 space-y-6">
-              <h3 className="text-slate-800">Paramètres généraux</h3>
+              <h3 className="title-gradient">Paramètres généraux</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-xs text-slate-500 mb-1.5 block">Nom de la plateforme</label>
@@ -168,7 +168,7 @@ export function AdminSettingsPage() {
           {activeSection === "zones" && (
             <div className="bg-white rounded-2xl border border-slate-100 p-6 space-y-5">
               <div className="flex items-center justify-between">
-                <h3 className="text-slate-800">Zones & Tarification</h3>
+                <h3 className="title-gradient">Zones & Tarification</h3>
                 <button className="flex items-center gap-2 bg-[#2A9D8F] text-white px-4 py-2 rounded-xl text-xs">
                   <Plus className="w-4 h-4" /> Ajouter zone
                 </button>
@@ -211,7 +211,7 @@ export function AdminSettingsPage() {
           {/* Commissions */}
           {activeSection === "commissions" && (
             <div className="bg-white rounded-2xl border border-slate-100 p-6 space-y-5">
-              <h3 className="text-slate-800">Taux de commission par service</h3>
+              <h3 className="title-gradient">Taux de commission par service</h3>
               <p className="text-xs text-slate-400">Pourcentage prélevé par IPPOO sur chaque course ou livraison.</p>
               <div className="space-y-3">
                 {commissions.map((c, i) => (
@@ -239,7 +239,7 @@ export function AdminSettingsPage() {
           {/* Payments */}
           {activeSection === "payments" && (
             <div className="bg-white rounded-2xl border border-slate-100 p-6 space-y-5">
-              <h3 className="text-slate-800">Méthodes de paiement</h3>
+              <h3 className="title-gradient">Méthodes de paiement</h3>
               <div className="space-y-3">
                 {[
                   { name: "IPPOO Cash (Portefeuille)", active: true },
@@ -279,7 +279,7 @@ export function AdminSettingsPage() {
           {/* Security */}
           {activeSection === "security" && (
             <div className="bg-white rounded-2xl border border-slate-100 p-6 space-y-5">
-              <h3 className="text-slate-800">Sécurité</h3>
+              <h3 className="title-gradient">Sécurité</h3>
               <div className="space-y-3">
                 {[
                   { name: "Vérification OTP par SMS", desc: "Envoyer un code à 6 chiffres pour chaque connexion", active: true },
@@ -307,7 +307,7 @@ export function AdminSettingsPage() {
           {/* Notifications settings */}
           {activeSection === "notifications_settings" && (
             <div className="bg-white rounded-2xl border border-slate-100 p-6 space-y-5">
-              <h3 className="text-slate-800">Paramètres de notifications</h3>
+              <h3 className="title-gradient">Paramètres de notifications</h3>
               <div className="space-y-3">
                 {[
                   { name: "Nouvelle course attribuée", desc: "Notification push au chauffeur", active: true },

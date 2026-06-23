@@ -107,7 +107,7 @@ export function CouponsPage() {
         {activeCoupons.length > 0 && (
           <>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-slate-800">Disponibles</h3>
+              <h3 className="title-gradient">Disponibles</h3>
               <span className="text-[10px] bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-full">{activeCoupons.length} coupons</span>
             </div>
             <div className="space-y-4">

@@ -209,7 +209,7 @@ export function ReferralPage() {
 
           {/* Code & Link */}
           <div className="bg-white rounded-3xl p-5 shadow-md">
-            <h3 className="text-slate-800 mb-3 text-center">Votre code parrain</h3>
+            <h3 className="title-gradient mb-3 text-center">Votre code parrain</h3>
             <div className="bg-slate-50 rounded-2xl p-4 flex items-center justify-between mb-3">
               <p className="text-[#1E6091] tracking-widest text-sm">{referralCode}</p>
               <button onClick={handleCopyCode} className="w-9 h-9 bg-[#1E6091]/10 rounded-xl flex items-center justify-center">
@@ -248,7 +248,7 @@ export function ReferralPage() {
 
           {/* Reward info */}
           <div className="bg-gradient-to-r from-[#F77F00]/10 to-[#E9C46A]/10 rounded-2xl p-4 border border-[#F77F00]/20">
-            <h3 className="text-slate-800 text-xs mb-2 flex items-center gap-2">
+            <h3 className="title-gradient text-xs mb-2 flex items-center gap-2">
               <Award className="w-4 h-4 text-[#F77F00]" />
               Comment ça marche
             </h3>
@@ -267,7 +267,7 @@ export function ReferralPage() {
 
           {/* Referral list */}
           <div>
-            <h2 className="text-slate-800 mb-3 flex items-center gap-2">
+            <h2 className="title-gradient mb-3 flex items-center gap-2">
               <Users className="w-4 h-4 text-[#1E6091]" />
               Mes filleuls
             </h2>
@@ -324,7 +324,7 @@ export function ReferralPage() {
 
           {/* Share type */}
           <div>
-            <h3 className="text-slate-800 mb-2">Type de partage</h3>
+            <h3 className="title-gradient mb-2">Type de partage</h3>
             <div className="flex gap-2">
               {([
                 { key: "course" as ShareType, label: "Course en cours" },
@@ -343,7 +343,7 @@ export function ReferralPage() {
 
           {/* Privacy options */}
           <div className="bg-white rounded-2xl p-4 shadow-sm space-y-4">
-            <h3 className="text-slate-800 flex items-center gap-2">
+            <h3 className="title-gradient flex items-center gap-2">
               <Shield className="w-4 h-4 text-[#1E6091]" />
               Confidentialité
             </h3>

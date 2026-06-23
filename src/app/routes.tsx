@@ -37,6 +37,7 @@ import { DriverRatingPage } from "./components/driver/driver-rating";
 import { DriverSupportPage } from "./components/driver/driver-support";
 import { AdminLayout } from "./components/admin/admin-layout";
 import { AdminDashboardPage } from "./components/admin/admin-dashboard";
+import { AdminOffersPage } from "./components/admin/admin-offers";
 import { AdminUsersPage } from "./components/admin/admin-users";
 import { AdminDriversPage } from "./components/admin/admin-drivers";
 import { AdminRidesPage } from "./components/admin/admin-rides";
@@ -82,6 +83,7 @@ export const router = createBrowserRouter([
     Component: AdminLayout,
     children: [
       { index: true, Component: AdminDashboardPage },
+      { path: "offers", Component: AdminOffersPage },
       { path: "users", Component: AdminUsersPage },
       { path: "drivers", Component: AdminDriversPage },
       { path: "rides", Component: AdminRidesPage },

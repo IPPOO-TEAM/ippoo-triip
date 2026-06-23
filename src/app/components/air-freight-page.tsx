@@ -12,7 +12,11 @@ import { toast } from "sonner";
 import { getGPSPosition } from "./utils";
 import { getAvatar } from "./avatars";
 import { api } from "../api/client";
+import { usePlatformConfig, findOffer } from "../store/platform-config";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
+
+/** Base de référence (passager national) servant à mettre les tarifs aériens à l'échelle. */
+const AIR_REF_BASE = 25000;
 import logoImg from "../../imports/IPPOO_Transport_&_Logistique-1.png";
 
 /* ─── Images ─── */
@@ -61,7 +65,7 @@ const transferOptions = [
   { id: "moto", label: "Taxi-Moto", price: "500 F", icon: Zap },
   { id: "voiture", label: "Voiture", price: "2 500 F", icon: Briefcase },
   { id: "minibus", label: "Minibus", price: "4 000 F", icon: Users },
-  { id: "none", label: "Aucun", price: "—", icon: X },
+  { id: "none", label: "Aucun", price: "", icon: X },
 ];
 
 const trackingStepsPassenger = [
@@ -97,9 +101,9 @@ const trackingStepsFret = [
 ];
 
 const agents = [
-  { name: "Koffi Adjibadé", initials: "GB", role: "Agent — Aéroport Cotonou", rating: 4.9, trips: 342 },
-  { name: "Sèna Hounkpatin", initials: "HA", role: "Agent — Aéroport Lomé", rating: 4.8, trips: 215 },
-  { name: "Dossou Gbétoho", initials: "DG", role: "Agent fret — Cargo CKO", rating: 4.7, trips: 178 },
+  { name: "Koffi Adjibadé", initials: "GB", role: "Agent · Aéroport Cotonou", rating: 4.9, trips: 342 },
+  { name: "Sèna Hounkpatin", initials: "HA", role: "Agent · Aéroport Lomé", rating: 4.8, trips: 215 },
+  { name: "Dossou Gbétoho", initials: "DG", role: "Agent fret · Cargo CKO", rating: 4.7, trips: 178 },
 ];
 
 const pricingPassenger: Record<string, number> = {
@@ -266,6 +270,7 @@ function ComplianceBanner({ onAccept, accepted }: { onAccept: () => void; accept
 /* ────────────────────────────────── MAIN COMPONENT ────────────────────────────── */
 export function AirFreightPage() {
   const navigate = useNavigate();
+  const config = usePlatformConfig();
   const [activeTab, setActiveTab] = useState<ServiceTab>("passagers");
   const [formStep, setFormStep] = useState<FormStep>("form");
   const [parallaxY, setParallaxY] = useState(0);
@@ -336,23 +341,25 @@ export function AirFreightPage() {
   const headerImg = activeTab === "passagers" ? IMG_PASSENGERS : activeTab === "colis" ? IMG_PLANE : IMG_CARGO;
   const tabColor = activeTab === "passagers" ? "#1E6091" : activeTab === "colis" ? "#2A9D8F" : "#F77F00";
 
-  // Pricing
+  // Pricing — base pilotée par le back office (offre « IPPOO AIR »)
+  const airOffer = findOffer(config, "air");
+  const priceRatio = (airOffer?.priceFrom ?? AIR_REF_BASE) / AIR_REF_BASE;
   const zone = activeTab === "colis" ? getZone(colisFrom, colisTo) : activeTab === "fret" ? getZone(fretFrom, fretTo) : getZone(paxFrom, paxTo);
   const getPrice = () => {
     if (activeTab === "passagers") {
-      let p = pricingPassenger[zone] || 85000;
+      let p = Math.round((pricingPassenger[zone] || 85000) * priceRatio);
       if (paxAssistance) p += 15000;
       const td = paxTransferDepart !== "none" ? 2500 : 0;
       const ta = paxTransferArrivee !== "none" ? 2500 : 0;
       return p + td + ta;
     }
     if (activeTab === "colis") {
-      let p = pricingColis[colisType]?.[zone] || 35000;
+      let p = Math.round((pricingColis[colisType]?.[zone] || 35000) * priceRatio);
       if (colisSpeed === "express") p = Math.round(p * 1.8);
       if (colisInsurance) p += Math.round(p * 0.1);
       return p;
     }
-    let p = pricingFret[zone] || 120000;
+    let p = Math.round((pricingFret[zone] || 120000) * priceRatio);
     if (fretManutention) p += 15000;
     if (fretPalette) p += 10000;
     if (fretInsurance) p += Math.round(p * 0.12);
@@ -401,7 +408,7 @@ export function AirFreightPage() {
       setOrdering(false);
       setTrackingId(tid);
       setFormStep("tracking");
-      toast.success("Réservation IPPOO AIR confirmée !", { description: `N° ${tid} — ${totalPrice.toLocaleString()} FCFA` });
+      toast.success("Réservation IPPOO AIR confirmée !", { description: `N° ${tid} · ${totalPrice.toLocaleString()} FCFA` });
     }, 2000);
   };
 
@@ -447,9 +454,9 @@ export function AirFreightPage() {
               </div>
               <p className="text-white text-lg" style={{ fontFamily: "'Space Grotesk', monospace" }}>{trackingId}</p>
               <div className="flex items-center gap-3 mt-2 text-white/60 text-[10px]">
-                <span>{airports.find(a => a.code === (activeTab === "passagers" ? paxFrom : activeTab === "colis" ? colisFrom : fretFrom))?.name || "—"}</span>
+                <span>{airports.find(a => a.code === (activeTab === "passagers" ? paxFrom : activeTab === "colis" ? colisFrom : fretFrom))?.name || ""}</span>
                 <ArrowRight className="w-3 h-3" />
-                <span>{airports.find(a => a.code === (activeTab === "passagers" ? paxTo : activeTab === "colis" ? colisTo : fretTo))?.name || "—"}</span>
+                <span>{airports.find(a => a.code === (activeTab === "passagers" ? paxTo : activeTab === "colis" ? colisTo : fretTo))?.name || ""}</span>
               </div>
             </div>
           </div>
@@ -539,12 +546,12 @@ export function AirFreightPage() {
               </div>
               <div>
                 <p className="text-sm">{serviceTabsMeta.find(t => t.key === activeTab)?.label}</p>
-                <p className="text-xs text-slate-400">IPPOO AIR — {zone === "national" ? "National" : zone === "regional" ? "Régional" : "International"}</p>
+                <p className="text-xs text-slate-400">IPPOO AIR · {zone === "national" ? "National" : zone === "regional" ? "Régional" : "International"}</p>
               </div>
             </div>
             <div className="h-px bg-slate-100" />
-            <div className="flex justify-between text-sm"><span className="text-slate-400">De</span><span>{fromAP?.name || "—"}</span></div>
-            <div className="flex justify-between text-sm"><span className="text-slate-400">Vers</span><span>{toAP?.name || "—"}</span></div>
+            <div className="flex justify-between text-sm"><span className="text-slate-400">De</span><span>{fromAP?.name || ""}</span></div>
+            <div className="flex justify-between text-sm"><span className="text-slate-400">Vers</span><span>{toAP?.name || ""}</span></div>
             {activeTab === "passagers" && (
               <>
                 <div className="flex justify-between text-sm"><span className="text-slate-400">Passager</span><span>{paxName}</span></div>
@@ -641,7 +648,7 @@ export function AirFreightPage() {
             </button>
             <div className="flex-1">
               <h2 className="text-white flex items-center gap-2"><Plane className="w-5 h-5" /> IPPOO AIR</h2>
-              <p className="text-white/70 text-xs">Transport par avion — Passagers, Colis, Fret</p>
+              <p className="text-white/70 text-xs">Transport par avion · Passagers, Colis, Fret</p>
             </div>
             <img src={logoImg} alt="IPPOO" className="h-7 object-contain drop-shadow-lg" />
           </div>
@@ -731,7 +738,7 @@ export function AirFreightPage() {
               </div>
               <div className="text-left flex-1">
                 <p className="text-sm">Assistance aéroport</p>
-                <p className="text-[10px] text-slate-400">Accompagnement check-in, bagages, embarquement — +15 000 FCFA</p>
+                <p className="text-[10px] text-slate-400">Accompagnement check-in, bagages, embarquement · +15 000 FCFA</p>
               </div>
               <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition ${paxAssistance ? "border-[#E9C46A] bg-[#E9C46A]" : "border-slate-300"}`}>
                 {paxAssistance && <Check className="w-3 h-3 text-white" />}
@@ -787,7 +794,7 @@ export function AirFreightPage() {
                 className={`w-full border-2 border-dashed rounded-2xl py-4 flex flex-col items-center gap-1 transition ${colisPhotos > 0 ? "border-emerald-300 bg-emerald-50/30" : "border-blue-200"}`}
               >
                 <Camera className={`w-5 h-5 ${colisPhotos > 0 ? "text-emerald-500" : "text-[#1E6091]"}`} />
-                <span className="text-xs text-slate-500">{colisPhotos > 0 ? `${colisPhotos} photo(s) — Appuyez pour ajouter` : "Photos du colis (obligatoire)"}</span>
+                <span className="text-xs text-slate-500">{colisPhotos > 0 ? `${colisPhotos} photo(s) · Appuyez pour ajouter` : "Photos du colis (obligatoire)"}</span>
               </button>
             </SectionCard>
 
@@ -893,7 +900,7 @@ export function AirFreightPage() {
                 className={`w-full border-2 border-dashed rounded-2xl py-4 flex flex-col items-center gap-1 transition ${fretPhotos > 0 ? "border-emerald-300 bg-emerald-50/30" : "border-orange-200"}`}
               >
                 <Camera className={`w-5 h-5 ${fretPhotos > 0 ? "text-emerald-500" : "text-[#F77F00]"}`} />
-                <span className="text-xs text-slate-500">{fretPhotos > 0 ? `${fretPhotos} fichier(s) — Photos + Documents` : "Photos & documents (facture, autorisation)"}</span>
+                <span className="text-xs text-slate-500">{fretPhotos > 0 ? `${fretPhotos} fichier(s) · Photos + Documents` : "Photos & documents (facture, autorisation)"}</span>
               </button>
             </SectionCard>
 
@@ -957,7 +964,7 @@ export function AirFreightPage() {
         <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
           <div className="flex justify-between items-center">
             <span className="text-slate-400 text-sm">
-              {activeTab === "passagers" ? "Voyage" : activeTab === "colis" ? "Envoi" : "Fret"} — {zone === "national" ? "National" : zone === "regional" ? "Régional" : "International"}
+              {activeTab === "passagers" ? "Voyage" : activeTab === "colis" ? "Envoi" : "Fret"} · {zone === "national" ? "National" : zone === "regional" ? "Régional" : "International"}
             </span>
             <span className="text-lg" style={{ color: tabColor, fontFamily: "'Space Grotesk', monospace" }}>
               {totalPrice.toLocaleString()} FCFA

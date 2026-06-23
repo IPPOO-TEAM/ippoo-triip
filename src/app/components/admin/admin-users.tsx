@@ -40,7 +40,7 @@ export function AdminUsersPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Gestion des Clients</h1>
+          <h1 className="title-gradient" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Gestion des Clients</h1>
           <p className="text-slate-500 text-xs mt-1">{USERS.length} clients enregistrés sur la plateforme</p>
         </div>
         <div className="flex gap-2">
@@ -114,7 +114,7 @@ export function AdminUsersPage() {
             <div className="flex items-center gap-4 mb-6">
               <img src={getAvatar(selectedUser.initials) || ""} alt="" className="w-16 h-16 rounded-2xl object-cover" />
               <div>
-                <h2 className="text-slate-900">{selectedUser.name}</h2>
+                <h2 className="title-gradient">{selectedUser.name}</h2>
                 <p className="text-slate-400 text-xs">{selectedUser.id}</p>
                 <span className={`inline-block mt-1 text-[10px] px-2 py-0.5 rounded-full ${statusConfig[selectedUser.status].bg}`} style={{ color: statusConfig[selectedUser.status].color }}>
                   {statusConfig[selectedUser.status].label}

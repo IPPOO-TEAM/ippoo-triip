@@ -38,7 +38,7 @@ export function OfflineBanner() {
   if (state.online) return null;
   return (
     <div role="status" aria-live="polite" className="ippoo-offline-banner">
-      <WifiOff className="inline w-3 h-3 mr-1" aria-hidden /> {t("common.offline")} — vos actions seront synchronisées dès le retour du réseau.
+      <WifiOff className="inline w-3 h-3 mr-1" aria-hidden /> {t("common.offline")} · vos actions seront synchronisées dès le retour du réseau.
     </div>
   );
 }

@@ -23,7 +23,7 @@ const DESTINATION: [number, number]  = [6.3666, 2.4383]; // Cotonou Centre
 const DRIVER_START: [number, number] = [6.4380, 2.3560]; // Position initiale chauffeur
 
 /* ── OSRM routing (OpenStreetMap, sans clé API) ──
-   OSRM attend lon,lat — Leaflet attend lat,lon */
+   OSRM attend lon,lat · Leaflet attend lat,lon */
 function osrmUrl(from: [number, number], to: [number, number]) {
   return (
     `https://router.project-osrm.org/route/v1/driving/` +

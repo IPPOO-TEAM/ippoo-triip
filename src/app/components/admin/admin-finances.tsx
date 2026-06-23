@@ -30,9 +30,9 @@ const TRANSACTIONS = [
   { id: "TRX-003", type: "commission" as const, description: "Commission livraison IP-9002", amount: "+300 FCFA", driver: "Sèdégan Houéfa", driverInit: "AD", date: "11 Avr 14:10", status: "pending" },
   { id: "TRX-004", type: "payout" as const, description: "Retrait vers Moov Money", amount: "-85,000 FCFA", driver: "Koffi Adjibadé", driverInit: "GB", date: "11 Avr 13:45", status: "pending" },
   { id: "TRX-005", type: "commission" as const, description: "Commission transport IP-9003", amount: "+3,000 FCFA", driver: "Togbédji Mensah", driverInit: "TM", date: "11 Avr 13:40", status: "completed" },
-  { id: "TRX-006", type: "refund" as const, description: "Remboursement course annulée IP-9005", amount: "-1,000 FCFA", driver: "—", driverInit: "GB", date: "11 Avr 13:20", status: "completed" },
+  { id: "TRX-006", type: "refund" as const, description: "Remboursement course annulée IP-9005", amount: "-1,000 FCFA", driver: "", driverInit: "GB", date: "11 Avr 13:20", status: "completed" },
   { id: "TRX-007", type: "payout" as const, description: "Retrait vers compte bancaire", amount: "-250,000 FCFA", driver: "Aïdatou Bello", driverInit: "AB", date: "11 Avr 12:00", status: "completed" },
-  { id: "TRX-008", type: "commission" as const, description: "Commission IPPOO AIR IP-9008", amount: "+5,000 FCFA", driver: "—", driverInit: "SA", date: "11 Avr 11:30", status: "pending" },
+  { id: "TRX-008", type: "commission" as const, description: "Commission IPPOO AIR IP-9008", amount: "+5,000 FCFA", driver: "", driverInit: "SA", date: "11 Avr 11:30", status: "pending" },
 ];
 
 const PENDING_PAYOUTS = [
@@ -58,7 +58,7 @@ export function AdminFinancesPage() {
     <div className="p-4 md:p-6 space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Finances</h1>
+          <h1 className="title-gradient" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Finances</h1>
           <p className="text-slate-500 text-xs mt-1">Revenus, commissions et retraits de la plateforme</p>
         </div>
         <div className="flex gap-2">
@@ -98,7 +98,7 @@ export function AdminFinancesPage() {
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
-          <h3 className="text-slate-800 mb-4">Revenus & Commissions (par semaine)</h3>
+          <h3 className="title-gradient mb-4">Revenus & Commissions (par semaine)</h3>
           <ResponsiveContainer width="100%" height={240}>
             <AreaChart data={revenueWeekly}>
               <CartesianGrid key="grid" strokeDasharray="3 3" stroke="#f1f5f9" />
@@ -112,7 +112,7 @@ export function AdminFinancesPage() {
         </div>
 
         <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
-          <h3 className="text-slate-800 mb-4">Commissions par service</h3>
+          <h3 className="title-gradient mb-4">Commissions par service</h3>
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={commissionByService}>
               <CartesianGrid key="grid" strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
@@ -128,7 +128,7 @@ export function AdminFinancesPage() {
       {/* Pending Payouts */}
       <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-slate-800">Retraits en attente de validation</h3>
+          <h3 className="title-gradient">Retraits en attente de validation</h3>
           <span className="text-xs px-3 py-1 bg-orange-50 text-[#F77F00] rounded-full">{PENDING_PAYOUTS.length} en attente</span>
         </div>
         <div className="space-y-3">
@@ -156,7 +156,7 @@ export function AdminFinancesPage() {
       {/* Transactions */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
         <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row gap-3">
-          <h3 className="text-slate-800 flex-1">Dernières transactions</h3>
+          <h3 className="title-gradient flex-1">Dernières transactions</h3>
           <div className="flex gap-2">
             {[
               { key: "all", label: "Toutes" },

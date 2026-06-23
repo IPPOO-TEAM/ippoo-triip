@@ -18,8 +18,8 @@ export function getGPSPosition(
     (err) => {
       const fallback =
         err.code === 1
-          ? "GPS refusé — Cotonou, Bénin"
-          : "Position non disponible — Cotonou, Bénin";
+          ? "GPS refusé · Cotonou, Bénin"
+          : "Position non disponible · Cotonou, Bénin";
       onError(fallback);
     },
     { timeout: 8000, enableHighAccuracy: true }
@@ -48,4 +48,129 @@ export function generateOTP(): string {
 export function formatDateFr(date = new Date()): string {
   const months = ["Jan","Fév","Mar","Avr","Mai","Jun","Jul","Aoû","Sep","Oct","Nov","Déc"];
   return `${date.getDate().toString().padStart(2, "0")} ${months[date.getMonth()]} ${date.getFullYear()} à ${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}`;
+}
+
+/* ─── Installation PWA (Progressive Web App) ─── */
+
+/** Événement natif d'installation mis en cache dès qu'il est émis par le navigateur */
+let deferredInstallPrompt: any = null;
+
+/**
+ * Capture l'événement `beforeinstallprompt` au plus tôt afin de pouvoir
+ * déclencher plus tard la vraie boîte de dialogue d'installation native.
+ */
+export function initPWAInstall(onAvailable?: () => void) {
+  if (typeof window === "undefined") return;
+  window.addEventListener("beforeinstallprompt", (e: any) => {
+    // Empêche la mini-infobar par défaut pour piloter nous-mêmes le flux
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    onAvailable?.();
+  });
+  window.addEventListener("appinstalled", () => {
+    deferredInstallPrompt = null;
+    try { localStorage.setItem("ippoo:pwa-installed", "1"); } catch {}
+  });
+}
+
+/** Vrai si la prompt d'installation native est prête à être déclenchée */
+export function isInstallPromptReady(): boolean {
+  return deferredInstallPrompt !== null;
+}
+
+/** Vrai si l'application tourne déjà en mode installé (standalone) */
+export function isPWAInstalled(): boolean {
+  if (typeof window === "undefined") return false;
+  const standalone = window.matchMedia?.("(display-mode: standalone)").matches;
+  const iosStandalone = (window.navigator as any).standalone === true;
+  return Boolean(standalone || iosStandalone);
+}
+
+/** Détecte iOS, qui ne supporte pas `beforeinstallprompt` (installation manuelle) */
+export function isIOS(): boolean {
+  if (typeof navigator === "undefined") return false;
+  return (
+    /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && (navigator as any).maxTouchPoints > 1)
+  );
+}
+
+/**
+ * Injecte dynamiquement un Web App Manifest (icône = logo TRIIP) pour rendre
+ * l'application installable, l'entrypoint HTML étant généré automatiquement.
+ */
+export function ensureWebManifest(iconUrl: string) {
+  if (typeof document === "undefined") return;
+  if (document.querySelector('link[rel="manifest"][data-ippoo]')) return;
+
+  const manifest = {
+    name: "IPPOO TRIIP",
+    short_name: "TRIIP",
+    description: "Taxi-moto, livraison, transport de biens, commandes groupées, covoiturage & fret aérien.",
+    start_url: "/app",
+    scope: "/",
+    display: "standalone",
+    background_color: "#1E6091",
+    theme_color: "#F77F00",
+    orientation: "portrait",
+    icons: [
+      { src: iconUrl, sizes: "192x192", type: "image/png", purpose: "any maskable" },
+      { src: iconUrl, sizes: "512x512", type: "image/png", purpose: "any maskable" },
+    ],
+  };
+
+  const blob = new Blob([JSON.stringify(manifest)], { type: "application/manifest+json" });
+  const link = document.createElement("link");
+  link.rel = "manifest";
+  link.dataset.ippoo = "true";
+  link.href = URL.createObjectURL(blob);
+  document.head.appendChild(link);
+
+  if (!document.querySelector('meta[name="theme-color"]')) {
+    const meta = document.createElement("meta");
+    meta.name = "theme-color";
+    meta.content = "#F77F00";
+    document.head.appendChild(meta);
+  }
+  // Icône Apple touch (iOS « Sur l'écran d'accueil »)
+  if (!document.querySelector('link[rel="apple-touch-icon"]')) {
+    const apple = document.createElement("link");
+    apple.rel = "apple-touch-icon";
+    apple.href = iconUrl;
+    document.head.appendChild(apple);
+  }
+}
+
+/**
+ * Enregistre un service worker minimal (best-effort) — critère requis par
+ * Chrome/Android pour proposer l'installation native. Silencieux si l'env. le refuse.
+ */
+export async function ensureServiceWorker() {
+  if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) return;
+  try {
+    const swCode =
+      'self.addEventListener("install",()=>self.skipWaiting());' +
+      'self.addEventListener("activate",e=>e.waitUntil(self.clients.claim()));' +
+      'self.addEventListener("fetch",()=>{});';
+    const blob = new Blob([swCode], { type: "text/javascript" });
+    await navigator.serviceWorker.register(URL.createObjectURL(blob));
+  } catch {
+    /* Environnement sans service worker — l'installation native peut rester indisponible */
+  }
+}
+
+/**
+ * Déclenche la VRAIE boîte de dialogue d'installation native du navigateur.
+ * Retourne le résultat utilisateur, ou "unavailable" si non installable ici.
+ */
+export async function triggerPWAInstall(): Promise<"accepted" | "dismissed" | "unavailable"> {
+  if (!deferredInstallPrompt) return "unavailable";
+  try {
+    deferredInstallPrompt.prompt();
+    const choice = await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    return choice?.outcome === "accepted" ? "accepted" : "dismissed";
+  } catch {
+    return "unavailable";
+  }
 }

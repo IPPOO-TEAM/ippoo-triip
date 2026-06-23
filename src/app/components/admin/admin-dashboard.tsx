@@ -62,8 +62,8 @@ const cityData = [
 const recentActivity = [
   { id: 1, type: "new_user", text: "Nouvel utilisateur : Adjovi Ganfon", time: "Il y a 2 min", icon: Users, color: "#1E6091" },
   { id: 2, type: "driver_approved", text: "Chauffeur approuvé : Koffi Adjibadé", time: "Il y a 8 min", icon: CheckCircle2, color: "#2A9D8F" },
-  { id: 3, type: "alert", text: "Alerte SOS déclenchée — Course #IP-8842", time: "Il y a 15 min", icon: AlertTriangle, color: "#D62828" },
-  { id: 4, type: "payout", text: "Retrait validé : 125,000 FCFA — Togbédji M.", time: "Il y a 22 min", icon: Wallet, color: "#F77F00" },
+  { id: 3, type: "alert", text: "Alerte SOS déclenchée · Course #IP-8842", time: "Il y a 15 min", icon: AlertTriangle, color: "#D62828" },
+  { id: 4, type: "payout", text: "Retrait validé : 125,000 FCFA · Togbédji M.", time: "Il y a 22 min", icon: Wallet, color: "#F77F00" },
   { id: 5, type: "new_driver", text: "Demande chauffeur : Sèdégan Houéfa", time: "Il y a 30 min", icon: Car, color: "#8B5CF6" },
   { id: 6, type: "support", text: "Ticket support #1247 résolu", time: "Il y a 45 min", icon: CheckCircle2, color: "#2A9D8F" },
 ];
@@ -141,10 +141,10 @@ export function AdminDashboardPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          <h1 className="title-gradient" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             Tableau de bord
           </h1>
-          <p className="text-slate-500 text-xs mt-1">Vue d'ensemble de la plateforme IPPOO — Samedi 11 Avril 2026</p>
+          <p className="text-slate-500 text-xs mt-1">Vue d'ensemble de la plateforme IPPOO · Samedi 11 Avril 2026</p>
         </div>
         <div className="flex items-center gap-2">
           {(["jour", "semaine", "mois"] as const).map((p) => (
@@ -217,7 +217,7 @@ export function AdminDashboardPage() {
         {/* Revenue chart */}
         <div className="lg:col-span-2 bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-slate-800">Revenus & Courses</h3>
+            <h3 className="title-gradient">Revenus & Courses</h3>
             <button className="text-slate-400 hover:text-slate-600"><MoreHorizontal className="w-4 h-4" /></button>
           </div>
           <ResponsiveContainer width="100%" height={260}>
@@ -241,7 +241,7 @@ export function AdminDashboardPage() {
 
         {/* Service breakdown pie */}
         <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
-          <h3 className="text-slate-800 mb-4">Répartition par service</h3>
+          <h3 className="title-gradient mb-4">Répartition par service</h3>
           <ResponsiveContainer width="100%" height={180}>
             <PieChart>
               <Pie key="pie" data={serviceBreakdown} cx="50%" cy="50%" innerRadius={50} outerRadius={75} paddingAngle={3} dataKey="value">
@@ -267,7 +267,7 @@ export function AdminDashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Cities bar chart */}
         <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
-          <h3 className="text-slate-800 mb-4">Courses par ville</h3>
+          <h3 className="title-gradient mb-4">Courses par ville</h3>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={cityData} layout="vertical">
               <CartesianGrid key="grid" strokeDasharray="3 3" stroke="#f1f5f9" horizontal={false} />
@@ -282,7 +282,7 @@ export function AdminDashboardPage() {
         {/* Top drivers */}
         <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-slate-800">Top Chauffeurs du jour</h3>
+            <h3 className="title-gradient">Top Chauffeurs du jour</h3>
             <button onClick={() => navigate("/admin/drivers")} className="text-[#1E6091] text-xs flex items-center gap-1 hover:underline">
               Voir tous <ArrowUpRight className="w-3 h-3" />
             </button>
@@ -306,7 +306,7 @@ export function AdminDashboardPage() {
       {/* Recent Activity */}
       <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-slate-800">Activité récente</h3>
+          <h3 className="title-gradient">Activité récente</h3>
           <button className="text-slate-400 text-xs">Tout voir</button>
         </div>
         <div className="space-y-3">

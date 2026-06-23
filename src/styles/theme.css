@@ -212,3 +212,16 @@
     line-height: 1.5;
   }
 }
+
+/* ─── Titres en dégradé harmonieux IPPOO (Bleu Horizon → Vert Émeraude) ───
+ * On utilise -webkit-text-fill-color pour le dégradé du texte tout en
+ * conservant `color` : les icônes lucide (currentColor) placées à l'intérieur
+ * d'un titre restent ainsi visibles avec leur propre couleur.
+ */
+.title-gradient {
+  background-image: linear-gradient(90deg, #1E6091 0%, #2A9D8F 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #1E6091; /* fallback navigateurs sans background-clip:text */
+}

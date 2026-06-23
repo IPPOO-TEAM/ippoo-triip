@@ -9,16 +9,16 @@ const SENT_NOTIFICATIONS = [
   { id: 1, title: "Maintenance prévue ce soir", body: "L'application sera indisponible entre 23h et 1h pour maintenance. Merci de votre patience.", target: "Tous", sent: "11 Avr 2026, 10:00", read: 89420, total: 152847, status: "delivered" },
   { id: 2, title: "Nouveau service IPPOO AIR disponible !", body: "Découvrez notre service de fret aérien. Envoyez vos colis par avion à travers le Bénin.", target: "Clients", sent: "10 Avr 2026, 09:00", read: 72340, total: 148500, status: "delivered" },
   { id: 3, title: "Bonus x2 ce week-end", body: "Doublez vos gains ce samedi et dimanche. Toutes les commissions sont multipliées par 2.", target: "Chauffeurs", sent: "09 Avr 2026, 18:00", read: 2890, total: 3847, status: "delivered" },
-  { id: 4, title: "Alerte météo — Pluies fortes attendues", body: "Des pluies intenses sont prévues à Cotonou et alentours. Conduisez prudemment.", target: "Tous", sent: "08 Avr 2026, 14:00", read: 105000, total: 152847, status: "delivered" },
+  { id: 4, title: "Alerte météo · Pluies fortes attendues", body: "Des pluies intenses sont prévues à Cotonou et alentours. Conduisez prudemment.", target: "Tous", sent: "08 Avr 2026, 14:00", read: 105000, total: 152847, status: "delivered" },
   { id: 5, title: "Mise à jour v2.5 disponible", body: "Nouvelle version avec suivi amélioré, paiement plus rapide et corrections de bugs.", target: "Tous", sent: "07 Avr 2026, 08:00", read: 98200, total: 152847, status: "delivered" },
 ];
 
 const SYSTEM_ALERTS = [
-  { id: 1, type: "sos" as const, message: "Alerte SOS déclenchée — Course IP-8842 à Fidjrossè", time: "Il y a 15 min", handled: false },
-  { id: 2, type: "fraud" as const, message: "Activité suspecte détectée — Utilisateur USR-042 (3 comptes liés)", time: "Il y a 45 min", handled: false },
-  { id: 3, type: "system" as const, message: "Pic de charge serveur — 95% de capacité atteinte", time: "Il y a 1h", handled: true },
+  { id: 1, type: "sos" as const, message: "Alerte SOS déclenchée · Course IP-8842 à Fidjrossè", time: "Il y a 15 min", handled: false },
+  { id: 2, type: "fraud" as const, message: "Activité suspecte détectée · Utilisateur USR-042 (3 comptes liés)", time: "Il y a 45 min", handled: false },
+  { id: 3, type: "system" as const, message: "Pic de charge serveur · 95% de capacité atteinte", time: "Il y a 1h", handled: true },
   { id: 4, type: "driver" as const, message: "5 chauffeurs n'ont pas mis à jour leurs documents depuis 30 jours", time: "Il y a 2h", handled: false },
-  { id: 5, type: "sos" as const, message: "Alerte SOS annulée — Course IP-8835 (fausse alerte)", time: "Il y a 3h", handled: true },
+  { id: 5, type: "sos" as const, message: "Alerte SOS annulée · Course IP-8835 (fausse alerte)", time: "Il y a 3h", handled: true },
 ];
 
 const alertTypeConfig: Record<string, { label: string; color: string; icon: any }> = {
@@ -38,7 +38,7 @@ export function AdminNotificationsPage() {
     <div className="p-4 md:p-6 space-y-5">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Notifications</h1>
+          <h1 className="title-gradient" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Notifications</h1>
           <p className="text-slate-500 text-xs mt-1">Envoyer et gérer les notifications push et alertes système</p>
         </div>
       </div>
@@ -97,7 +97,7 @@ export function AdminNotificationsPage() {
       {/* Send tab */}
       {tab === "send" && (
         <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm max-w-2xl">
-          <h3 className="text-slate-800 mb-5">Nouvelle notification push</h3>
+          <h3 className="title-gradient mb-5">Nouvelle notification push</h3>
           <div className="space-y-4">
             <div>
               <label className="text-xs text-slate-500 mb-1.5 block">Destinataires</label>
@@ -165,7 +165,7 @@ export function AdminNotificationsPage() {
                   <Megaphone className="w-5 h-5 text-[#1E6091]" />
                 </div>
                 <div className="flex-1">
-                  <h4 className="text-slate-800 text-sm">{n.title}</h4>
+                  <h4 className="title-gradient text-sm">{n.title}</h4>
                   <div className="flex items-center gap-2 mt-0.5">
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">{n.target}</span>
                     <span className="text-[10px] text-slate-400">{n.sent}</span>

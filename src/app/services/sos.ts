@@ -70,7 +70,7 @@ function buildSmsBody(payload: { position: { lat: number; lng: number } | null; 
   const loc = payload.position
     ? `https://maps.google.com/?q=${payload.position.lat},${payload.position.lng}`
     : "position inconnue";
-  return `🚨 URGENCE IPPOO — J'ai besoin d'aide. Ma position : ${loc}${
+  return `🚨 URGENCE IPPOO · J'ai besoin d'aide. Ma position : ${loc}${
     payload.rideId ? ` (course #${payload.rideId})` : ""
   }`;
 }

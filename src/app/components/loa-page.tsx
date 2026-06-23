@@ -160,7 +160,7 @@ export function LOAPage() {
           </div>
 
           {/* Vehicles */}
-          <h2 className="text-slate-800 flex items-center gap-2">
+          <h2 className="title-gradient flex items-center gap-2">
             <Car className="w-4 h-4 text-[#D62828]" />
             Véhicules en LOA
           </h2>
@@ -216,7 +216,7 @@ export function LOAPage() {
 
           {/* Alertes */}
           <div>
-            <h2 className="text-slate-800 mb-3 flex items-center gap-2">
+            <h2 className="title-gradient mb-3 flex items-center gap-2">
               <Bell className="w-4 h-4 text-amber-500" />
               Alertes
             </h2>
@@ -240,7 +240,7 @@ export function LOAPage() {
         <div className="px-5 mt-5 space-y-4">
           {/* Contrat */}
           <div className="bg-white rounded-2xl p-5 shadow-sm">
-            <h3 className="text-slate-800 flex items-center gap-2 mb-4">
+            <h3 className="title-gradient flex items-center gap-2 mb-4">
               <FileText className="w-4 h-4 text-[#1E6091]" />
               Contrat LOA
             </h3>
@@ -289,7 +289,7 @@ export function LOAPage() {
           {/* Carnet d'entretien */}
           <div>
             <button onClick={() => setShowMaintenance(!showMaintenance)} className="w-full flex items-center justify-between mb-3">
-              <h3 className="text-slate-800 flex items-center gap-2">
+              <h3 className="title-gradient flex items-center gap-2">
                 <Wrench className="w-4 h-4 text-[#2A9D8F]" />
                 Carnet d'entretien
               </h3>

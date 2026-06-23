@@ -225,7 +225,7 @@ export function LOARotationPage() {
           <div className="mt-4 bg-white/15 backdrop-blur-sm rounded-2xl p-3 border border-white/15 flex items-center gap-3">
             <TenantAvatar initials={currentTenant.initials} size={38} />
             <div className="flex-1">
-              <p className="text-white text-xs">Semaine {currentWeek.weekNumber} — en cours</p>
+              <p className="text-white text-xs">Semaine {currentWeek.weekNumber} · en cours</p>
               <p className="text-white/70 text-[10px]">{currentTenant.name} · {currentWeek.startDate} → {currentWeek.endDate}</p>
             </div>
             <div className="w-8 h-8 bg-emerald-400/30 rounded-xl flex items-center justify-center">
@@ -299,7 +299,7 @@ export function LOARotationPage() {
 
               {/* Locataires */}
               <div>
-                <h3 className="text-slate-800 text-xs flex items-center gap-2 mb-3">
+                <h3 className="title-gradient text-xs flex items-center gap-2 mb-3">
                   <Users className="w-4 h-4 text-[#2A9D8F]" />
                   Locataires du cycle
                 </h3>
@@ -333,7 +333,7 @@ export function LOARotationPage() {
 
               {/* Rotation Calendar */}
               <div>
-                <h3 className="text-slate-800 text-xs flex items-center gap-2 mb-3">
+                <h3 className="title-gradient text-xs flex items-center gap-2 mb-3">
                   <Calendar className="w-4 h-4 text-[#F77F00]" />
                   Cycle de rotation (8 semaines)
                 </h3>
@@ -359,7 +359,7 @@ export function LOARotationPage() {
                         <TenantAvatar initials={t.initials} size={32} />
                         <div className="flex-1">
                           <p className={`text-xs ${isCurrent ? "text-white" : isCompleted ? "text-slate-400" : "text-slate-700"}`}>{t.name}</p>
-                          <p className={`text-[10px] ${isCurrent ? "text-white/70" : "text-slate-400"}`}>{w.startDate} — {w.endDate}</p>
+                          <p className={`text-[10px] ${isCurrent ? "text-white/70" : "text-slate-400"}`}>{w.startDate} · {w.endDate}</p>
                         </div>
                         {isCurrent && <span className="text-[9px] bg-white/20 px-2 py-1 rounded-full text-white">En cours</span>}
                         {isCompleted && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
@@ -373,7 +373,7 @@ export function LOARotationPage() {
 
               {/* Vehicle Status */}
               <div className="bg-white rounded-2xl p-4 shadow-sm">
-                <h3 className="text-slate-800 text-xs flex items-center gap-2 mb-3">
+                <h3 className="title-gradient text-xs flex items-center gap-2 mb-3">
                   <Info className="w-4 h-4 text-[#E9C46A]" />
                   Statut du véhicule
                 </h3>
@@ -411,8 +411,8 @@ export function LOARotationPage() {
                   <div>
                     <p className={`text-xs ${declStatus === "pending" ? "text-amber-700" : declStatus === "validated" ? "text-emerald-700" : "text-red-700"}`}>
                       {declStatus === "pending" ? "Déclaration en attente de validation" :
-                       declStatus === "validated" ? "Déclaration validée — Prise en charge autorisée !" :
-                       "Déclaration rejetée — corrigez et re-soumettez"}
+                       declStatus === "validated" ? "Déclaration validée · Prise en charge autorisée !" :
+                       "Déclaration rejetée · corrigez et re-soumettez"}
                     </p>
                   </div>
                 </div>
@@ -429,7 +429,7 @@ export function LOARotationPage() {
 
               {/* Step 1: Accept week */}
               <div className="bg-white rounded-2xl p-4 shadow-sm">
-                <h3 className="text-slate-800 text-xs mb-3 flex items-center gap-2">
+                <h3 className="title-gradient text-xs mb-3 flex items-center gap-2">
                   <span className="w-5 h-5 bg-[#1E6091] rounded-lg flex items-center justify-center text-white text-[10px]">1</span>
                   Confirmation de semaine
                 </h3>
@@ -442,7 +442,7 @@ export function LOARotationPage() {
 
               {/* Step 2: Insurance */}
               <div className="bg-white rounded-2xl p-4 shadow-sm">
-                <h3 className="text-slate-800 text-xs mb-3 flex items-center gap-2">
+                <h3 className="title-gradient text-xs mb-3 flex items-center gap-2">
                   <span className="w-5 h-5 bg-[#1E6091] rounded-lg flex items-center justify-center text-white text-[10px]">2</span>
                   Preuve d'assurance
                 </h3>
@@ -464,7 +464,7 @@ export function LOARotationPage() {
 
               {/* Step 3: État des lieux */}
               <div className="bg-white rounded-2xl p-4 shadow-sm">
-                <h3 className="text-slate-800 text-xs mb-3 flex items-center gap-2">
+                <h3 className="title-gradient text-xs mb-3 flex items-center gap-2">
                   <span className="w-5 h-5 bg-[#1E6091] rounded-lg flex items-center justify-center text-white text-[10px]">3</span>
                   État des lieux d'entrée
                 </h3>
@@ -563,15 +563,15 @@ export function LOARotationPage() {
 
                   {/* Comparatif */}
                   <div className="bg-white rounded-2xl p-4 shadow-sm">
-                    <h3 className="text-slate-800 text-xs flex items-center gap-2 mb-4">
+                    <h3 className="title-gradient text-xs flex items-center gap-2 mb-4">
                       <Eye className="w-4 h-4 text-[#1E6091]" />
-                      Rapport de passation — Comparatif
+                      Rapport de passation · Comparatif
                     </h3>
                     <div className="space-y-3">
                       {[
                         { label: "Kilométrage", entry: "23 456 km", exit: restKm + " km", diff: `+${parseInt(restKm) - 23456} km` },
                         { label: "Carburant", entry: "75%", exit: restFuel + "%", diff: `${restFuel - 75 > 0 ? "+" : ""}${restFuel - 75}%` },
-                        { label: "Photos entrée", entry: `${totalDeclPhotos}`, exit: `${totalRestPhotos}`, diff: "—" },
+                        { label: "Photos entrée", entry: `${totalDeclPhotos}`, exit: `${totalRestPhotos}`, diff: "" },
                       ].map((r, i) => (
                         <div key={i} className="flex items-center gap-3 py-2 border-b border-slate-50 last:border-0">
                           <p className="text-slate-400 text-[10px] w-20">{r.label}</p>
@@ -585,7 +585,7 @@ export function LOARotationPage() {
                     <div className="mt-4 p-3 bg-emerald-50 rounded-xl">
                       <p className="text-emerald-700 text-[11px] flex items-center gap-2">
                         <CircleCheck className="w-4 h-4" />
-                        Véhicule prêt pour rotation suivante — Fifamè Noukpo (S16)
+                        Véhicule prêt pour rotation suivante · Fifamè Noukpo (S16)
                       </p>
                     </div>
                   </div>
@@ -596,13 +596,13 @@ export function LOARotationPage() {
                     <RotateCcw className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
                     <div>
                       <p className="text-amber-700 text-xs">Restitution obligatoire</p>
-                      <p className="text-amber-600/70 text-[10px] mt-1">Fin de semaine S{currentWeek.weekNumber} — Soumettez votre déclaration de restitution avant la passation au locataire suivant.</p>
+                      <p className="text-amber-600/70 text-[10px] mt-1">Fin de semaine S{currentWeek.weekNumber} · Soumettez votre déclaration de restitution avant la passation au locataire suivant.</p>
                     </div>
                   </div>
 
                   {/* Exit photos */}
                   <div className="bg-white rounded-2xl p-4 shadow-sm">
-                    <h3 className="text-slate-800 text-xs mb-3 flex items-center gap-2">
+                    <h3 className="title-gradient text-xs mb-3 flex items-center gap-2">
                       <Camera className="w-4 h-4 text-[#D62828]" />
                       Photos de sortie
                     </h3>
@@ -671,7 +671,7 @@ export function LOARotationPage() {
           {tab === "scores" && (
             <motion.div key="scores" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="space-y-4">
               <div className="bg-white rounded-2xl p-4 shadow-sm">
-                <h3 className="text-slate-800 text-xs flex items-center gap-2 mb-1">
+                <h3 className="title-gradient text-xs flex items-center gap-2 mb-1">
                   <Star className="w-4 h-4 text-[#E9C46A]" />
                   Score de fiabilité locataire
                 </h3>
@@ -718,7 +718,7 @@ export function LOARotationPage() {
                         {t.blocked && (
                           <div className="mt-3 p-2 bg-red-100 rounded-xl flex items-center gap-2">
                             <Ban className="w-4 h-4 text-red-500" />
-                            <p className="text-red-600 text-[10px]">Rotation bloquée — assurance non fournie + score &lt; 50</p>
+                            <p className="text-red-600 text-[10px]">Rotation bloquée · assurance non fournie + score &lt; 50</p>
                           </div>
                         )}
                       </div>
@@ -729,7 +729,7 @@ export function LOARotationPage() {
 
               {/* Règles de pénalités */}
               <div className="bg-white rounded-2xl p-4 shadow-sm">
-                <h3 className="text-slate-800 text-xs flex items-center gap-2 mb-3">
+                <h3 className="title-gradient text-xs flex items-center gap-2 mb-3">
                   <AlertTriangle className="w-4 h-4 text-[#D62828]" />
                   Règles de pénalité
                 </h3>

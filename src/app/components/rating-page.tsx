@@ -234,7 +234,7 @@ export function RatingPage() {
           {/* Pending ratings (driver view) */}
           {pendingRatings.length > 0 && (
             <div>
-              <h2 className="text-slate-800 mb-3 flex items-center gap-2">
+              <h2 className="title-gradient mb-3 flex items-center gap-2">
                 <Clock className="w-4 h-4 text-[#F77F00]" />
                 À évaluer
               </h2>
@@ -259,7 +259,7 @@ export function RatingPage() {
 
           {/* Historique évaluations */}
           <div>
-            <h2 className="text-slate-800 mb-3 flex items-center gap-2">
+            <h2 className="title-gradient mb-3 flex items-center gap-2">
               <TrendingUp className="w-4 h-4 text-[#1E6091]" />
               Historique des évaluations
             </h2>

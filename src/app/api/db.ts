@@ -39,16 +39,16 @@ export type Db = {
 
 /** Lieux réels du Grand Nokoué (Cotonou, Calavi, Porto-Novo). */
 export const PLACES = [
-  { lat: 6.3654, lng: 2.4183, label: "Cotonou — Dantokpa" },
-  { lat: 6.3703, lng: 2.3912, label: "Cotonou — Ganhi" },
-  { lat: 6.3899, lng: 2.3489, label: "Cotonou — Cadjèhoun" },
-  { lat: 6.3580, lng: 2.4290, label: "Cotonou — Akpakpa" },
-  { lat: 6.4530, lng: 2.3560, label: "Abomey-Calavi — Carrefour" },
-  { lat: 6.4969, lng: 2.6036, label: "Porto-Novo — Place Bayol" },
-  { lat: 6.3290, lng: 2.3870, label: "Cotonou — Fidjrossè Plage" },
-  { lat: 6.3760, lng: 2.4090, label: "Cotonou — Étoile Rouge" },
-  { lat: 6.4150, lng: 2.3490, label: "Godomey — Marché" },
-  { lat: 6.4780, lng: 2.6180, label: "Porto-Novo — Ouando" },
+  { lat: 6.3654, lng: 2.4183, label: "Cotonou · Dantokpa" },
+  { lat: 6.3703, lng: 2.3912, label: "Cotonou · Ganhi" },
+  { lat: 6.3899, lng: 2.3489, label: "Cotonou · Cadjèhoun" },
+  { lat: 6.3580, lng: 2.4290, label: "Cotonou · Akpakpa" },
+  { lat: 6.4530, lng: 2.3560, label: "Abomey-Calavi · Carrefour" },
+  { lat: 6.4969, lng: 2.6036, label: "Porto-Novo · Place Bayol" },
+  { lat: 6.3290, lng: 2.3870, label: "Cotonou · Fidjrossè Plage" },
+  { lat: 6.3760, lng: 2.4090, label: "Cotonou · Étoile Rouge" },
+  { lat: 6.4150, lng: 2.3490, label: "Godomey · Marché" },
+  { lat: 6.4780, lng: 2.6180, label: "Porto-Novo · Ouando" },
 ];
 
 /** Noms authentiquement béninois (Fon, Yoruba, Goun). */
@@ -189,7 +189,7 @@ function seed(): Db {
   const go1: GroupOrder = {
     id: "go_1",
     hostId: me.id,
-    title: "Déjeuner bureau — Akpakpa",
+    title: "Déjeuner bureau · Akpakpa",
     vendor: "Chez Maman Bénin",
     status: "open",
     deliveryFeeXOF: 1000,
@@ -207,9 +207,9 @@ function seed(): Db {
   // Covoiturages
   const carpools: Record<string, CarpoolTrip> = {};
   [
-    { from: "Cotonou — Étoile Rouge", to: "Porto-Novo — Ouando", driver: "Hervé Sossou", seats: 4, left: 2, price: 1500, veh: "Toyota Corolla" },
-    { from: "Abomey-Calavi — Carrefour", to: "Cotonou — Ganhi", driver: "Aurore Agossou", seats: 3, left: 1, price: 800, veh: "Hyundai i10" },
-    { from: "Cotonou — Cadjèhoun", to: "Bohicon", driver: "Damien Vodounnou", seats: 6, left: 5, price: 3000, veh: "Toyota Hiace" },
+    { from: "Cotonou · Étoile Rouge", to: "Porto-Novo · Ouando", driver: "Hervé Sossou", seats: 4, left: 2, price: 1500, veh: "Toyota Corolla" },
+    { from: "Abomey-Calavi · Carrefour", to: "Cotonou · Ganhi", driver: "Aurore Agossou", seats: 3, left: 1, price: 800, veh: "Hyundai i10" },
+    { from: "Cotonou · Cadjèhoun", to: "Bohicon", driver: "Damien Vodounnou", seats: 6, left: 5, price: 3000, veh: "Toyota Hiace" },
   ].forEach((c, i) => {
     const id = `cp_${i + 1}`;
     const fromP = PLACES.find((p) => p.label === c.from) ?? PLACES[0];
@@ -234,8 +234,8 @@ function seed(): Db {
     af_1: {
       id: "af_1",
       clientId: me.id,
-      fromAirport: "COO — Cotonou Cadjèhoun",
-      toAirport: "LFW — Lomé",
+      fromAirport: "COO · Cotonou Cadjèhoun",
+      toAirport: "LFW · Lomé",
       weightKg: 12,
       category: "parcel",
       priceXOF: 45000,

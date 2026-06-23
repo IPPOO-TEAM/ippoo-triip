@@ -164,7 +164,7 @@ export function NotificationsPage() {
         <div className="relative z-10">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <h2 className="text-gray-800">Notifications</h2>
+              <h2 className="title-gradient">Notifications</h2>
               <p className="text-xs text-gray-400 mt-0.5">
                 {unreadCount > 0 ? `${unreadCount} non lue${unreadCount > 1 ? "s" : ""}` : "Tout est lu"}
               </p>
