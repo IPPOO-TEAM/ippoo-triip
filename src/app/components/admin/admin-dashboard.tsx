@@ -6,6 +6,7 @@ import {
   CheckCircle2, Clock, MapPin, Activity, Eye, MoreHorizontal
 } from "lucide-react";
 import { AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
+import { toast } from "sonner";
 import { getAvatar } from "../avatars";
 import { api } from "../../api/client";
 import type { AdminStats } from "../../types/domain";
@@ -218,7 +219,7 @@ export function AdminDashboardPage() {
         <div className="lg:col-span-2 bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h3 className="title-gradient">Revenus & Courses</h3>
-            <button className="text-slate-400 hover:text-slate-600"><MoreHorizontal className="w-4 h-4" /></button>
+            <button onClick={() => toast.info("Filtres avancés bientôt disponibles")} className="text-slate-400 hover:text-slate-600" aria-label="Options"><MoreHorizontal className="w-4 h-4" /></button>
           </div>
           <ResponsiveContainer width="100%" height={260}>
             <AreaChart data={revenueData}>
@@ -307,7 +308,7 @@ export function AdminDashboardPage() {
       <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <h3 className="title-gradient">Activité récente</h3>
-          <button className="text-slate-400 text-xs">Tout voir</button>
+          <button onClick={() => navigate("/admin/rides")} className="text-slate-400 text-xs hover:text-slate-600">Tout voir</button>
         </div>
         <div className="space-y-3">
           {recentActivity.map((a) => (

@@ -59,6 +59,7 @@ export function DriverTrackingPage() {
   const [otp] = useState(generateOTP());
   const [otpInput, setOtpInput] = useState("");
   const [showEmergency, setShowEmergency] = useState(false);
+  const [clientRating, setClientRating] = useState(4);
   const [showComplete, setShowComplete] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -360,8 +361,13 @@ export function DriverTrackingPage() {
             <p className="text-slate-500 text-[10px] mb-2">Notez votre client</p>
             <div className="flex justify-center gap-2 mb-5">
               {[1, 2, 3, 4, 5].map(s => (
-                <button key={s} className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center">
-                  <Star className="w-5 h-5 text-[#E9C46A]" fill={s <= 4 ? "#E9C46A" : "none"} />
+                <button
+                  key={s}
+                  onClick={() => setClientRating(s)}
+                  aria-label={`Note ${s} étoile${s > 1 ? "s" : ""}`}
+                  className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center"
+                >
+                  <Star className="w-5 h-5 text-[#E9C46A]" fill={s <= clientRating ? "#E9C46A" : "none"} />
                 </button>
               ))}
             </div>

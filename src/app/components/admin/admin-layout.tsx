@@ -1,5 +1,6 @@
 import { Outlet, useNavigate, useLocation } from "react-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { useScrollRestoration } from "../../hooks/use-scroll-restoration";
 import {
   LayoutDashboard, Users, Car, Route, Wallet, Headphones, Settings, Bell,
   ChevronLeft, ChevronRight, LogOut, Search, Menu, X, Shield, Tag
@@ -25,6 +26,8 @@ export function AdminLayout() {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const mainRef = useRef<HTMLElement>(null);
+  useScrollRestoration(mainRef);
 
   const isActive = (path: string, exact?: boolean) => {
     if (exact) return location.pathname === path;
@@ -151,7 +154,7 @@ export function AdminLayout() {
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto">
+        <main ref={mainRef} className="flex-1 overflow-y-auto">
           <Outlet />
         </main>
       </div>

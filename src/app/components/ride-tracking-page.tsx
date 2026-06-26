@@ -656,13 +656,21 @@ export function RideTrackingPage() {
             {callDuration > 0 ? formatCallDuration(callDuration) : "Appel en cours..."}
           </p>
           <div className="flex gap-6">
-            <button className="w-14 h-14 rounded-full bg-slate-700 flex items-center justify-center">
+            <button
+              onClick={() => { endCall(); setShowChat(true); }}
+              aria-label="Ouvrir la conversation"
+              className="w-14 h-14 rounded-full bg-slate-700 flex items-center justify-center"
+            >
               <MessageSquare className="w-5 h-5 text-white" />
             </button>
-            <button onClick={endCall} className="w-16 h-16 rounded-full bg-[#D62828] flex items-center justify-center shadow-lg shadow-red-500/30 active:scale-90 transition">
+            <button onClick={endCall} aria-label="Raccrocher" className="w-16 h-16 rounded-full bg-[#D62828] flex items-center justify-center shadow-lg shadow-red-500/30 active:scale-90 transition">
               <PhoneOff className="w-6 h-6 text-white" />
             </button>
-            <button className="w-14 h-14 rounded-full bg-slate-700 flex items-center justify-center">
+            <button
+              onClick={() => handleShare("lien")}
+              aria-label="Partager le trajet"
+              className="w-14 h-14 rounded-full bg-slate-700 flex items-center justify-center"
+            >
               <Share2 className="w-5 h-5 text-white" />
             </button>
           </div>

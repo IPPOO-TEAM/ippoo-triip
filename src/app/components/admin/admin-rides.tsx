@@ -5,6 +5,8 @@ import {
   CheckCircle2, XCircle, AlertTriangle, ArrowRight, Filter, RotateCcw
 } from "lucide-react";
 import { getAvatar } from "../avatars";
+import { toast } from "sonner";
+import { downloadBlob } from "../utils";
 
 /* ─── Mock Data ─── */
 const RIDES = [
@@ -39,6 +41,14 @@ export function AdminRidesPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [serviceFilter, setServiceFilter] = useState("all");
   const [selectedRide, setSelectedRide] = useState<typeof RIDES[0] | null>(null);
+  const [page, setPage] = useState(1);
+
+  const exportCSV = () => {
+    const h = "ID,Service,Client,Chauffeur,Départ,Arrivée,Distance,Tarif,Commission,Statut,Date,Heure\n";
+    const r = RIDES.map(x => [x.id, x.service, x.client, x.driver, x.from, x.to, x.distance, x.fare, x.commission, x.status, x.date, x.time].join(","));
+    downloadBlob(h + r.join("\n"), `courses-${new Date().toISOString().slice(0,10)}.csv`, "text/csv");
+    toast.success(`${RIDES.length} courses exportées`);
+  };
 
   const filtered = RIDES.filter((r) => {
     const matchSearch = r.id.toLowerCase().includes(search.toLowerCase()) || r.client.toLowerCase().includes(search.toLowerCase()) || r.driver.toLowerCase().includes(search.toLowerCase());
@@ -54,7 +64,7 @@ export function AdminRidesPage() {
           <h1 className="title-gradient" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Courses & Missions</h1>
           <p className="text-slate-500 text-xs mt-1">Suivi en temps réel de toutes les courses et livraisons</p>
         </div>
-        <button className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-xl text-xs">
+        <button onClick={exportCSV} className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-xl text-xs hover:border-[#1E6091] transition">
           <Download className="w-4 h-4" /> Exporter
         </button>
       </div>
@@ -169,10 +179,25 @@ export function AdminRidesPage() {
 
             <div className="flex gap-2">
               {selectedRide.status === "in_progress" && (
-                <button className="flex-1 bg-red-50 text-[#D62828] py-2.5 rounded-xl text-xs">Annuler la course</button>
+                <button
+                  onClick={() => { toast.warning(`Course ${selectedRide.id} annulée`); setSelectedRide(null); }}
+                  className="flex-1 bg-red-50 text-[#D62828] py-2.5 rounded-xl text-xs"
+                >
+                  Annuler la course
+                </button>
               )}
-              <button className="flex-1 bg-slate-100 text-slate-600 py-2.5 rounded-xl text-xs">Contacter client</button>
-              <button className="flex-1 bg-slate-100 text-slate-600 py-2.5 rounded-xl text-xs">Contacter chauffeur</button>
+              <button
+                onClick={() => { toast.success(`Notification envoyée à ${selectedRide.client}`); }}
+                className="flex-1 bg-slate-100 text-slate-600 py-2.5 rounded-xl text-xs"
+              >
+                Contacter client
+              </button>
+              <button
+                onClick={() => { toast.success(`Notification envoyée à ${selectedRide.driver}`); }}
+                className="flex-1 bg-slate-100 text-slate-600 py-2.5 rounded-xl text-xs"
+              >
+                Contacter chauffeur
+              </button>
             </div>
           </div>
         </div>
@@ -227,7 +252,7 @@ export function AdminRidesPage() {
                     </td>
                     <td className="px-4 py-3 text-slate-400 text-[10px]">{r.time}</td>
                     <td className="px-4 py-3">
-                      <button className="text-slate-300 hover:text-slate-500"><MoreHorizontal className="w-4 h-4" /></button>
+                      <button onClick={(e) => { e.stopPropagation(); setSelectedRide(r); }} aria-label="Voir le détail" className="text-slate-300 hover:text-slate-500"><MoreHorizontal className="w-4 h-4" /></button>
                     </td>
                   </tr>
                 );
@@ -238,9 +263,9 @@ export function AdminRidesPage() {
         <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100">
           <p className="text-slate-400 text-[10px]">{filtered.length} résultat(s)</p>
           <div className="flex items-center gap-1">
-            <button className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100"><ChevronLeft className="w-4 h-4" /></button>
-            <button className="w-8 h-8 rounded-lg bg-[#1E6091] text-white text-xs">1</button>
-            <button className="w-8 h-8 rounded-lg text-slate-400 hover:bg-slate-100"><ChevronRight className="w-4 h-4" /></button>
+            <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} aria-label="Page précédente" className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100 disabled:opacity-40"><ChevronLeft className="w-4 h-4" /></button>
+            <button onClick={() => setPage(1)} className={`w-8 h-8 rounded-lg text-xs ${page === 1 ? "bg-[#1E6091] text-white" : "text-slate-400 hover:bg-slate-100"}`}>1</button>
+            <button onClick={() => setPage((p) => p + 1)} aria-label="Page suivante" className="w-8 h-8 rounded-lg text-slate-400 hover:bg-slate-100 flex items-center justify-center"><ChevronRight className="w-4 h-4" /></button>
           </div>
         </div>
       </div>

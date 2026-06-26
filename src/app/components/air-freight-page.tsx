@@ -275,6 +275,7 @@ export function AirFreightPage() {
   const [formStep, setFormStep] = useState<FormStep>("form");
   const [parallaxY, setParallaxY] = useState(0);
   const [showShare, setShowShare] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"cash" | "momo">("cash");
   const [complianceAccepted, setComplianceAccepted] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -485,9 +486,13 @@ export function AirFreightPage() {
                 <p className="text-[10px] text-slate-400">{agents[0].role}</p>
               </div>
               <div className="flex gap-2">
-                <button className="w-9 h-9 bg-[#2A9D8F]/10 rounded-xl flex items-center justify-center">
+                <a
+                  href="tel:+22997000000"
+                  aria-label={`Appeler ${agents[0].name}`}
+                  className="w-9 h-9 bg-[#2A9D8F]/10 rounded-xl flex items-center justify-center"
+                >
                   <Phone className="w-4 h-4 text-[#2A9D8F]" />
-                </button>
+                </a>
               </div>
             </div>
           </SectionCard>
@@ -594,19 +599,27 @@ export function AirFreightPage() {
             <label className="text-sm text-slate-500 mb-3 block">Mode de paiement</label>
             <div className="grid grid-cols-2 gap-2.5">
               {[
-                { icon: CreditCard, label: "IPPOO Cash", sub: "Solde: 45 000 FCFA", sel: true },
-                { icon: Landmark, label: "Mobile Money", sub: "MTN / Moov", sel: false },
-              ].map((m, i) => (
-                <button key={i} className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all ${m.sel ? "border-[#2A9D8F] bg-emerald-50" : "border-transparent bg-slate-50"}`}>
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${m.sel ? "bg-gradient-to-br from-emerald-400 to-teal-600 shadow-lg shadow-emerald-500/25" : "bg-slate-100"}`}>
-                    <m.icon className={`w-5 h-5 ${m.sel ? "text-white" : "text-slate-400"}`} />
+                { id: "cash" as const, icon: CreditCard, label: "IPPOO Cash", sub: "Solde: 45 000 FCFA" },
+                { id: "momo" as const, icon: Landmark, label: "Mobile Money", sub: "MTN / Moov" },
+              ].map((m) => {
+                const sel = paymentMethod === m.id;
+                return (
+                <button
+                  key={m.id}
+                  onClick={() => setPaymentMethod(m.id)}
+                  aria-pressed={sel}
+                  className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all ${sel ? "border-[#2A9D8F] bg-emerald-50" : "border-transparent bg-slate-50"}`}
+                >
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${sel ? "bg-gradient-to-br from-emerald-400 to-teal-600 shadow-lg shadow-emerald-500/25" : "bg-slate-100"}`}>
+                    <m.icon className={`w-5 h-5 ${sel ? "text-white" : "text-slate-400"}`} />
                   </div>
                   <div className="text-left">
                     <p className="text-sm">{m.label}</p>
                     <p className="text-[10px] text-slate-400">{m.sub}</p>
                   </div>
                 </button>
-              ))}
+                );
+              })}
             </div>
           </SectionCard>
 

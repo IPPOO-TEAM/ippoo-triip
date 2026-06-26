@@ -3,6 +3,7 @@ import {
   Bell, Send, Users, Car, Globe, Megaphone, Clock, CheckCircle2,
   AlertTriangle, ChevronRight, Trash2, Eye, Filter, Search, Plus
 } from "lucide-react";
+import { toast } from "sonner";
 
 /* ─── Mock Data ─── */
 const SENT_NOTIFICATIONS = [
@@ -82,7 +83,12 @@ export function AdminNotificationsPage() {
                   <p className="text-xs text-slate-700">{a.message}</p>
                 </div>
                 {!a.handled ? (
-                  <button className="shrink-0 px-3 py-2 bg-[#1E6091] text-white rounded-xl text-xs">Traiter</button>
+                  <button
+                    onClick={() => { a.handled = true; toast.success("Alerte marquée comme traitée"); }}
+                    className="shrink-0 px-3 py-2 bg-[#1E6091] text-white rounded-xl text-xs"
+                  >
+                    Traiter
+                  </button>
                 ) : (
                   <span className="shrink-0 flex items-center gap-1 text-[10px] text-[#2A9D8F]">
                     <CheckCircle2 className="w-3.5 h-3.5" /> Traité
@@ -144,10 +150,23 @@ export function AdminNotificationsPage() {
               />
             </div>
             <div className="flex gap-3">
-              <button className="flex items-center gap-2 bg-[#1E6091] text-white px-6 py-3 rounded-xl text-xs shadow-lg shadow-blue-400/20">
+              <button
+                onClick={() => {
+                  if (!notifTitle.trim() || !notifBody.trim()) return toast.error("Titre et message requis");
+                  toast.success(`Notification envoyée à ${notifTarget === "all" ? "tous" : notifTarget}`);
+                  setNotifTitle(""); setNotifBody("");
+                }}
+                className="flex items-center gap-2 bg-[#1E6091] text-white px-6 py-3 rounded-xl text-xs shadow-lg shadow-blue-400/20"
+              >
                 <Send className="w-4 h-4" /> Envoyer maintenant
               </button>
-              <button className="flex items-center gap-2 bg-slate-100 text-slate-500 px-6 py-3 rounded-xl text-xs">
+              <button
+                onClick={() => {
+                  if (!notifTitle.trim() || !notifBody.trim()) return toast.error("Titre et message requis");
+                  toast.info("Notification programmée pour demain 9h");
+                }}
+                className="flex items-center gap-2 bg-slate-100 text-slate-500 px-6 py-3 rounded-xl text-xs"
+              >
                 <Clock className="w-4 h-4" /> Programmer
               </button>
             </div>

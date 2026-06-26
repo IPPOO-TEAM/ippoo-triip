@@ -10,11 +10,40 @@
  */
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { AfricanPattern } from "./icons";
+
+/* ─── Photos africaines réelles (fournies) ─── */
+import photoMoto from "../../imports/photo_4_2026-06-26_14-18-37.jpg";
+import photoDriver from "../../imports/photo_5_2026-06-26_14-18-37.jpg";
+import photoTravel from "../../imports/photo_14_2026-06-26_14-18-38.jpg";
+import photoFamily from "../../imports/photo_6_2026-06-26_14-18-38.jpg";
+import photoCargo from "../../imports/photo_3_2026-06-26_14-18-37.jpg";
+import photoDelivery from "../../imports/photo_11_2026-06-26_14-18-38.jpg";
+import photoMarket from "../../imports/photo_13_2026-06-26_14-18-38.jpg";
+import photoMerchant from "../../imports/photo_9_2026-06-26_14-18-38.jpg";
+import photoAirport from "../../imports/photo_15_2026-06-26_14-18-38.jpg";
+import photoWarehouse from "../../imports/photo_8_2026-06-26_14-18-38.jpg";
+
+/* ─── Photos nouvelles (voyages & gestion d'objets) ─── */
+import photoTripStudents from "../../imports/photo_12_2026-06-26_14-29-33.jpg";
+import photoTripFamily from "../../imports/photo_4_2026-06-26_14-29-33.jpg";
+import photoTripBusiness from "../../imports/photo_8_2026-06-26_14-29-33.jpg";
+import photoTripWedding from "../../imports/photo_1_2026-06-26_14-29-33.jpg";
+import photoTripHoneymoon from "../../imports/photo_13_2026-06-26_14-29-33.jpg";
+import photoTripCounter from "../../imports/photo_16_2026-06-26_14-29-33.jpg";
+import photoBagsCheck from "../../imports/photo_14_2026-06-26_14-29-33.jpg";
+import photoBagsLuggage from "../../imports/photo_15_2026-06-26_14-29-33.jpg";
+import photoBagsTraveller from "../../imports/photo_14_2026-06-26_14-18-38-1.jpg";
+
+/* ─── Marketplace & boutique mode ─── */
+import photoMarketplace from "../../imports/photo_2_2026-06-26_14-45-04.jpg";
+import photoLuxe from "../../imports/photo_8_2026-06-26_14-45-04.jpg";
 import {
   Sparkles, Car, Users, GraduationCap, KeyRound, PartyPopper, Map,
   Truck, ShoppingBag, Ship, Boxes, Globe, Store, Gem, ReceiptText,
   Luggage, Baby, HeartHandshake, Ambulance, ConciergeBell, Building2,
   Award, Ticket, Megaphone, ArrowRight, CheckCircle2, type LucideIcon,
+  Plane, Briefcase, Heart, Church, Search, ShieldCheck, QrCode, Wallet,
+  PackageSearch, ScanLine,
 } from "lucide-react";
 
 /** Construit une URL Unsplash plein cadre (fit=max → image entière, non rognée). */
@@ -59,7 +88,7 @@ const CATEGORIES: Category[] = [
       {
         icon: Car,
         title: "Transport de personnes",
-        img: U("photo-1663366936627-5a1497763338"),
+        img: photoMoto,
         paragraphs: [
           "Voyagez en toute simplicité grâce à nos différentes solutions de mobilité adaptées à chaque situation.",
           "Notre service VTC vous permet de réserver un véhicule avec chauffeur pour vos déplacements privés, professionnels ou événementiels. Pour les trajets urbains, notre service Taxi Moto constitue une alternative rapide, économique et particulièrement efficace.",
@@ -71,7 +100,7 @@ const CATEGORIES: Category[] = [
       {
         icon: Users,
         title: "Covoiturage & Transport partagé",
-        img: U("photo-1708347456816-f4d28505c855"),
+        img: photoDriver,
         paragraphs: [
           "Réduisez vos dépenses tout en voyageant de manière plus responsable.",
           "Notre plateforme permet aux utilisateurs partageant un même itinéraire de mutualiser leurs trajets afin de diminuer les coûts de transport, d'optimiser l'utilisation des véhicules et de limiter l'empreinte environnementale.",
@@ -82,7 +111,7 @@ const CATEGORIES: Category[] = [
       {
         icon: Map,
         title: "Voyages organisés",
-        img: U("photo-1509099955921-f0b4ed0c175c"),
+        img: photoTravel,
         paragraphs: [
           "Voyagez en toute tranquillité grâce à nos offres complètes.",
           "Nos formules peuvent inclure le transport, les transferts, l'hébergement, les repas, les petits-déjeuners, les déplacements professionnels ainsi que de nombreux services complémentaires.",
@@ -92,7 +121,7 @@ const CATEGORIES: Category[] = [
       {
         icon: GraduationCap,
         title: "Transport scolaire & Assistance aux familles",
-        img: U("photo-1548102245-c79dbcfa9f92"),
+        img: photoFamily,
         paragraphs: [
           "Parce que la sécurité de vos enfants est une priorité.",
           "Lorsque les parents sont indisponibles, IPPOO TRIIP peut assurer les trajets entre le domicile, l'école, les activités extrascolaires ou tout autre lieu autorisé.",
@@ -135,7 +164,7 @@ const CATEGORIES: Category[] = [
       {
         icon: Truck,
         title: "Transport de marchandises & Logistique",
-        img: U("photo-1616432043562-3671ea2e5242"),
+        img: photoDelivery,
         paragraphs: [
           "IPPOO TRIIP accompagne les particuliers comme les entreprises dans le transport de leurs marchandises.",
           "Nous assurons les livraisons locales, interurbaines et nationales ainsi que le convoyage de colis, d'équipements, de produits agricoles, de marchandises commerciales et de biens divers.",
@@ -146,7 +175,7 @@ const CATEGORIES: Category[] = [
       {
         icon: ShoppingBag,
         title: "Courses & Livraisons du quotidien",
-        img: U("photo-1734255026082-82fdc81991f0"),
+        img: photoMarket,
         paragraphs: [
           "Gagnez du temps en nous confiant vos tâches du quotidien.",
           "Nos équipes peuvent effectuer vos achats alimentaires, récupérer vos colis, livrer vos documents, acheter des produits spécifiques ou accomplir diverses missions selon vos instructions.",
@@ -157,7 +186,7 @@ const CATEGORIES: Category[] = [
       {
         icon: Ship,
         title: "Fret aérien & Maritime",
-        img: U("photo-1606185540834-d6e7483ee1a4"),
+        img: photoCargo,
         paragraphs: [
           "Nous organisons l'expédition internationale de vos marchandises par voie aérienne ou maritime.",
           "Que vous recherchiez une livraison express ou une solution économique, nos équipes vous accompagnent jusqu'à la livraison finale avec un suivi permanent de vos expéditions.",
@@ -166,7 +195,7 @@ const CATEGORIES: Category[] = [
       {
         icon: Boxes,
         title: "Commandes Groupées",
-        img: U("photo-1672552226380-486fe900b322"),
+        img: photoMerchant,
         paragraphs: [
           "Plus vous êtes nombreux… plus vous économisez.",
           "Notre système de commandes et de transports groupés permet aux utilisateurs de mutualiser leurs achats afin d'obtenir des tarifs préférentiels, de réduire les frais logistiques et d'optimiser les délais de livraison.",
@@ -203,7 +232,7 @@ const CATEGORIES: Category[] = [
       {
         icon: Store,
         title: "Marketplace Internationale",
-        img: U("photo-1727407209320-1fa6ae60ee05"),
+        img: photoMarketplace,
         paragraphs: [
           "Accédez aux plus grandes enseignes mondiales directement depuis notre plateforme.",
           "Vous pourrez retrouver des fournisseurs internationaux sélectionnés par catégories de produits : prêt-à-porter, sport, alimentation, électroménager, décoration, équipements professionnels et bien d'autres.",
@@ -214,7 +243,7 @@ const CATEGORIES: Category[] = [
       {
         icon: Gem,
         title: "Espace Luxe & Grandes Marques",
-        img: U("photo-1587925358603-c2eea5305bbc"),
+        img: photoLuxe,
         paragraphs: [
           "Pour une clientèle exigeante, IPPOO TRIIP proposera un univers entièrement dédié au luxe.",
           "Montres prestigieuses, maroquinerie, chaussures, prêt-à-porter, accessoires, bijoux et créations des plus grandes maisons internationales seront accessibles avec des garanties renforcées d'authenticité, de confidentialité et de traçabilité.",
@@ -224,7 +253,7 @@ const CATEGORIES: Category[] = [
       {
         icon: ReceiptText,
         title: "Export & Avantages fiscaux",
-        img: U("photo-1583521214690-73421a1829a9"),
+        img: U("photo-1554224155-6726b3ff858f"),
         paragraphs: [
           "Lorsque la réglementation le permet, certaines commandes destinées à l'export pourront bénéficier d'une facturation hors taxes (HT).",
           "Cette optimisation permet de réduire davantage le coût d'acquisition de nombreux produits tout en respectant les exigences légales applicables.",
@@ -247,7 +276,7 @@ const CATEGORIES: Category[] = [
       {
         icon: Luggage,
         title: "Assistance Aéroportuaire",
-        img: U("photo-1708403120467-1715bb6840df"),
+        img: photoAirport,
         paragraphs: [
           "Un objet refusé lors de votre passage en aéroport ne doit plus être définitivement perdu.",
           "IPPOO TRIIP pourra récupérer, sur mandat, les articles rejetés pour diverses raisons : dépassement des limites de poids, liquides supérieurs aux volumes autorisés, objets momentanément non conformes ou autres situations similaires.",
@@ -295,6 +324,164 @@ const CATEGORIES: Category[] = [
     ],
   },
   {
+    id: "voyages",
+    badge: "Voyages & bagages",
+    badgeIcon: Plane,
+    title: "Voyager l'esprit libre",
+    mode: "gradient",
+    from: "#2A9D8F",
+    to: "#1E6091",
+    accent: "#2A9D8F",
+    bg: "bg-gradient-to-b from-teal-50 via-white to-sky-50/40",
+    glow: "#2A9D8F",
+    services: [
+      {
+        icon: Map,
+        title: "Voyages Organisés & Déplacements sur Mesure",
+        img: photoTripCounter,
+        paragraphs: [
+          "Parce que chaque voyage mérite une organisation parfaite.",
+          "IPPOO TRIIP vous accompagne dans l'organisation de tous vos déplacements, qu'ils soient personnels, familiaux, professionnels ou événementiels. Notre équipe coordonne chaque étape afin de vous offrir une expérience fluide, sécurisée et sans stress.",
+          "Nous concevons des solutions adaptées à chaque situation, avec des prestations personnalisées selon vos besoins, votre budget et le nombre de voyageurs.",
+        ],
+      },
+      {
+        icon: GraduationCap,
+        title: "Voyages étudiants",
+        img: photoTripStudents,
+        paragraphs: [
+          "Transport collectif, accompagnement, gestion des inscriptions, réservation d'hébergement, transferts et coordination logistique pour les établissements scolaires, universités, associations étudiantes et groupes académiques.",
+        ],
+      },
+      {
+        icon: Users,
+        title: "Voyages familiaux",
+        img: photoTripFamily,
+        paragraphs: [
+          "Déplacements en famille, vacances, retrouvailles, visites privées ou événements familiaux avec des solutions adaptées à tous les âges.",
+        ],
+      },
+      {
+        icon: Briefcase,
+        title: "Séminaires & Voyages d'entreprise",
+        img: photoTripBusiness,
+        paragraphs: [
+          "Organisation complète des déplacements professionnels, séminaires, conférences, congrès, formations et voyages de motivation avec transport, hébergement, restauration et assistance sur place.",
+        ],
+      },
+      {
+        icon: Church,
+        title: "Mariages & Grandes Réceptions",
+        img: photoTripWedding,
+        paragraphs: [
+          "Location de véhicules, transport des invités, transferts des mariés, coordination des déplacements et logistique événementielle pour faire de chaque cérémonie un moment inoubliable.",
+        ],
+      },
+      {
+        icon: Heart,
+        title: "Voyages de noces",
+        img: photoTripHoneymoon,
+        paragraphs: [
+          "Offrez-vous une lune de miel exceptionnelle grâce à nos formules personnalisées comprenant transport, hébergement, excursions, transferts et services exclusifs.",
+        ],
+      },
+      {
+        icon: PartyPopper,
+        title: "Déplacements circonstanciels",
+        img: photoTripCounter,
+        paragraphs: [
+          "Nous organisons également les déplacements liés aux événements particuliers de la vie : cérémonies religieuses, célébrations, réunions familiales, événements culturels ou toute autre occasion nécessitant une organisation spécifique.",
+        ],
+      },
+      {
+        icon: HeartHandshake,
+        title: "Assistance en cas de décès",
+        img: photoTripFamily,
+        paragraphs: [
+          "Dans les moments les plus difficiles, IPPOO TRIIP accompagne les familles en organisant les déplacements des proches, les transferts vers les lieux de cérémonie, les convois funéraires ainsi que toute la logistique de transport nécessaire, avec professionnalisme, discrétion et respect.",
+        ],
+      },
+    ],
+  },
+  {
+    id: "objets",
+    badge: "Agence de gestion & traçabilité",
+    badgeIcon: ShieldCheck,
+    title: "Vos effets personnels, protégés à chaque étape",
+    mode: "mono",
+    from: "#1E6091",
+    to: "#1E6091",
+    accent: "#1E6091",
+    bg: "bg-gradient-to-b from-sky-50/60 via-white to-blue-50/40",
+    glow: "#1E6091",
+    services: [
+      {
+        icon: ShieldCheck,
+        title: "Agence de Gestion, de Recherche & de Collecte des Objets",
+        img: photoBagsLuggage,
+        paragraphs: [
+          "Ne perdez plus jamais l'essentiel.",
+          "IPPOO TRIIP met à votre disposition une agence spécialisée dans la protection, la gestion et la récupération de vos effets personnels avant, pendant et après vos déplacements.",
+          "Notre mission est d'offrir aux voyageurs une tranquillité d'esprit totale grâce à des services de prévention, de sécurisation, de traçabilité et d'assistance en cas de perte.",
+        ],
+      },
+      {
+        icon: ScanLine,
+        title: "Vérification & Préparation des bagages",
+        img: photoBagsCheck,
+        paragraphs: [
+          "Voyagez en toute sérénité.",
+          "Avant votre départ, nos équipes peuvent contrôler vos bagages afin de vérifier leur conformité avec les exigences des compagnies aériennes, ferroviaires et des autres transporteurs.",
+          "Nous vous accompagnons pour : vérifier le poids et les dimensions autorisés ; contrôler le contenu selon les réglementations en vigueur ; optimiser le rangement de vos effets personnels ; protéger les objets fragiles et de valeur ; préparer vos bagages pour éviter tout refus ou supplément lors de l'enregistrement.",
+          "Un simple contrôle peut vous éviter de nombreux désagréments.",
+        ],
+      },
+      {
+        icon: Gem,
+        title: "Assurance des effets personnels",
+        img: photoBagsLuggage,
+        paragraphs: [
+          "Parce que certains objets n'ont pas de prix.",
+          "Nous proposons des solutions de protection couvrant vos effets personnels, notamment : valises ; colis ; documents importants ; équipements professionnels ; bijoux ; objets de valeur ; effets personnels spécifiques.",
+          "Nos équipes vous accompagnent également dans les démarches auprès des compagnies de transport afin d'optimiser les conditions de prise en charge en cas de perte ou de dommage.",
+        ],
+      },
+      {
+        icon: QrCode,
+        title: "Recherche & Traçabilité des objets perdus",
+        img: photoBagsTraveller,
+        paragraphs: [
+          "Retrouver un objet perdu devient plus simple.",
+          "Grâce à notre système de traçabilité intelligent, vos biens peuvent être identifiés, enregistrés et suivis tout au long de leur parcours.",
+          "Nos solutions incluent notamment : identification numérique ; QR Codes sécurisés ; enregistrement des objets ; dispositifs de verrouillage intelligents ; suivi des déclarations de perte ; accompagnement dans les recherches auprès des compagnies de transport, des aéroports, gares et autres organismes concernés.",
+          "Notre objectif est d'augmenter considérablement les chances de retrouver rapidement vos effets personnels.",
+        ],
+      },
+      {
+        icon: PackageSearch,
+        title: "Récupération d'objets refusés en aéroport",
+        img: photoBagsLuggage,
+        paragraphs: [
+          "Un objet refusé n'est pas forcément perdu.",
+          "Lorsqu'un bagage ou un article est refusé lors des contrôles de sécurité (liquides dépassant les volumes autorisés, excédents de poids, objets non conformes ou autres restrictions), IPPOO TRIIP peut intervenir sur mandat pour récupérer vos effets.",
+          "Nous pouvons ensuite : conserver vos biens en sécurité ; les expédier à votre domicile ; les réexpédier après votre départ ; les remettre à un proche ou à un représentant autorisé.",
+          "Vous voyagez sans stress, même en cas d'imprévu.",
+        ],
+      },
+      {
+        icon: Wallet,
+        title: "Assistance financière au voyage",
+        img: photoBagsTraveller,
+        paragraphs: [
+          "Voyager doit rester accessible à tous.",
+          "Pour les personnes rencontrant momentanément des difficultés financières, IPPOO TRIIP développe des solutions d'accompagnement permettant de faciliter certains déplacements essentiels.",
+          "Selon les conditions d'éligibilité, nous pouvons proposer : des facilités de paiement ; des avances sur certains frais de voyage ; des solutions de financement adaptées ; des dispositifs d'accompagnement en partenariat avec nos partenaires.",
+          "Notre ambition est de rendre la mobilité plus inclusive et accessible au plus grand nombre.",
+        ],
+      },
+    ],
+  },
+  {
     id: "entreprises",
     badge: "Entreprises & avantages",
     badgeIcon: Building2,
@@ -309,7 +496,7 @@ const CATEGORIES: Category[] = [
       {
         icon: Building2,
         title: "Solutions Entreprises",
-        img: U("photo-1573164574511-73c773193279"),
+        img: photoWarehouse,
         paragraphs: [
           "Optimisez les déplacements de vos collaborateurs.",
           "Nos solutions permettent aux entreprises, administrations et organisations de gérer les transports professionnels, le covoiturage des salariés, les courses groupées, les livraisons et les déplacements réguliers tout en maîtrisant leurs coûts.",

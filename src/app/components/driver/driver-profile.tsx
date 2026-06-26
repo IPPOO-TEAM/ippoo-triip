@@ -196,7 +196,11 @@ export function DriverProfilePage() {
         <div className="relative z-10 flex items-center gap-4">
           <div className="relative">
             <ProfileAvatar initials="HA" size={72} />
-            <button className="absolute -bottom-1 -right-1 w-7 h-7 bg-[#F77F00] rounded-full flex items-center justify-center border-2 border-white shadow-lg">
+            <button
+              onClick={() => toast.info("Sélectionnez une nouvelle photo de profil")}
+              aria-label="Changer la photo de profil"
+              className="absolute -bottom-1 -right-1 w-7 h-7 bg-[#F77F00] rounded-full flex items-center justify-center border-2 border-white shadow-lg"
+            >
               <Camera className="w-3.5 h-3.5 text-white" />
             </button>
           </div>

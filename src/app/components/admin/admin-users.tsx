@@ -5,6 +5,8 @@ import {
   Truck, Download, UserPlus, TrendingUp, Users, Star, Shield
 } from "lucide-react";
 import { getAvatar } from "../avatars";
+import { toast } from "sonner";
+import { downloadBlob } from "../utils";
 
 /* ─── Mock Data ─── */
 const USERS = [
@@ -28,6 +30,15 @@ export function AdminUsersPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedUser, setSelectedUser] = useState<typeof USERS[0] | null>(null);
+  const [page, setPage] = useState(1);
+  const totalPages = 3;
+
+  const exportCSV = () => {
+    const header = "ID,Nom,Téléphone,Email,Ville,Courses,Dépenses,Note,Statut,Inscrit\n";
+    const rows = USERS.map(u => [u.id, u.name, u.phone, u.email, u.city, u.rides, u.spent, u.rating, u.status, u.joined].join(","));
+    downloadBlob(header + rows.join("\n"), `clients-${new Date().toISOString().slice(0,10)}.csv`, "text/csv");
+    toast.success(`${USERS.length} clients exportés`);
+  };
 
   const filtered = USERS.filter((u) => {
     const matchSearch = u.name.toLowerCase().includes(search.toLowerCase()) || u.id.toLowerCase().includes(search.toLowerCase());
@@ -44,10 +55,10 @@ export function AdminUsersPage() {
           <p className="text-slate-500 text-xs mt-1">{USERS.length} clients enregistrés sur la plateforme</p>
         </div>
         <div className="flex gap-2">
-          <button className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-xl text-xs hover:border-[#1E6091] transition">
+          <button onClick={exportCSV} className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-xl text-xs hover:border-[#1E6091] transition">
             <Download className="w-4 h-4" /> Exporter
           </button>
-          <button className="flex items-center gap-2 bg-[#1E6091] text-white px-4 py-2 rounded-xl text-xs shadow-lg shadow-blue-400/20">
+          <button onClick={() => toast.info("Création de compte : invitez le client par SMS/Email", { description: "Module d'inscription en intégration" })} className="flex items-center gap-2 bg-[#1E6091] text-white px-4 py-2 rounded-xl text-xs shadow-lg shadow-blue-400/20">
             <UserPlus className="w-4 h-4" /> Ajouter
           </button>
         </div>
@@ -144,11 +155,26 @@ export function AdminUsersPage() {
               <p className="text-xl text-slate-800" style={{ fontFamily: "'Space Grotesk', monospace" }}>{selectedUser.spent}</p>
             </div>
             <div className="flex gap-2">
-              <button className="flex-1 bg-[#2A9D8F] text-white py-2.5 rounded-xl text-xs">Envoyer notification</button>
+              <button
+                onClick={() => { toast.success(`Notification envoyée à ${selectedUser.name}`); setSelectedUser(null); }}
+                className="flex-1 bg-[#2A9D8F] text-white py-2.5 rounded-xl text-xs"
+              >
+                Envoyer notification
+              </button>
               {selectedUser.status === "active" ? (
-                <button className="flex-1 bg-red-50 text-[#D62828] py-2.5 rounded-xl text-xs">Suspendre</button>
+                <button
+                  onClick={() => { toast.warning(`${selectedUser.name} a été suspendu`); setSelectedUser(null); }}
+                  className="flex-1 bg-red-50 text-[#D62828] py-2.5 rounded-xl text-xs"
+                >
+                  Suspendre
+                </button>
               ) : (
-                <button className="flex-1 bg-emerald-50 text-[#2A9D8F] py-2.5 rounded-xl text-xs">Réactiver</button>
+                <button
+                  onClick={() => { toast.success(`${selectedUser.name} a été réactivé`); setSelectedUser(null); }}
+                  className="flex-1 bg-emerald-50 text-[#2A9D8F] py-2.5 rounded-xl text-xs"
+                >
+                  Réactiver
+                </button>
               )}
             </div>
           </div>
@@ -194,7 +220,7 @@ export function AdminUsersPage() {
                     </td>
                     <td className="px-4 py-3 text-slate-400 text-[10px]">{u.lastActive}</td>
                     <td className="px-4 py-3">
-                      <button className="text-slate-300 hover:text-slate-500"><MoreHorizontal className="w-4 h-4" /></button>
+                      <button onClick={(e) => { e.stopPropagation(); setSelectedUser(u); }} aria-label="Voir le détail" className="text-slate-300 hover:text-slate-500"><MoreHorizontal className="w-4 h-4" /></button>
                     </td>
                   </tr>
                 );
@@ -206,11 +232,17 @@ export function AdminUsersPage() {
         <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100">
           <p className="text-slate-400 text-[10px]">{filtered.length} résultat(s)</p>
           <div className="flex items-center gap-1">
-            <button className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100"><ChevronLeft className="w-4 h-4" /></button>
-            <button className="w-8 h-8 rounded-lg flex items-center justify-center bg-[#1E6091] text-white text-xs">1</button>
-            <button className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100 text-xs">2</button>
-            <button className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100 text-xs">3</button>
-            <button className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100"><ChevronRight className="w-4 h-4" /></button>
+            <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} aria-label="Page précédente" className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100 disabled:opacity-40"><ChevronLeft className="w-4 h-4" /></button>
+            {[1, 2, 3].map((n) => (
+              <button
+                key={n}
+                onClick={() => setPage(n)}
+                className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs ${page === n ? "bg-[#1E6091] text-white" : "text-slate-400 hover:bg-slate-100"}`}
+              >
+                {n}
+              </button>
+            ))}
+            <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} aria-label="Page suivante" className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100 disabled:opacity-40"><ChevronRight className="w-4 h-4" /></button>
           </div>
         </div>
       </div>

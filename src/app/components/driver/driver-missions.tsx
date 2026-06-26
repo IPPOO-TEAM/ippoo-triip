@@ -259,7 +259,7 @@ export function DriverMissionsPage() {
                     </div>
 
                     <div className="grid grid-cols-2 gap-2">
-                      <button className="py-2.5 rounded-xl border border-slate-200 text-slate-500 text-[11px]">Ignorer</button>
+                      <button onClick={() => toast.info("Mission ignorée")} className="py-2.5 rounded-xl border border-slate-200 text-slate-500 text-[11px]">Ignorer</button>
                       <button onClick={() => acceptMission(m.id)} className="py-2.5 rounded-xl bg-[#2A9D8F] text-white text-[11px] shadow-md shadow-emerald-500/15">Accepter</button>
                     </div>
                   </div>

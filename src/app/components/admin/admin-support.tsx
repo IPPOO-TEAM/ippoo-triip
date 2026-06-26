@@ -5,6 +5,7 @@ import {
   MoreHorizontal, Filter, ArrowUpRight, User, Car, Shield
 } from "lucide-react";
 import { getAvatar } from "../avatars";
+import { toast } from "sonner";
 
 /* ─── Mock Data ─── */
 const TICKETS = [
@@ -137,26 +138,63 @@ export function AdminSupportPage() {
             {/* Reply */}
             <div className="p-4 border-t border-slate-100 shrink-0">
               <div className="flex items-center gap-2">
-                <button className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400">
+                <label className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 cursor-pointer hover:bg-slate-200 transition" aria-label="Joindre un fichier">
                   <Paperclip className="w-4 h-4" />
-                </button>
+                  <input
+                    type="file"
+                    className="hidden"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) toast.success(`Fichier joint : ${f.name}`);
+                    }}
+                  />
+                </label>
                 <input
                   type="text"
                   placeholder="Écrire une réponse..."
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && replyText.trim()) {
+                      toast.success(`Réponse envoyée sur ${selectedTicket.id}`);
+                      setReplyText("");
+                    }
+                  }}
                   className="flex-1 bg-slate-100 rounded-xl px-4 py-2.5 text-sm text-slate-600 outline-none"
                 />
-                <button className="w-9 h-9 rounded-xl bg-[#1E6091] flex items-center justify-center text-white shadow-lg shadow-blue-400/20">
+                <button
+                  onClick={() => {
+                    if (!replyText.trim()) return toast.error("Saisissez une réponse");
+                    toast.success(`Réponse envoyée sur ${selectedTicket.id}`);
+                    setReplyText("");
+                  }}
+                  aria-label="Envoyer la réponse"
+                  className="w-9 h-9 rounded-xl bg-[#1E6091] flex items-center justify-center text-white shadow-lg shadow-blue-400/20"
+                >
                   <Send className="w-4 h-4" />
                 </button>
               </div>
               <div className="flex gap-2 mt-3">
                 {selectedTicket.status !== "resolved" && (
-                  <button className="flex-1 bg-emerald-50 text-[#2A9D8F] py-2 rounded-xl text-xs">Marquer résolu</button>
+                  <button
+                    onClick={() => { toast.success(`Ticket ${selectedTicket.id} marqué résolu`); setSelectedTicket(null); }}
+                    className="flex-1 bg-emerald-50 text-[#2A9D8F] py-2 rounded-xl text-xs"
+                  >
+                    Marquer résolu
+                  </button>
                 )}
-                <button className="flex-1 bg-slate-100 text-slate-500 py-2 rounded-xl text-xs">Transférer</button>
-                <button className="flex-1 bg-red-50 text-[#D62828] py-2 rounded-xl text-xs">Escalader</button>
+                <button
+                  onClick={() => { toast.info(`Ticket ${selectedTicket.id} transféré à l'équipe spécialisée`); setSelectedTicket(null); }}
+                  className="flex-1 bg-slate-100 text-slate-500 py-2 rounded-xl text-xs"
+                >
+                  Transférer
+                </button>
+                <button
+                  onClick={() => { toast.warning(`Ticket ${selectedTicket.id} escaladé en priorité`); }}
+                  className="flex-1 bg-red-50 text-[#D62828] py-2 rounded-xl text-xs"
+                >
+                  Escalader
+                </button>
               </div>
             </div>
           </div>

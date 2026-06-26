@@ -48,6 +48,40 @@ export function AdminSettingsPage() {
   const [commissions, setCommissions] = useState(COMMISSION_RATES);
   const [saved, setSaved] = useState(false);
 
+  /* ── États des toggles des sections paramètres ── */
+  const [services, setServices] = useState(
+    ["Taxi-Moto", "Livraison de colis", "Transport de biens lourds", "Commandes groupées", "Covoiturage", "IPPOO AIR"].map((n) => ({ name: n, active: true })),
+  );
+  const [payments, setPayments] = useState([
+    { name: "IPPOO Cash (Wallet interne)", active: true },
+    { name: "MTN Mobile Money", active: true },
+    { name: "Moov Money", active: true },
+    { name: "Carte bancaire (Visa/Mastercard)", active: true },
+    { name: "Paiement à l'arrivée", active: true },
+    { name: "Ecobank Pay", active: false },
+  ]);
+  const [security, setSecurity] = useState([
+    { name: "Vérification OTP par SMS", desc: "Envoyer un code à 6 chiffres pour chaque connexion", active: true },
+    { name: "Authentification biométrique (WebAuthn)", desc: "Empreinte digitale / Face ID pour les connexions rapides", active: true },
+    { name: "Bouton SOS actif", desc: "Permettre aux clients de déclencher une alerte d'urgence", active: true },
+    { name: "Partage de trajet", desc: "Permettre aux clients de partager leur trajet en temps réel", active: true },
+    { name: "Vérification documents chauffeurs", desc: "Exiger une validation manuelle des documents des chauffeurs", active: true },
+    { name: "Géolocalisation obligatoire", desc: "Exiger l'activation du GPS pour utiliser l'application", active: true },
+    { name: "Double authentification admin", desc: "Exiger un code OTP pour les actions sensibles", active: false },
+  ]);
+  const [notifs, setNotifs] = useState([
+    { name: "Nouvelle course attribuée", desc: "Notification push au chauffeur", active: true },
+    { name: "Course terminée", desc: "Confirmation au client et chauffeur", active: true },
+    { name: "Retrait validé", desc: "Notification au chauffeur après validation du retrait", active: true },
+    { name: "Alerte SOS", desc: "Notification immédiate à l'équipe support et admin", active: true },
+    { name: "Rappel de documents", desc: "Rappel automatique 7 jours avant expiration", active: true },
+    { name: "Promotions et offres", desc: "Notifications marketing aux clients", active: false },
+    { name: "Rapport quotidien admin", desc: "Email récapitulatif chaque matin à 8h", active: true },
+  ]);
+
+  const toggleAt = <T extends { active: boolean }>(setter: React.Dispatch<React.SetStateAction<T[]>>, i: number) =>
+    setter((prev) => prev.map((x, idx) => (idx === i ? { ...x, active: !x.active } : x)));
+
   const handleSave = () => {
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
@@ -137,10 +171,16 @@ export function AdminSettingsPage() {
 
               <h4 className="text-slate-700 text-sm mt-4">Services actifs</h4>
               <div className="space-y-3">
-                {["Taxi-Moto", "Livraison de colis", "Transport de biens lourds", "Commandes groupées", "Covoiturage", "IPPOO AIR"].map((s, i) => (
-                  <div key={i} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
-                    <span className="text-xs text-slate-600">{s}</span>
-                    <button className="text-[#2A9D8F]"><ToggleRight className="w-6 h-6" /></button>
+                {services.map((s, i) => (
+                  <div key={s.name} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                    <span className="text-xs text-slate-600">{s.name}</span>
+                    <button
+                      onClick={() => { toggleAt(setServices, i); toast.success(`${s.name} ${s.active ? "désactivé" : "activé"}`); }}
+                      aria-label={`Basculer ${s.name}`}
+                      className={s.active ? "text-[#2A9D8F]" : "text-slate-300"}
+                    >
+                      {s.active ? <ToggleRight className="w-6 h-6" /> : <ToggleLeft className="w-6 h-6" />}
+                    </button>
                   </div>
                 ))}
               </div>
@@ -169,7 +209,15 @@ export function AdminSettingsPage() {
             <div className="bg-white rounded-2xl border border-slate-100 p-6 space-y-5">
               <div className="flex items-center justify-between">
                 <h3 className="title-gradient">Zones & Tarification</h3>
-                <button className="flex items-center gap-2 bg-[#2A9D8F] text-white px-4 py-2 rounded-xl text-xs">
+                <button
+                  onClick={() => {
+                    const name = prompt("Nom de la nouvelle zone ?");
+                    if (!name?.trim()) return;
+                    setZones((prev) => [...prev, { id: Date.now(), name: name.trim(), active: true, baseFare: 300, perKm: 150, minFare: 500 }]);
+                    toast.success(`Zone "${name.trim()}" créée`);
+                  }}
+                  className="flex items-center gap-2 bg-[#2A9D8F] text-white px-4 py-2 rounded-xl text-xs"
+                >
                   <Plus className="w-4 h-4" /> Ajouter zone
                 </button>
               </div>
@@ -196,8 +244,29 @@ export function AdminSettingsPage() {
                         <td className="px-4 py-3 text-xs text-slate-600" style={{ fontFamily: "'Space Grotesk', monospace" }}>{z.minFare} FCFA</td>
                         <td className="px-4 py-3">
                           <div className="flex gap-1">
-                            <button className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400 hover:text-[#1E6091]"><Edit3 className="w-3.5 h-3.5" /></button>
-                            <button className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400 hover:text-[#D62828]"><Trash2 className="w-3.5 h-3.5" /></button>
+                            <button
+                              onClick={() => {
+                                const newName = prompt("Nouveau nom de la zone :", z.name);
+                                if (!newName?.trim()) return;
+                                setZones((prev) => prev.map((x) => (x.id === z.id ? { ...x, name: newName.trim() } : x)));
+                                toast.success("Zone mise à jour");
+                              }}
+                              aria-label="Modifier"
+                              className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400 hover:text-[#1E6091]"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (!confirm(`Supprimer la zone "${z.name}" ?`)) return;
+                                setZones((prev) => prev.filter((x) => x.id !== z.id));
+                                toast.success("Zone supprimée");
+                              }}
+                              aria-label="Supprimer"
+                              className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400 hover:text-[#D62828]"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -241,20 +310,17 @@ export function AdminSettingsPage() {
             <div className="bg-white rounded-2xl border border-slate-100 p-6 space-y-5">
               <h3 className="title-gradient">Méthodes de paiement</h3>
               <div className="space-y-3">
-                {[
-                  { name: "IPPOO Cash (Portefeuille)", active: true },
-                  { name: "MTN Mobile Money", active: true },
-                  { name: "Moov Money", active: true },
-                  { name: "Paiement à l'arrivée (Cash)", active: true },
-                  { name: "Carte bancaire (Visa/Mastercard)", active: false },
-                  { name: "Ecobank Pay", active: false },
-                ].map((m, i) => (
-                  <div key={i} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                {payments.map((m, i) => (
+                  <div key={m.name} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
                     <div className="flex items-center gap-3">
                       <CreditCard className="w-5 h-5 text-slate-400" />
                       <span className="text-sm text-slate-700">{m.name}</span>
                     </div>
-                    <button className={m.active ? "text-[#2A9D8F]" : "text-slate-300"}>
+                    <button
+                      onClick={() => { toggleAt(setPayments, i); toast.success(`${m.name} ${m.active ? "désactivé" : "activé"}`); }}
+                      aria-label={`Basculer ${m.name}`}
+                      className={m.active ? "text-[#2A9D8F]" : "text-slate-300"}
+                    >
                       {m.active ? <ToggleRight className="w-6 h-6" /> : <ToggleLeft className="w-6 h-6" />}
                     </button>
                   </div>
@@ -281,21 +347,17 @@ export function AdminSettingsPage() {
             <div className="bg-white rounded-2xl border border-slate-100 p-6 space-y-5">
               <h3 className="title-gradient">Sécurité</h3>
               <div className="space-y-3">
-                {[
-                  { name: "Vérification OTP par SMS", desc: "Envoyer un code à 6 chiffres pour chaque connexion", active: true },
-                  { name: "Authentification biométrique (WebAuthn)", desc: "Empreinte digitale / Face ID pour les connexions rapides", active: true },
-                  { name: "Bouton SOS actif", desc: "Permettre aux clients de déclencher une alerte d'urgence", active: true },
-                  { name: "Partage de trajet", desc: "Permettre aux clients de partager leur trajet en temps réel", active: true },
-                  { name: "Vérification documents chauffeurs", desc: "Exiger une validation manuelle des documents des chauffeurs", active: true },
-                  { name: "Géolocalisation obligatoire", desc: "Exiger l'activation du GPS pour utiliser l'application", active: true },
-                  { name: "Double authentification admin", desc: "Exiger un code OTP pour les actions sensibles", active: false },
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                {security.map((item, i) => (
+                  <div key={item.name} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
                     <div className="flex-1 mr-4">
                       <p className="text-sm text-slate-700">{item.name}</p>
                       <p className="text-[10px] text-slate-400 mt-0.5">{item.desc}</p>
                     </div>
-                    <button className={item.active ? "text-[#2A9D8F]" : "text-slate-300"}>
+                    <button
+                      onClick={() => { toggleAt(setSecurity, i); toast.success(`${item.name} ${item.active ? "désactivé" : "activé"}`); }}
+                      aria-label={`Basculer ${item.name}`}
+                      className={item.active ? "text-[#2A9D8F]" : "text-slate-300"}
+                    >
                       {item.active ? <ToggleRight className="w-6 h-6" /> : <ToggleLeft className="w-6 h-6" />}
                     </button>
                   </div>
@@ -309,21 +371,17 @@ export function AdminSettingsPage() {
             <div className="bg-white rounded-2xl border border-slate-100 p-6 space-y-5">
               <h3 className="title-gradient">Paramètres de notifications</h3>
               <div className="space-y-3">
-                {[
-                  { name: "Nouvelle course attribuée", desc: "Notification push au chauffeur", active: true },
-                  { name: "Course terminée", desc: "Confirmation au client et chauffeur", active: true },
-                  { name: "Retrait validé", desc: "Notification au chauffeur après validation du retrait", active: true },
-                  { name: "Alerte SOS", desc: "Notification immédiate à l'équipe support et admin", active: true },
-                  { name: "Rappel de documents", desc: "Rappel automatique 7 jours avant expiration", active: true },
-                  { name: "Promotions et offres", desc: "Notifications marketing aux clients", active: false },
-                  { name: "Rapport quotidien admin", desc: "Email récapitulatif chaque matin à 8h", active: true },
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                {notifs.map((item, i) => (
+                  <div key={item.name} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
                     <div className="flex-1 mr-4">
                       <p className="text-sm text-slate-700">{item.name}</p>
                       <p className="text-[10px] text-slate-400 mt-0.5">{item.desc}</p>
                     </div>
-                    <button className={item.active ? "text-[#2A9D8F]" : "text-slate-300"}>
+                    <button
+                      onClick={() => { toggleAt(setNotifs, i); toast.success(`${item.name} ${item.active ? "désactivé" : "activé"}`); }}
+                      aria-label={`Basculer ${item.name}`}
+                      className={item.active ? "text-[#2A9D8F]" : "text-slate-300"}
+                    >
                       {item.active ? <ToggleRight className="w-6 h-6" /> : <ToggleLeft className="w-6 h-6" />}
                     </button>
                   </div>

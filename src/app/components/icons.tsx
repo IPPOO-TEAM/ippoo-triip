@@ -186,22 +186,15 @@ export function IconMinibus({ className = "", size = 24 }: IconProps) {
 
 // ── Decorative ──
 
-export function AfricanPattern({ opacity = 0.05, className = "" }: { opacity?: number; className?: string }) {
-  return (
-    <svg className={`absolute inset-0 w-full h-full pointer-events-none ${className}`} xmlns="http://www.w3.org/2000/svg" opacity={opacity}>
-      <defs>
-        <pattern id="kente" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-          <rect width="20" height="20" fill="currentColor" opacity="0.3" />
-          <rect x="20" y="20" width="20" height="20" fill="currentColor" opacity="0.3" />
-          <rect x="8" y="8" width="4" height="4" fill="currentColor" opacity="0.5" />
-          <rect x="28" y="28" width="4" height="4" fill="currentColor" opacity="0.5" />
-          <line x1="0" y1="0" x2="20" y2="20" stroke="currentColor" strokeWidth="0.5" opacity="0.2" />
-          <line x1="20" y1="0" x2="40" y2="20" stroke="currentColor" strokeWidth="0.5" opacity="0.2" />
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill="url(#kente)" />
-    </svg>
-  );
+/**
+ * Ancien motif kente en damier — DÉSACTIVÉ.
+ * Le damier rendait les fonds illisibles (« grille en carreau »). Conformément
+ * à la charte (fonds unis + halos lumineux uniquement, pas de damier), ce
+ * composant ne rend plus rien. Conservé pour compatibilité des imports
+ * existants à travers la plateforme.
+ */
+export function AfricanPattern(_props: { opacity?: number; className?: string }) {
+  return null;
 }
 
 // ── Badge ──

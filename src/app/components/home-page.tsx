@@ -393,7 +393,7 @@ export function HomePage() {
               </div>
               <h3 className="title-gradient">Services</h3>
             </div>
-            <button className="text-[#1E6091] text-xs flex items-center gap-0.5 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100 hover:bg-blue-100 transition">
+            <button onClick={() => navigate("/")} className="text-[#1E6091] text-xs flex items-center gap-0.5 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100 hover:bg-blue-100 transition">
               Voir tout <ArrowRight className="w-3 h-3 ml-0.5" />
             </button>
           </div>

@@ -6,6 +6,8 @@ import {
 } from "lucide-react";
 import { AreaChart, Area, BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { getAvatar } from "../avatars";
+import { toast } from "sonner";
+import { downloadBlob } from "../utils";
 
 /* ─── Mock Data ─── */
 const revenueWeekly = [
@@ -51,6 +53,14 @@ const typeConfig: Record<string, { label: string; color: string; icon: any }> = 
 export function AdminFinancesPage() {
   const [period, setPeriod] = useState<"jour" | "semaine" | "mois">("semaine");
   const [txFilter, setTxFilter] = useState("all");
+  const [payouts, setPayouts] = useState(PENDING_PAYOUTS);
+
+  const exportCSV = () => {
+    const h = "Chauffeur,Méthode,Montant,Date demande\n";
+    const r = PENDING_PAYOUTS.map(p => [p.driver, p.method, p.amount, p.requested].join(","));
+    downloadBlob(h + r.join("\n"), `finances-${new Date().toISOString().slice(0,10)}.csv`, "text/csv");
+    toast.success("Rapport financier exporté");
+  };
 
   const filteredTx = TRANSACTIONS.filter(t => txFilter === "all" || t.type === txFilter);
 
@@ -67,7 +77,7 @@ export function AdminFinancesPage() {
               className={`px-4 py-2 rounded-xl text-xs transition ${period === p ? "bg-[#1E6091] text-white" : "bg-white border border-slate-200 text-slate-500"}`}
             >{p.charAt(0).toUpperCase() + p.slice(1)}</button>
           ))}
-          <button className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-xl text-xs">
+          <button onClick={exportCSV} className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-xl text-xs hover:border-[#1E6091] transition">
             <Download className="w-4 h-4" /> Exporter
           </button>
         </div>
@@ -132,7 +142,7 @@ export function AdminFinancesPage() {
           <span className="text-xs px-3 py-1 bg-orange-50 text-[#F77F00] rounded-full">{PENDING_PAYOUTS.length} en attente</span>
         </div>
         <div className="space-y-3">
-          {PENDING_PAYOUTS.map((p, i) => (
+          {payouts.map((p, i) => (
             <div key={i} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
               <img src={getAvatar(p.initials) || ""} alt="" className="w-9 h-9 rounded-full object-cover" />
               <div className="flex-1 min-w-0">
@@ -141,10 +151,24 @@ export function AdminFinancesPage() {
               </div>
               <span className="text-sm text-slate-800 shrink-0" style={{ fontFamily: "'Space Grotesk', monospace" }}>{p.amount}</span>
               <div className="flex gap-1.5 shrink-0">
-                <button className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center hover:bg-emerald-100 transition">
+                <button
+                  onClick={() => {
+                    setPayouts((prev) => prev.filter((_, idx) => idx !== i));
+                    toast.success(`Retrait validé pour ${p.driver}`);
+                  }}
+                  aria-label="Valider le retrait"
+                  className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center hover:bg-emerald-100 transition"
+                >
                   <CheckCircle2 className="w-4 h-4 text-[#2A9D8F]" />
                 </button>
-                <button className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center hover:bg-red-100 transition">
+                <button
+                  onClick={() => {
+                    setPayouts((prev) => prev.filter((_, idx) => idx !== i));
+                    toast.warning(`Retrait refusé pour ${p.driver}`);
+                  }}
+                  aria-label="Refuser le retrait"
+                  className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center hover:bg-red-100 transition"
+                >
                   <XCircle className="w-4 h-4 text-[#D62828]" />
                 </button>
               </div>

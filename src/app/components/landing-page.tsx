@@ -238,7 +238,7 @@ export function LandingPage() {
 
             <p className="text-white/80 text-sm md:text-base mb-8 max-w-lg" style={{ lineHeight: 1.7 }}>
               Taxi-moto, livraison de colis, transport lourd, covoiturage et fret aérien.
-              Une seule application pour tous vos besoins de transport, partout en Afrique.
+              Bien plus qu'une app de transport : taxi-moto et VTC, livraison de colis, transport de marchandises et de biens lourds, covoiturage longue distance, commandes groupées, fret aérien & maritime, voyages organisés, location, conciergerie et traçabilité de vos bagages — IPPOO TRIIP réunit tous vos déplacements et toute votre logistique en une seule plateforme, partout en Afrique.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3">

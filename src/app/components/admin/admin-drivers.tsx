@@ -6,6 +6,8 @@ import {
   TrendingUp, Filter, Ban
 } from "lucide-react";
 import { getAvatar } from "../avatars";
+import { toast } from "sonner";
+import { downloadBlob } from "../utils";
 
 /* ─── Mock Data ─── */
 const DRIVERS = [
@@ -35,6 +37,14 @@ export function AdminDriversPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedDriver, setSelectedDriver] = useState<typeof DRIVERS[0] | null>(null);
+  const [page, setPage] = useState(1);
+
+  const exportCSV = () => {
+    const h = "ID,Nom,Téléphone,Ville,Type,Véhicule,Courses,Note,Revenus,Statut,Docs\n";
+    const r = DRIVERS.map(d => [d.id, d.name, d.phone, d.city, d.type, d.vehicle, d.rides, d.rating, d.revenue, d.status, d.docs].join(","));
+    downloadBlob(h + r.join("\n"), `chauffeurs-${new Date().toISOString().slice(0,10)}.csv`, "text/csv");
+    toast.success(`${DRIVERS.length} chauffeurs exportés`);
+  };
 
   const filtered = DRIVERS.filter((d) => {
     const matchSearch = d.name.toLowerCase().includes(search.toLowerCase()) || d.id.toLowerCase().includes(search.toLowerCase());
@@ -51,7 +61,7 @@ export function AdminDriversPage() {
           <p className="text-slate-500 text-xs mt-1">{DRIVERS.length} chauffeurs enregistrés</p>
         </div>
         <div className="flex gap-2">
-          <button className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-xl text-xs hover:border-[#1E6091] transition">
+          <button onClick={exportCSV} className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-xl text-xs hover:border-[#1E6091] transition">
             <Download className="w-4 h-4" /> Exporter
           </button>
         </div>
@@ -176,20 +186,31 @@ export function AdminDriversPage() {
 
             <div className="flex gap-2">
               {selectedDriver.docs === "pending" && (
-                <button className="flex-1 bg-[#2A9D8F] text-white py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5">
+                <button
+                  onClick={() => { toast.success(`Documents de ${selectedDriver.name} approuvés`); setSelectedDriver(null); }}
+                  className="flex-1 bg-[#2A9D8F] text-white py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5"
+                >
                   <UserCheck className="w-4 h-4" /> Approuver
                 </button>
               )}
               {selectedDriver.status !== "suspended" ? (
-                <button className="flex-1 bg-red-50 text-[#D62828] py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5">
+                <button
+                  onClick={() => { toast.warning(`${selectedDriver.name} a été suspendu`); setSelectedDriver(null); }}
+                  className="flex-1 bg-red-50 text-[#D62828] py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5"
+                >
                   <Ban className="w-4 h-4" /> Suspendre
                 </button>
               ) : (
-                <button className="flex-1 bg-emerald-50 text-[#2A9D8F] py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5">
+                <button
+                  onClick={() => { toast.success(`${selectedDriver.name} a été réactivé`); setSelectedDriver(null); }}
+                  className="flex-1 bg-emerald-50 text-[#2A9D8F] py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5"
+                >
                   <CheckCircle2 className="w-4 h-4" /> Réactiver
                 </button>
               )}
-              <button className="flex-1 bg-slate-100 text-slate-600 py-2.5 rounded-xl text-xs">Contacter</button>
+              <a href={`tel:${selectedDriver.phone.replace(/\s/g, "")}`} className="flex-1 bg-slate-100 text-slate-600 py-2.5 rounded-xl text-xs flex items-center justify-center">
+                Contacter
+              </a>
             </div>
           </div>
         </div>
@@ -241,7 +262,7 @@ export function AdminDriversPage() {
                       <span className={`text-[10px] px-2 py-1 rounded-full ${st.bg}`} style={{ color: st.color }}>{st.label}</span>
                     </td>
                     <td className="px-4 py-3">
-                      <button className="text-slate-300 hover:text-slate-500"><MoreHorizontal className="w-4 h-4" /></button>
+                      <button onClick={(e) => { e.stopPropagation(); setSelectedDriver(d); }} aria-label="Voir le détail" className="text-slate-300 hover:text-slate-500"><MoreHorizontal className="w-4 h-4" /></button>
                     </td>
                   </tr>
                 );
@@ -252,9 +273,9 @@ export function AdminDriversPage() {
         <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100">
           <p className="text-slate-400 text-[10px]">{filtered.length} résultat(s)</p>
           <div className="flex items-center gap-1">
-            <button className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100"><ChevronLeft className="w-4 h-4" /></button>
-            <button className="w-8 h-8 rounded-lg flex items-center justify-center bg-[#1E6091] text-white text-xs">1</button>
-            <button className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100"><ChevronRight className="w-4 h-4" /></button>
+            <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} aria-label="Page précédente" className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100 disabled:opacity-40"><ChevronLeft className="w-4 h-4" /></button>
+            <button onClick={() => setPage(1)} className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs ${page === 1 ? "bg-[#1E6091] text-white" : "text-slate-400 hover:bg-slate-100"}`}>1</button>
+            <button onClick={() => setPage((p) => p + 1)} aria-label="Page suivante" className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-100"><ChevronRight className="w-4 h-4" /></button>
           </div>
         </div>
       </div>
