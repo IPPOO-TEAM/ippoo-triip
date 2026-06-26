@@ -9,7 +9,8 @@ import {
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { getAvatar } from "./avatars";
 import { BrandLogo } from "./brand-logo";
-import { usePlatformConfig, findOffer } from "../store/platform-config";
+import { ServicesCatalog } from "./services-catalog";
+import { usePlatformConfig } from "../store/platform-config";
 
 /* ─── Local Images ─── */
 import imgCovoiturage from "../../imports/Covoiturage-Côte-d-Ivoire-770x460.jpg";
@@ -39,17 +40,6 @@ const IMG_CARPOOL = "https://images.unsplash.com/photo-1708347456816-f4d28505c85
 const IMG_TRUCK = "https://images.unsplash.com/photo-1738507869660-b44ea20ab037?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cnVjayUyMGxvZ2lzdGljcyUyMGNhcmdvJTIwYWZyaWNhbiUyMHJvYWR8ZW58MXx8fHwxNzc1OTI2OTkxfDA&ixlib=rb-4.1.0&q=80&w=1080";
 
 /* ─── Data ─── */
-/* Visuel uniquement — le nom, la fiche, l'accroche et le prix proviennent du
-   store central (éditables depuis le back office admin), reliés par `id`. */
-const serviceVisuals = [
-  { id: "taxi", icon: Bike, color: "#F77F00", bg: "bg-orange-50", img: imgCovoiturage },
-  { id: "delivery", icon: Package, color: "#2A9D8F", bg: "bg-emerald-50", img: imgLivreur },
-  { id: "heavy", icon: Truck, color: "#D62828", bg: "bg-red-50", img: imgCamion },
-  { id: "group", icon: Users, color: "#8B5CF6", bg: "bg-violet-50", img: imgHandoff },
-  { id: "carpool", icon: Globe, color: "#06B6D4", bg: "bg-cyan-50", img: imgFamille },
-  { id: "air", icon: Plane, color: "#1E6091", bg: "bg-blue-50", img: imgWarehouse },
-];
-
 const stats = [
   { value: "150K+", label: "Utilisateurs actifs", icon: Users },
   { value: "2M+", label: "Courses effectuées", icon: Bike },
@@ -172,22 +162,8 @@ export function LandingPage() {
 
   const isVisible = (id: string) => visibleSections.has(id);
 
-  // Offres affichées = visuels + contenu/prix édités depuis le back office admin
+  // Coordonnées (adresse, téléphone, email) éditables depuis le back office admin
   const config = usePlatformConfig();
-  const services = serviceVisuals
-    .map((v) => {
-      const offer = findOffer(config, v.id);
-      return offer && offer.active
-        ? {
-            ...v,
-            title: offer.name,
-            description: offer.description,
-            stats: offer.tagline,
-            priceFrom: offer.priceFrom,
-          }
-        : null;
-    })
-    .filter((s): s is NonNullable<typeof s> => s !== null);
 
   return (
     <div ref={scrollRef} className="min-h-screen bg-white overflow-y-auto" style={{ height: "100vh" }}>
@@ -314,7 +290,7 @@ export function LandingPage() {
             <span className="text-slate-700">IPPOO TRIIP</span> est la super-app africaine de mobilité et de logistique. Sur une seule plateforme, elle réunit le taxi-moto, la livraison de colis, le transport de biens lourds, les commandes groupées, le covoiturage longue distance et le fret aérien · pour les particuliers comme pour les professionnels.
           </p>
           <p className="text-slate-500 text-sm md:text-base mb-10" style={{ lineHeight: 1.8 }}>
-            Pensée pour les réalités du continent · paiement Mobile Money, mode hors-ligne, chauffeurs vérifiés, bouton SOS et suivi GPS en temps réel · IPPOO TRIIP connecte passagers, commerçants et transporteurs à travers l'Afrique, du trajet quotidien à l'expédition professionnelle. Notre mission : rendre chaque déplacement et chaque livraison simple, sûr et accessible, partout sur le continent.
+            IPPOO TRIIP connecte passagers, commerçants et transporteurs à travers l'Afrique, du trajet quotidien à l'expédition professionnelle. Notre mission : rendre chaque déplacement et chaque livraison simple, sûr et accessible, partout sur le continent.
           </p>
 
           <div className="grid grid-cols-3 gap-4 md:gap-6">
@@ -335,61 +311,8 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ═══════════ SERVICES ═══════════ */}
-      <section id="services" data-animate className="py-16 md:py-24 bg-white">
-        <div className={`max-w-6xl mx-auto px-5 md:px-8 transition-all duration-700 ${isVisible("services") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-          <div className="text-center mb-12 md:mb-16">
-            
-            <h2 className="text-2xl md:text-4xl title-gradient mb-3" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-              Tout le transport en <span className="text-[#F77F00]">une seule app</span>
-            </h2>
-            <p className="text-slate-500 text-sm md:text-base max-w-lg mx-auto">
-              6 services complets pour répondre à tous vos besoins de mobilité et de logistique, du quotidien au professionnel.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
-            {services.map((s, i) => (
-              <div
-                key={i}
-                className={`group relative bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 ${isVisible("services") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"}`}
-                style={{ transitionDelay: `${i * 100}ms` }}
-              >
-                {/* Image */}
-                <div className="relative h-44 overflow-hidden">
-                  <ImageWithFallback src={s.img} alt={s.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                  <div className="absolute bottom-3 left-3 flex items-center gap-2">
-                    <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow-lg" style={{ background: s.color }}>
-                      <s.icon className="w-4.5 h-4.5 text-white" />
-                    </div>
-                    <span className="text-white text-sm drop-shadow">{s.title}</span>
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="p-5">
-                  <p className="text-slate-500 text-xs mb-4" style={{ lineHeight: 1.7 }}>{s.description}</p>
-                  {s.priceFrom > 0 && (
-                    <p className="text-xs text-slate-400 mb-3">
-                      À partir de{" "}
-                      <span style={{ color: s.color, fontFamily: "'Space Grotesk', monospace" }}>
-                        {s.priceFrom.toLocaleString("fr-FR")} FCFA
-                      </span>
-                    </p>
-                  )}
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] px-3 py-1 rounded-full" style={{ background: `${s.color}15`, color: s.color }}>{s.stats}</span>
-                    <button onClick={() => navigate("/login")} className="text-xs flex items-center gap-1 transition" style={{ color: s.color }}>
-                      En savoir plus <ChevronRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* ═══════════ SERVICES — CATALOGUE COMPLET ═══════════ */}
+      <ServicesCatalog onCta={() => navigate("/login")} />
 
       {/* ═══════════ HOW IT WORKS ═══════════ */}
       <section id="comment" data-animate className="py-16 md:py-24 bg-slate-50">
