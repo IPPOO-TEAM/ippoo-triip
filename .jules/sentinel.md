@@ -1,4 +1,4 @@
-## 2025-05-14 - CSS Injection in Chart Component
-**Vulnerability:** The `ChartStyle` component was interpolating `id`, `config` keys, and `color` strings directly into a `<style>` block using `dangerouslySetInnerHTML`. An attacker could provide a malicious `id` or `color` (e.g., `} body { display: none; }`) to inject arbitrary CSS or potentially perform XSS by breaking out of the style tag.
-**Learning:** Even internal UI components like charts can be vectors for CSS injection if they dynamically generate style tags from props.
-**Prevention:** Always sanitize any dynamic content that is being injected into `<style>` tags or used with `dangerouslySetInnerHTML`. Use strict regex to allow only safe characters (alphanumeric, hyphens, underscores for IDs/keys; stripping semicolon/braces for colors).
+## 2025-05-14 - CSS Injection and XSS in Chart Component
+**Vulnerability:** The `ChartStyle` component was interpolating `id`, `config` keys, and `color` strings directly into a `<style>` block using `dangerouslySetInnerHTML`. An attacker could provide a malicious `id` or `color` (e.g., `} body { display: none; }`) to inject arbitrary CSS or perform XSS by closing the style tag (`</style><script>...`).
+**Learning:** Dynamic generation of CSS from props is a common pattern that can lead to injection if not sanitized. Sanitizing against tag closure is as important as sanitizing against CSS syntax breakage.
+**Prevention:** Use strict regex to allow only safe characters for identifiers (alphanumeric, hyphens, underscores). For values like colors, strip characters that can terminate CSS declarations (`;`, `}`, `\`) and explicitly block tag closure sequences like `</style>`.
