@@ -2,6 +2,7 @@ import { Outlet, useNavigate, useLocation } from "react-router";
 import { useEffect, useRef, useState } from "react";
 import { Home, Clock, Wallet, User, Bell, Navigation } from "lucide-react";
 import { PWAInstallPrompt } from "../pwa-install-prompt";
+import { PushNotificationHost } from "../push-host";
 import { useScrollRestoration } from "../../hooks/use-scroll-restoration";
 
 const UNREAD_NOTIF_KEY = "ippoo_driver_unread_notifs";
@@ -40,6 +41,7 @@ export function DriverLayout() {
   return (
     <div className="flex flex-col max-w-md mx-auto bg-white" style={{ height: "100dvh" }}>
       <PWAInstallPrompt />
+      <PushNotificationHost audience="drivers" />
       <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto">
         <Outlet />
       </div>
@@ -67,7 +69,7 @@ export function DriverLayout() {
                 {tab.label}
               </span>
               {tab.path === "/driver/notifications" && unreadCount > 0 && (
-                <span className="absolute top-2 right-[18%] min-w-[16px] h-[16px] bg-[#F77F00] rounded-full text-[9px] text-white flex items-center justify-center border border-white px-0.5">
+                <span className="absolute top-2 right-[18%] min-w-[16px] h-[16px] bg-[#F77F00] rounded-full text-[9px] text-black flex items-center justify-center border border-white px-0.5">
                   {unreadCount > 9 ? "9+" : unreadCount}
                 </span>
               )}

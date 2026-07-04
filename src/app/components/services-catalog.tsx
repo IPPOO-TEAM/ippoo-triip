@@ -8,8 +8,10 @@
  * Titres de catégories en couleurs variées (dégradés & monochromes).
  * Fonds de sections variés (blanc, dégradés légers, gris, effets de transparence).
  */
+import { motion } from "motion/react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { AfricanPattern } from "./icons";
+import { boldBrand } from "./brand-text";
 
 /* ─── Photos africaines réelles (fournies) ─── */
 import photoMoto from "../../imports/photo_4_2026-06-26_14-18-37.jpg";
@@ -641,7 +643,13 @@ export function ServicesCatalog({ onCta }: { onCta: () => void }) {
           )}
 
           <div className="relative max-w-6xl mx-auto px-5 md:px-8">
-            <header className="mb-9 md:mb-12 text-center max-w-2xl mx-auto">
+            <motion.header
+              className="mb-9 md:mb-12 text-center max-w-2xl mx-auto"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.4 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+            >
               <div
                 className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 mb-3"
                 style={{ background: `${cat.accent}15`, color: cat.accent }}
@@ -650,7 +658,7 @@ export function ServicesCatalog({ onCta }: { onCta: () => void }) {
                 <span className="text-xs">{cat.badge}</span>
               </div>
               <CategoryTitle cat={cat} />
-            </header>
+            </motion.header>
 
             {/* Blocs alternés — image à côté du texte, hiérarchie claire */}
             <div className="space-y-14 md:space-y-20">
@@ -663,15 +671,27 @@ export function ServicesCatalog({ onCta }: { onCta: () => void }) {
                     className="grid md:grid-cols-2 gap-6 md:gap-10 lg:gap-14 items-center"
                   >
                     {/* Image — affichée en entier, non rognée */}
-                    <div className={imgRight ? "md:order-2" : ""}>
+                    <motion.div
+                      className={imgRight ? "md:order-2" : ""}
+                      initial={{ opacity: 0, x: imgRight ? 60 : -60 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true, amount: 0.25 }}
+                      transition={{ duration: 0.65, ease: "easeOut" }}
+                    >
                       {/* Pleine largeur sur mobile (full-bleed), encadrée sur desktop */}
                       <div className="overflow-hidden bg-white shadow-md -mx-5 md:mx-0 rounded-none md:rounded-3xl border-0 md:border md:border-slate-100">
-                        <ImageWithFallback src={s.img} alt={s.title} className="block w-full h-auto" />
+                        <ImageWithFallback src={s.img} alt={s.title} className="block h-auto w-[108%] max-w-none -ml-[4%] md:w-full md:ml-0 origin-center animate-[zoomOutLoad_1.2s_ease-out_both]" />
                       </div>
-                    </div>
+                    </motion.div>
 
                     {/* Texte — badge › titre › slogan › paragraphes › CTA */}
-                    <div className={imgRight ? "md:order-1" : ""}>
+                    <motion.div
+                      className={imgRight ? "md:order-1" : ""}
+                      initial={{ opacity: 0, x: imgRight ? -60 : 60 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true, amount: 0.25 }}
+                      transition={{ duration: 0.65, ease: "easeOut", delay: 0.1 }}
+                    >
                       <div
                         className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 mb-4"
                         style={{ background: `${cat.accent}15`, color: cat.accent }}
@@ -688,13 +708,13 @@ export function ServicesCatalog({ onCta }: { onCta: () => void }) {
                       </h3>
 
                       <p className="mb-4 text-base md:text-lg" style={{ color: cat.accent, lineHeight: 1.55 }}>
-                        {slogan}
+                        {boldBrand(slogan)}
                       </p>
 
                       <div className="space-y-2.5 mb-6">
                         {rest.map((p, k) => (
                           <p key={k} className="text-sm" style={{ color: "#475569", lineHeight: 1.7 }}>
-                            {p}
+                            {boldBrand(p)}
                           </p>
                         ))}
                       </div>
@@ -706,7 +726,7 @@ export function ServicesCatalog({ onCta }: { onCta: () => void }) {
                       >
                         En savoir plus <ArrowRight className="w-4 h-4" />
                       </button>
-                    </div>
+                    </motion.div>
                   </article>
                 );
               })}
@@ -721,20 +741,27 @@ export function ServicesCatalog({ onCta }: { onCta: () => void }) {
         <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 w-80 h-80 rounded-full blur-[110px] opacity-25" style={{ background: "#F77F00" }} />
         <div className="relative max-w-4xl mx-auto px-5 md:px-8">
           <h2 className="text-white text-2xl md:text-4xl text-center mb-10" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-            Pourquoi choisir IPPOO TRIIP ?
+            Pourquoi choisir <strong className="font-bold">IPPOO TRIIP</strong> ?
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {WHY.map((w) => (
-              <div key={w} className="flex items-start gap-3 bg-white/10 border border-white/15 rounded-2xl px-4 py-3.5">
+            {WHY.map((w, i) => (
+              <motion.div
+                key={w}
+                className="flex items-start gap-3 bg-white/10 border border-white/15 rounded-2xl px-4 py-3.5"
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.4 }}
+                transition={{ duration: 0.5, ease: "easeOut", delay: (i % 2) * 0.08 }}
+              >
                 <CheckCircle2 className="w-5 h-5 text-[#E9C46A] shrink-0 mt-0.5" />
-                <span className="text-white text-sm" style={{ lineHeight: 1.6 }}>{w}</span>
-              </div>
+                <span className="text-white text-sm" style={{ lineHeight: 1.6 }}>{boldBrand(w)}</span>
+              </motion.div>
             ))}
           </div>
           <div className="text-center mt-10">
             <button
               onClick={onCta}
-              className="inline-flex items-center gap-2 bg-[#F77F00] text-white px-8 py-4 rounded-2xl text-sm shadow-xl shadow-orange-500/30 transition active:scale-95"
+              className="inline-flex items-center gap-2 bg-[#F77F00] text-black px-8 py-4 rounded-2xl text-sm shadow-xl shadow-orange-500/30 transition active:scale-95"
             >
               Profiter de tous nos services <ArrowRight className="w-4 h-4" />
             </button>

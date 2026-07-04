@@ -107,7 +107,7 @@ export function DriverRatingPage() {
   return (
     <div className="min-h-full bg-slate-50 pb-4">
       {/* Header */}
-      <div className="bg-gradient-to-br from-[#E9C46A] to-[#F77F00] pt-12 pb-6 px-5 relative overflow-hidden">
+      <div className="bg-[#E9C46A] pt-12 pb-6 px-5 relative overflow-hidden">
         <div className="absolute -right-12 -top-12 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
         <div className="flex items-center gap-3 mb-5">
           <button onClick={() => navigate("/driver")} className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center">
@@ -150,7 +150,7 @@ export function DriverRatingPage() {
               className={`px-3 py-2 rounded-xl text-[10px] flex items-center gap-1.5 transition ${tab === t.id ? "bg-white text-[#F77F00]" : "bg-white/15 text-white/80"}`}
             >
               {t.label}
-              <span className={`min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-[9px] ${tab === t.id ? "bg-[#F77F00] text-white" : "bg-white/15 text-white/60"}`}>
+              <span className={`min-w-[18px] h-[18px] rounded-full flex items-center justify-center text-[9px] ${tab === t.id ? "bg-[#F77F00] text-black" : "bg-white/15 text-white/60"}`}>
                 {t.count}
               </span>
             </button>
@@ -235,7 +235,7 @@ export function DriverRatingPage() {
                 </div>
                 <button
                   onClick={() => setRatingPending(p)}
-                  className="w-full py-2.5 rounded-xl bg-[#F77F00] text-white text-xs shadow-md shadow-orange-500/15"
+                  className="w-full py-2.5 rounded-xl bg-[#F77F00] text-black text-xs shadow-md shadow-orange-500/15"
                 >
                   Noter ce client
                 </button>
@@ -327,7 +327,7 @@ export function DriverRatingPage() {
             <button
               onClick={submitRating}
               disabled={submittingRating || ratingStars === 0}
-              className="w-full py-4 rounded-2xl bg-[#2A9D8F] text-white text-sm shadow-lg shadow-emerald-500/20 disabled:opacity-50"
+              className="w-full py-4 rounded-2xl bg-[#2A9D8F] text-white text-sm shadow-sm shadow-emerald-500/20 disabled:opacity-50"
             >
               {submittingRating ? "Envoi..." : "Envoyer l'avis"}
             </button>

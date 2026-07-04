@@ -99,7 +99,7 @@ function SlidePanel({ open, onClose, title, children }: { open: boolean; onClose
   return (
     <div className={`fixed inset-0 z-50 transition-all duration-300 ${open ? "visible" : "invisible"}`}>
       <div className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ${open ? "opacity-100" : "opacity-0"}`} onClick={onClose} />
-      <div className={`absolute inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl transition-transform duration-300 flex flex-col ${open ? "translate-x-0" : "translate-x-full"}`}>
+      <div className={`absolute inset-y-0 right-0 w-full max-w-md bg-white shadow-sm transition-transform duration-300 flex flex-col ${open ? "translate-x-0" : "translate-x-full"}`}>
         <div className="flex items-center gap-3 px-5 pt-14 pb-4 border-b border-slate-100 shrink-0">
           <button onClick={onClose} className="w-10 h-10 rounded-2xl bg-slate-100 flex items-center justify-center">
             <ChevronLeft className="w-5 h-5 text-slate-600" />
@@ -180,7 +180,7 @@ export function DriverProfilePage() {
   return (
     <div className="min-h-full bg-slate-50 pb-4">
       {/* Header */}
-      <div className="bg-gradient-to-br from-[#2A9D8F] to-[#1E6091] pt-12 pb-8 px-5 relative overflow-hidden">
+      <div className="bg-[#2A9D8F] pt-12 pb-8 px-5 relative overflow-hidden">
         <div className="absolute -right-12 -top-12 w-40 h-40 bg-white/5 rounded-full blur-2xl" />
         <div className="absolute -left-8 bottom-0 w-32 h-32 bg-[#E9C46A]/10 rounded-full blur-2xl" />
 
@@ -199,7 +199,7 @@ export function DriverProfilePage() {
             <button
               onClick={() => toast.info("Sélectionnez une nouvelle photo de profil")}
               aria-label="Changer la photo de profil"
-              className="absolute -bottom-1 -right-1 w-7 h-7 bg-[#F77F00] rounded-full flex items-center justify-center border-2 border-white shadow-lg"
+              className="absolute -bottom-1 -right-1 w-7 h-7 bg-[#F77F00] rounded-full flex items-center justify-center border-2 border-white shadow-sm"
             >
               <Camera className="w-3.5 h-3.5 text-white" />
             </button>
@@ -251,7 +251,7 @@ export function DriverProfilePage() {
                   <item.icon className={`w-5 h-5 ${item.panel === "logout" ? "text-red-400" : "text-slate-400"}`} />
                   <span className={`flex-1 text-xs ${item.panel === "logout" ? "text-red-500" : "text-slate-700"}`}>{item.label}</span>
                   {item.badge && (
-                    <span className="min-w-[20px] h-[20px] bg-[#F77F00] rounded-full text-[9px] text-white flex items-center justify-center">{item.badge}</span>
+                    <span className="min-w-[20px] h-[20px] bg-[#F77F00] rounded-full text-[9px] text-black flex items-center justify-center">{item.badge}</span>
                   )}
                   <ChevronRight className="w-4 h-4 text-slate-300" />
                 </button>
@@ -286,7 +286,7 @@ export function DriverProfilePage() {
             <label className="text-[10px] text-slate-400 uppercase tracking-wider mb-1.5 block">NIP</label>
             <p className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-500">{driverInfo.nip}</p>
           </div>
-          <button onClick={() => { toast.success("Informations mises a jour"); setPanel(null); }} className="w-full py-3.5 rounded-xl bg-[#2A9D8F] text-white text-xs shadow-lg shadow-emerald-500/15">
+          <button onClick={() => { toast.success("Informations mises a jour"); setPanel(null); }} className="w-full py-3.5 rounded-xl bg-[#2A9D8F] text-white text-xs shadow-sm shadow-emerald-500/15">
             Sauvegarder
           </button>
         </div>
@@ -343,7 +343,7 @@ export function DriverProfilePage() {
       {/* ═══ STATS PANEL ═══ */}
       <SlidePanel open={panel === "stats"} onClose={() => setPanel(null)} title="Statistiques & performances">
         <div className="space-y-4">
-          <div className="bg-gradient-to-br from-[#2A9D8F] to-[#1E6091] rounded-2xl p-4 text-center">
+          <div className="bg-[#2A9D8F] rounded-2xl p-4 text-center">
             <p className="text-white/60 text-[10px]">Classement general</p>
             <p className="text-white text-2xl" style={{ fontFamily: "'Space Grotesk', monospace" }}>#{performanceStats.rank}</p>
             <p className="text-white/50 text-[9px]">sur {performanceStats.totalDrivers} chauffeurs</p>
@@ -437,7 +437,7 @@ export function DriverProfilePage() {
       {showConfirmLogout && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-5">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowConfirmLogout(false)} />
-          <div className="relative bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl">
+          <div className="relative bg-white rounded-2xl p-6 max-w-sm w-full shadow-sm">
             <LogOut className="w-10 h-10 text-red-400 mx-auto mb-3" />
             <p className="text-slate-800 text-sm text-center mb-1">Se deconnecter ?</p>
             <p className="text-slate-400 text-[10px] text-center mb-5">Vous ne recevrez plus de missions jusqu'a votre prochaine connexion.</p>

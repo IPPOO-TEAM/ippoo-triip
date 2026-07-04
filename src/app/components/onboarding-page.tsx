@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router";
 import { ChevronRight, ArrowRight, Bike, Package, Truck, Car, Globe } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { boldBrand } from "./brand-text";
 
 import imgTaxi     from "figma:asset/cb856ad9ad2b6d63389cb55398f0022c31a5d3bf.png";
 import imgLivraison from "figma:asset/69629a15d8040af0ae589ad686f2ca30de63226b.png";
@@ -212,7 +213,7 @@ export function OnboardingPage() {
     <div
       ref={containerRef}
       className="relative w-full overflow-hidden bg-black select-none"
-      style={{ height: "100dvh", minHeight: "100vh" }}
+      style={{ height: "100dvh" }}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
@@ -310,8 +311,8 @@ export function OnboardingPage() {
 
       {/* ── Bottom Content ── */}
       <div
-        className="absolute inset-x-0 bottom-0 px-6 pb-10 flex flex-col gap-5"
-        style={{ zIndex: 10 }}
+        className="absolute inset-x-0 bottom-0 px-6 flex flex-col gap-4 max-h-[80vh] overflow-y-auto"
+        style={{ zIndex: 10, paddingBottom: "max(1.75rem, env(safe-area-inset-bottom))" }}
       >
         {/* Decorative lines */}
         <GeometricLines color="white" />
@@ -334,7 +335,7 @@ export function OnboardingPage() {
               fontSize: "clamp(0.875rem, 4vw, 1rem)",
             }}
           >
-            {slide.badge}
+            {boldBrand(slide.badge)}
           </p>
         </div>
 
@@ -347,7 +348,7 @@ export function OnboardingPage() {
             className="text-white leading-[1.1] mb-3"
             style={{
               fontFamily: "Plus Jakarta Sans, Inter, sans-serif",
-              fontSize: "clamp(2rem, 8vw, 2.6rem)",
+              fontSize: "clamp(1.6rem, 7vw, 2.4rem)",
               fontWeight: 800,
               letterSpacing: "-0.02em",
             }}
@@ -369,7 +370,7 @@ export function OnboardingPage() {
             // Final CTA
             <button
               onClick={handleGetStarted}
-              className="flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-white text-base active:scale-95 transition-all duration-200 shadow-2xl"
+              className="flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-white text-base active:scale-95 transition-all duration-200 shadow-sm"
               style={{
                 background: `linear-gradient(135deg, ${slide.accentColor === "#E9C46A" ? "#F77F00" : slide.accentColor}, ${slide.accentColor === "#E9C46A" ? "#F77F00" : slide.accentColor}dd)`,
                 boxShadow: `0 8px 32px ${slide.accentColor}66`,
@@ -404,7 +405,7 @@ export function OnboardingPage() {
               {/* Next button */}
               <button
                 onClick={nextSlide}
-                className="w-14 h-14 rounded-2xl flex items-center justify-center active:scale-90 transition-all duration-200 shadow-2xl"
+                className="w-14 h-14 rounded-2xl flex items-center justify-center active:scale-90 transition-all duration-200 shadow-sm"
                 style={{
                   background: slide.accentColor,
                   boxShadow: `0 8px 24px ${slide.accentColor}66`,

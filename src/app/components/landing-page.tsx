@@ -182,7 +182,7 @@ export function LandingPage() {
             ))}
             <button
               onClick={() => navigate("/login")}
-              className="bg-[#F77F00] text-white px-5 py-2 rounded-xl text-sm shadow-lg shadow-orange-400/25 hover:shadow-orange-400/40 transition"
+              className="bg-[#F77F00] text-black px-5 py-2 rounded-xl text-sm shadow-lg shadow-orange-400/25 hover:shadow-orange-400/40 transition"
             >
               Commencer
             </button>
@@ -206,7 +206,7 @@ export function LandingPage() {
                   {item}
                 </a>
               ))}
-              <button onClick={() => navigate("/login")} className="w-full bg-[#F77F00] text-white py-3 rounded-xl text-sm">
+              <button onClick={() => navigate("/login")} className="w-full bg-[#F77F00] text-black py-3 rounded-xl text-sm">
                 Commencer maintenant
               </button>
             </div>
@@ -237,14 +237,13 @@ export function LandingPage() {
             </h1>
 
             <p className="text-white/80 text-sm md:text-base mb-8 max-w-lg" style={{ lineHeight: 1.7 }}>
-              Taxi-moto, livraison de colis, transport lourd, covoiturage et fret aérien.
-              Bien plus qu'une app de transport : taxi-moto et VTC, livraison de colis, transport de marchandises et de biens lourds, covoiturage longue distance, commandes groupées, fret aérien & maritime, voyages organisés, location, conciergerie et traçabilité de vos bagages — IPPOO TRIIP réunit tous vos déplacements et toute votre logistique en une seule plateforme, partout en Afrique.
+              IPPOO TRIIP réunit l'ensemble des formules et moyens sécurisés pour vos livraisons diverses, le transport de biens, d'équipements et le convoyage de vos marchandises : taxi auto et moto, le coursing pour vos livraisons de colis rapides, les commandes groupées, vos déplacements et covoiturage toutes distances, ainsi que le fret maritime et aérien — selon vos besoins professionnels et particuliers.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3">
               <button
                 onClick={() => navigate("/login")}
-                className="bg-[#F77F00] text-white px-8 py-4 rounded-2xl text-sm shadow-xl shadow-orange-500/30 hover:shadow-orange-500/50 transition flex items-center justify-center gap-2"
+                className="bg-[#F77F00] text-black px-8 py-4 rounded-2xl text-sm shadow-xl shadow-orange-500/30 hover:shadow-orange-500/50 transition flex items-center justify-center gap-2"
               >
                 Commencer gratuitement <ArrowRight className="w-4 h-4" />
               </button>
@@ -260,8 +259,8 @@ export function LandingPage() {
             <div className="mt-12 flex flex-wrap gap-6 md:gap-10">
               {stats.map((s, i) => (
                 <div key={i} className="text-center">
-                  <p className="text-white text-xl md:text-2xl" style={{ fontFamily: "'Space Grotesk', monospace" }}>{s.value}</p>
-                  <p className="text-white/50 text-[10px] md:text-xs">{s.label}</p>
+                  <p className="text-[#E9C46A] text-xl md:text-2xl" style={{ fontFamily: "'Space Grotesk', monospace" }}>{s.value}</p>
+                  <p className="text-[#E9C46A]/70 text-[10px] md:text-xs">{s.label}</p>
                 </div>
               ))}
             </div>
@@ -270,8 +269,8 @@ export function LandingPage() {
 
         {/* Scroll indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
-          <div className="w-6 h-10 border-2 border-white/30 rounded-full flex items-start justify-center p-1.5">
-            <div className="w-1.5 h-2.5 bg-white/60 rounded-full animate-bounce" />
+          <div className="w-6 h-10 border-2 border-[#E9C46A]/70 rounded-full flex items-start justify-center p-1.5">
+            <div className="w-1.5 h-2.5 bg-[#E9C46A] rounded-full animate-bounce" />
           </div>
         </div>
       </section>
@@ -279,29 +278,29 @@ export function LandingPage() {
       {/* ═══════════ À PROPOS ═══════════ */}
       <section id="apropos" data-animate className="py-16 md:py-24 bg-slate-50">
         <div className={`max-w-4xl mx-auto px-5 md:px-8 text-center transition-all duration-700 ${isVisible("apropos") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-          <div className="inline-flex items-center gap-2 bg-[#1E6091]/10 rounded-full px-4 py-2 mb-4">
-            <BadgeCheck className="w-4 h-4 text-[#1E6091]" />
-            <span className="text-[#1E6091] text-xs">À propos</span>
+          <div className="inline-flex items-center gap-2 bg-[#E9C46A] rounded-full px-4 py-2 mb-4">
+            <BadgeCheck className="w-4 h-4 text-black" />
+            <span className="text-black text-xs">À propos</span>
           </div>
-          <h2 className="text-2xl md:text-4xl title-gradient mb-5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          <h2 className="text-2xl md:text-4xl text-[#E9C46A] mb-5" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             Qu'est-ce qu'IPPOO TRIIP ?
           </h2>
           <p className="text-slate-500 text-sm md:text-base mb-4" style={{ lineHeight: 1.8 }}>
-            <span className="text-slate-700">IPPOO TRIIP</span> est la super-app africaine de mobilité et de logistique. Sur une seule plateforme, elle réunit le taxi-moto, la livraison de colis, le transport de biens lourds, les commandes groupées, le covoiturage longue distance et le fret aérien · pour les particuliers comme pour les professionnels.
+            <span className="text-slate-700 font-bold">IPPOO TRIIP</span> est une super application de mobilité et de logistique qui simplifie tous vos déplacements ainsi que le transport de biens, d'équipements et de marchandises grâce au covoiturage, aux commandes groupées et à plusieurs services réunis sur une seule plateforme, pensée pour les particuliers comme pour les professionnels, avec différentes formules adaptées à chaque besoin afin de vous faire gagner du temps, réduire vos coûts et centraliser toute votre organisation de transport dans une solution unique, simple et efficace.
           </p>
           <p className="text-slate-500 text-sm md:text-base mb-10" style={{ lineHeight: 1.8 }}>
-            IPPOO TRIIP connecte passagers, commerçants et transporteurs à travers l'Afrique, du trajet quotidien à l'expédition professionnelle. Notre mission : rendre chaque déplacement et chaque livraison simple, sûr et accessible, partout sur le continent.
+            IPPOO TRIIP a pour vocation de connecter tout passager, tout transporteur et commerçants à travers l'Afrique sur les trajets personnels ou professionnels au quotidien. Notre mission : rendre chaque déplacement et chaque livraison simple, sûr et accessible, partout sur le continent.
           </p>
 
           <div className="grid grid-cols-3 gap-4 md:gap-6">
             {[
-              { icon: Globe, value: "6 services", label: "réunis en une app" },
-              { icon: Shield, value: "100% vérifiés", label: "chauffeurs & partenaires" },
-              { icon: Heart, value: "Made for Africa", label: "pensé pour le continent" },
+              { icon: Globe, value: "6 services", label: "réunis en une app", iconBg: "bg-[#E9C46A]", iconColor: "text-black" },
+              { icon: Shield, value: "100% vérifiés", label: "chauffeurs & partenaires", iconBg: "bg-[#1E6091]", iconColor: "text-white" },
+              { icon: Heart, value: "Made for Africa", label: "pensé pour le continent", iconBg: "bg-gradient-to-br from-[#1E6091] to-[#2A9D8F]", iconColor: "text-white" },
             ].map((item) => (
               <div key={item.value} className="bg-white rounded-2xl border border-slate-100 p-5 flex flex-col items-center gap-2">
-                <div className="w-11 h-11 bg-gradient-to-br from-[#1E6091] to-[#2A9D8F] rounded-xl flex items-center justify-center shadow-sm">
-                  <item.icon className="w-5 h-5 text-white" />
+                <div className={`w-11 h-11 ${item.iconBg} rounded-xl flex items-center justify-center shadow-sm`}>
+                  <item.icon className={`w-5 h-5 ${item.iconColor}`} />
                 </div>
                 <p className="text-slate-700 text-sm">{item.value}</p>
                 <p className="text-slate-400 text-[10px] md:text-xs text-center">{item.label}</p>
@@ -356,7 +355,7 @@ export function LandingPage() {
                   Rejoignez plus de 150 000 utilisateurs qui font confiance à IPPOO chaque jour pour se déplacer, livrer et transporter en toute sécurité.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <button onClick={() => navigate("/login")} className="bg-[#F77F00] text-white px-6 py-3.5 rounded-xl text-sm shadow-lg shadow-orange-500/30 flex items-center justify-center gap-2">
+                  <button onClick={() => navigate("/login")} className="bg-[#F77F00] text-black px-6 py-3.5 rounded-xl text-sm shadow-lg shadow-orange-500/30 flex items-center justify-center gap-2">
                     <Download className="w-4 h-4" /> Télécharger l'app
                   </button>
                   <button onClick={() => navigate("/login")} className="bg-white/15 text-white px-6 py-3.5 rounded-xl text-sm border border-white/20 flex items-center justify-center gap-2">
@@ -479,7 +478,7 @@ export function LandingPage() {
             Inscrivez-vous gratuitement et profitez de votre première course offerte. Aucune carte bancaire requise.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <button onClick={() => navigate("/login")} className="bg-[#F77F00] text-white px-8 py-4 rounded-2xl text-sm shadow-xl shadow-orange-500/30 flex items-center justify-center gap-2">
+            <button onClick={() => navigate("/login")} className="bg-[#F77F00] text-black px-8 py-4 rounded-2xl text-sm shadow-xl shadow-orange-500/30 flex items-center justify-center gap-2">
               Créer mon compte <ArrowRight className="w-4 h-4" />
             </button>
             <button onClick={() => navigate("/login")} className="bg-white/15 text-white px-8 py-4 rounded-2xl text-sm border border-white/20 flex items-center justify-center gap-2">
@@ -515,7 +514,7 @@ export function LandingPage() {
             {/* Brand */}
             <div className="md:col-span-1">
               <p className="text-slate-400 text-xs mb-4" style={{ lineHeight: 1.7 }}>
-                IPPOO TRIIP, la super-app africaine de mobilité et de logistique : taxi-moto, livraison, transport de biens, commandes groupées, covoiturage et fret aérien, réunis en une seule plateforme à travers l'Afrique.
+                <strong className="font-bold">IPPOO TRIIP</strong>, la super-app africaine de mobilité et de logistique : taxi-moto, livraison, transport de biens, commandes groupées, covoiturage et fret aérien, réunis en une seule plateforme à travers l'Afrique.
               </p>
               <div className="flex flex-wrap gap-2">
                 {socials.map((s) => (
@@ -598,7 +597,7 @@ export function LandingPage() {
           </div>
 
           <div className="border-t border-slate-800 pt-6 flex flex-col md:flex-row items-center justify-between gap-3">
-            <p className="text-slate-500 text-[10px]">&copy; 2026 IPPOO TRIIP. Tous droits réservés.</p>
+            <p className="text-slate-500 text-[10px]">&copy; 2026 <strong className="font-bold">IPPOO TRIIP</strong>. Tous droits réservés.</p>
             <div className="flex gap-4">
               {[
                 { label: "Politique de confidentialité", href: `mailto:${config.contact.email}?subject=Politique%20de%20confidentialit%C3%A9` },

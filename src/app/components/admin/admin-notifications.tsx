@@ -4,6 +4,7 @@ import {
   AlertTriangle, ChevronRight, Trash2, Eye, Filter, Search, Plus
 } from "lucide-react";
 import { toast } from "sonner";
+import { broadcastPush } from "../../store/push-notifications";
 
 /* ─── Mock Data ─── */
 const SENT_NOTIFICATIONS = [
@@ -153,10 +154,15 @@ export function AdminNotificationsPage() {
               <button
                 onClick={() => {
                   if (!notifTitle.trim() || !notifBody.trim()) return toast.error("Titre et message requis");
-                  toast.success(`Notification envoyée à ${notifTarget === "all" ? "tous" : notifTarget}`);
+                  broadcastPush({
+                    title: notifTitle.trim(),
+                    body: notifBody.trim(),
+                    target: notifTarget === "clients" ? "clients" : notifTarget === "drivers" ? "drivers" : "all",
+                  });
+                  toast.success(`Notification diffusée à ${notifTarget === "all" ? "tous" : notifTarget}`);
                   setNotifTitle(""); setNotifBody("");
                 }}
-                className="flex items-center gap-2 bg-[#1E6091] text-white px-6 py-3 rounded-xl text-xs shadow-lg shadow-blue-400/20"
+                className="flex items-center gap-2 bg-[#1E6091] text-white px-6 py-3 rounded-xl text-xs shadow-sm shadow-blue-400/20"
               >
                 <Send className="w-4 h-4" /> Envoyer maintenant
               </button>

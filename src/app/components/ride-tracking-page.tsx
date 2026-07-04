@@ -311,7 +311,7 @@ export function RideTrackingPage() {
           driverName={driver.name}
         />
 
-        <button onClick={() => navigate(-1)} className="absolute top-14 left-5 w-11 h-11 bg-white rounded-2xl flex items-center justify-center shadow-xl active:scale-90 transition" style={{ zIndex: 500 }}>
+        <button onClick={() => navigate(-1)} className="absolute top-14 left-5 w-11 h-11 bg-white rounded-2xl flex items-center justify-center shadow-sm active:scale-90 transition" style={{ zIndex: 500 }}>
           <ChevronLeft className="w-5 h-5 text-slate-700" />
         </button>
 
@@ -321,7 +321,7 @@ export function RideTrackingPage() {
 
         {/* SOS button */}
         {rideState !== "completed" && rideState !== "searching" && (
-          <button onClick={() => setShowSOS(true)} className="absolute bottom-5 right-5 w-12 h-12 bg-[#D62828] rounded-2xl flex items-center justify-center shadow-xl shadow-red-500/30 active:scale-90 transition" style={{ zIndex: 500 }}>
+          <button onClick={() => setShowSOS(true)} className="absolute bottom-5 right-5 w-12 h-12 bg-[#D62828] rounded-2xl flex items-center justify-center shadow-sm shadow-red-500/30 active:scale-90 transition" style={{ zIndex: 500 }}>
             <AlertOctagon className="w-5 h-5 text-white" />
           </button>
         )}
@@ -340,7 +340,7 @@ export function RideTrackingPage() {
             <div className="text-center py-8">
               <div className="relative w-20 h-20 mx-auto mb-5">
                 <div className="absolute inset-0 bg-blue-100 rounded-full animate-ping opacity-40" />
-                <div className="relative w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center shadow-xl shadow-blue-500/30">
+                <div className="relative w-20 h-20 bg-blue-500 rounded-full flex items-center justify-center shadow-sm shadow-blue-500/30">
                   <Navigation className="w-8 h-8 text-white" />
                 </div>
               </div>
@@ -357,7 +357,7 @@ export function RideTrackingPage() {
               {/* Route info */}
               <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 text-left mb-6">
                 <div className="relative pl-7">
-                  <div className="absolute left-2 top-1.5 bottom-1.5 w-[2px] bg-gradient-to-b from-emerald-400 to-blue-500 rounded-full" />
+                  <div className="absolute left-2 top-1.5 bottom-1.5 w-[2px] bg-emerald-400 rounded-full" />
                   <div className="absolute left-0.5 top-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-white" />
                   <div className="absolute left-0.5 bottom-0.5 w-3 h-3 rounded-full bg-blue-500 border-2 border-white" />
                   <div className="space-y-4">
@@ -383,7 +383,7 @@ export function RideTrackingPage() {
               {/* Driver card */}
               <div className="flex items-center gap-4 mb-4">
                 <div className="relative">
-                  <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-xl shadow-blue-500/20">
+                  <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-sm shadow-blue-500/20">
                     {getAvatar(driver.initials) ? (
                       <img src={getAvatar(driver.initials)!} alt={driver.name} className="w-full h-full object-cover" />
                     ) : (
@@ -459,13 +459,13 @@ export function RideTrackingPage() {
 
               {/* Action buttons */}
               <div className="flex gap-2 mb-4">
-                <button onClick={startCall} className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-green-600 text-white py-3.5 rounded-2xl shadow-lg shadow-green-500/20 active:scale-[0.98] transition">
+                <button onClick={startCall} className="flex-1 flex items-center justify-center gap-2 bg-emerald-500 text-white py-3.5 rounded-2xl shadow-sm shadow-green-500/20 active:scale-[0.98] transition">
                   <Phone className="w-4 h-4" /> Appeler
                 </button>
                 <button onClick={() => setShowChat(true)} className="flex-1 flex items-center justify-center gap-2 bg-slate-100 text-slate-700 py-3.5 rounded-2xl active:scale-[0.98] transition relative">
                   <MessageSquare className="w-4 h-4" /> Message
                   {chatMessages.length > 1 && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#F77F00] rounded-full text-white text-[10px] flex items-center justify-center">{chatMessages.length}</span>
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#F77F00] rounded-full text-black text-[10px] flex items-center justify-center">{chatMessages.length}</span>
                   )}
                 </button>
                 <button onClick={() => setShowShare(true)} className="w-14 flex items-center justify-center bg-slate-100 text-slate-700 py-3.5 rounded-2xl active:scale-[0.98] transition">
@@ -475,7 +475,7 @@ export function RideTrackingPage() {
 
               {/* State-specific CTA */}
               {rideState === "arrived" && (
-                <button onClick={startRide} className="w-full bg-gradient-to-r from-[#F77F00] to-[#E9C46A] text-white py-4 rounded-2xl shadow-lg shadow-orange-200/50 flex items-center justify-center gap-2 active:scale-[0.98] transition mb-3">
+                <button onClick={startRide} className="w-full bg-[#F77F00] text-black py-4 rounded-2xl shadow-sm shadow-orange-200/50 flex items-center justify-center gap-2 active:scale-[0.98] transition mb-3">
                   <Check className="w-4 h-4" /> Je suis monte, demarrer la course
                 </button>
               )}
@@ -505,7 +505,7 @@ export function RideTrackingPage() {
           {rideState === "completed" && (
             <div className="py-4">
               <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl shadow-green-500/30">
+                <div className="w-16 h-16 bg-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm shadow-green-500/30">
                   <Check className="w-8 h-8 text-white" strokeWidth={2.5} />
                 </div>
                 <h3 className="title-gradient">Course terminee !</h3>
@@ -522,7 +522,7 @@ export function RideTrackingPage() {
                   </button>
                 </div>
                 <div className="relative pl-7 mb-3">
-                  <div className="absolute left-2 top-1 bottom-1 w-[2px] bg-gradient-to-b from-emerald-400 to-blue-500 rounded-full" />
+                  <div className="absolute left-2 top-1 bottom-1 w-[2px] bg-emerald-400 rounded-full" />
                   <div className="absolute left-0.5 top-0 w-3 h-3 rounded-full bg-emerald-400 border-2 border-white" />
                   <div className="absolute left-0.5 bottom-0 w-3 h-3 rounded-full bg-blue-500 border-2 border-white" />
                   <div className="space-y-3">
@@ -572,7 +572,7 @@ export function RideTrackingPage() {
                     ))}
                   </div>
                   <button onClick={submitRating}
-                    className={`w-full py-3.5 rounded-xl text-sm transition ${rating > 0 ? "bg-gradient-to-r from-[#F77F00] to-[#E9C46A] text-white shadow-lg shadow-orange-200/50 active:scale-[0.98]" : "bg-slate-100 text-slate-400"}`}>
+                    className={`w-full py-3.5 rounded-xl text-sm transition ${rating > 0 ? "bg-[#F77F00] text-black shadow-sm shadow-orange-200/50 active:scale-[0.98]" : "bg-slate-100 text-slate-400"}`}>
                     Envoyer ma note
                   </button>
                 </div>
@@ -612,7 +612,7 @@ export function RideTrackingPage() {
                     <span className="text-xs text-slate-400">FCFA</span>
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={submitTip} className="flex-1 bg-gradient-to-r from-violet-500 to-purple-600 text-white py-3 rounded-xl text-sm shadow-lg shadow-violet-500/20">
+                    <button onClick={submitTip} className="flex-1 bg-violet-500 text-white py-3 rounded-xl text-sm shadow-sm shadow-violet-500/20">
                       Envoyer
                     </button>
                     <button onClick={() => setShowTip(false)} className="flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl text-sm">Annuler</button>
@@ -623,7 +623,7 @@ export function RideTrackingPage() {
               {/* Final actions */}
               <div className="flex gap-3">
                 <button onClick={() => navigate("/app/book-ride")}
-                  className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3.5 rounded-2xl text-sm shadow-lg shadow-blue-500/25 active:scale-[0.98] transition">
+                  className="flex-1 bg-blue-500 text-white py-3.5 rounded-2xl text-sm shadow-sm shadow-blue-500/25 active:scale-[0.98] transition">
                   Reprendre ce trajet
                 </button>
                 <button onClick={() => navigate("/app")}
@@ -640,8 +640,8 @@ export function RideTrackingPage() {
 
       {/* ─── CALL OVERLAY ─── */}
       {showCall && (
-        <div className="fixed inset-0 z-50 bg-gradient-to-b from-slate-900 to-slate-800 flex flex-col items-center justify-center">
-          <div className="w-24 h-24 rounded-full overflow-hidden shadow-2xl mb-6 border-4 border-white/10">
+        <div className="fixed inset-0 z-50 bg-slate-900 flex flex-col items-center justify-center">
+          <div className="w-24 h-24 rounded-full overflow-hidden shadow-sm mb-6 border-4 border-white/10">
             {getAvatar(driver.initials) ? (
               <img src={getAvatar(driver.initials)!} alt={driver.name} className="w-full h-full object-cover" />
             ) : (
@@ -663,7 +663,7 @@ export function RideTrackingPage() {
             >
               <MessageSquare className="w-5 h-5 text-white" />
             </button>
-            <button onClick={endCall} aria-label="Raccrocher" className="w-16 h-16 rounded-full bg-[#D62828] flex items-center justify-center shadow-lg shadow-red-500/30 active:scale-90 transition">
+            <button onClick={endCall} aria-label="Raccrocher" className="w-16 h-16 rounded-full bg-[#D62828] flex items-center justify-center shadow-sm shadow-red-500/30 active:scale-90 transition">
               <PhoneOff className="w-6 h-6 text-white" />
             </button>
             <button
@@ -705,7 +705,7 @@ export function RideTrackingPage() {
           <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3 bg-slate-50">
             {chatMessages.map(msg => (
               <div key={msg.id} className={`flex ${msg.from === "user" ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl ${msg.from === "user" ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-br-md" : "bg-white text-slate-700 border border-slate-100 rounded-bl-md shadow-sm"}`}>
+                <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl ${msg.from === "user" ? "bg-blue-500 text-white rounded-br-md" : "bg-white text-slate-700 border border-slate-100 rounded-bl-md shadow-sm"}`}>
                   <p className="text-sm">{msg.text}</p>
                   <p className={`text-[9px] mt-1 ${msg.from === "user" ? "text-blue-200" : "text-slate-400"}`}>{msg.time}</p>
                 </div>
@@ -732,7 +732,7 @@ export function RideTrackingPage() {
               placeholder="Ecrire un message..."
               className="flex-1 bg-slate-50 rounded-2xl px-4 py-3 text-sm outline-none border border-slate-200 focus:border-blue-400"
             />
-            <button onClick={sendChat} className={`w-12 h-12 rounded-2xl flex items-center justify-center transition ${chatInput.trim() ? "bg-gradient-to-r from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/20" : "bg-slate-100"}`}>
+            <button onClick={sendChat} className={`w-12 h-12 rounded-2xl flex items-center justify-center transition ${chatInput.trim() ? "bg-blue-500 shadow-sm shadow-blue-500/20" : "bg-slate-100"}`}>
               <Send className={`w-4 h-4 ${chatInput.trim() ? "text-white" : "text-slate-400"}`} />
             </button>
           </div>
@@ -815,7 +815,7 @@ export function RideTrackingPage() {
       {showReceipt && (
         <ModalOverlay onClose={() => setShowReceipt(false)} title="Recu de course">
           <div className="text-center mb-4">
-            <p className="text-[10px] text-slate-400">IPPOO TRIIP</p>
+            <p className="text-[10px] text-slate-400"><strong className="font-bold">IPPOO TRIIP</strong></p>
             <p className="text-[10px] text-slate-400">Recu #{Date.now().toString().slice(-6)}</p>
           </div>
           <div className="border-t border-dashed border-slate-200 py-4 space-y-3">
@@ -853,7 +853,7 @@ function ModalOverlay({ onClose, title, children }: { onClose: () => void; title
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 pb-8 shadow-2xl max-h-[85vh] overflow-y-auto">
+      <div className="relative bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl p-5 pb-8 shadow-sm max-h-[85vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <p className="text-slate-800">{title}</p>
           <button onClick={onClose} className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center">

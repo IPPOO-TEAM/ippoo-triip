@@ -46,7 +46,7 @@ export function CouponsPage() {
 
           {/* Promo code input */}
           <div className="flex gap-2">
-            <div className="flex-1 flex items-center gap-2 bg-white rounded-2xl px-4 py-3 shadow-xl">
+            <div className="flex-1 flex items-center gap-2 bg-white rounded-2xl px-4 py-3 shadow-sm">
               <Tag className="w-4 h-4 text-orange-500" />
               <input
                 value={promoCode}
@@ -65,7 +65,7 @@ export function CouponsPage() {
                   toast.error("Entrez un code promo");
                 }
               }}
-              className="bg-white text-orange-500 px-5 rounded-2xl text-sm shadow-xl hover:bg-orange-50 transition active:scale-95"
+              className="bg-white text-orange-500 px-5 rounded-2xl text-sm shadow-sm hover:bg-orange-50 transition active:scale-95"
             >
               Appliquer
             </button>
@@ -85,14 +85,14 @@ export function CouponsPage() {
 
       {/* Filters */}
       <div className="px-5 -mt-4 relative z-10">
-        <div className="bg-white rounded-2xl shadow-lg p-1.5 flex gap-1 border border-slate-100 overflow-x-auto scrollbar-hide">
+        <div className="bg-white rounded-2xl shadow-sm p-1.5 flex gap-1 border border-slate-100 overflow-x-auto scrollbar-hide">
           {couponFilters.map((f) => (
             <button
               key={f.id}
               onClick={() => setActive(f.id)}
               className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs whitespace-nowrap transition-all flex-1 justify-center ${
                 active === f.id
-                  ? "bg-gradient-to-r from-orange-400 to-rose-500 text-white shadow-lg shadow-orange-500/25"
+                  ? "bg-orange-400 text-black shadow-sm shadow-orange-500/25"
                   : "text-slate-500 hover:bg-slate-50"
               }`}
             >

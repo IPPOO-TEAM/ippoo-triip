@@ -193,7 +193,7 @@ export function NotificationsPage() {
               { id: "wallet" as const, label: "Cash" },
             ]).map(f => (
               <button key={f.id} onClick={() => setFilterType(f.id)}
-                className={`px-3.5 py-2 rounded-full text-xs whitespace-nowrap transition ${filterType === f.id ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/20" : "bg-slate-100 text-slate-500 active:bg-slate-200"}`}>
+                className={`px-3.5 py-2 rounded-full text-xs whitespace-nowrap transition ${filterType === f.id ? "bg-blue-500 text-white shadow-sm shadow-blue-500/20" : "bg-slate-100 text-slate-500 active:bg-slate-200"}`}>
                 {f.label}
               </button>
             ))}

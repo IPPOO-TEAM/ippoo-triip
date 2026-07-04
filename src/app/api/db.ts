@@ -102,7 +102,23 @@ function seed(): Db {
     createdAt: isoAgo(120 * 86400_000),
   };
 
-  const users: Record<string, User> = { [me.id]: me };
+  // Second client de démonstration — porte l'activité d'exemple (courses,
+  // transactions) pour les tableaux de bord admin/chauffeur, afin que le
+  // nouvel inscrit (`me`) démarre, lui, avec un compte totalement vierge.
+  const demoClient: User = {
+    id: "u_demo1",
+    role: "client",
+    fullName: "Sègla Hounkpatin",
+    phone: "+22997111111",
+    email: "segla.h@email.com",
+    avatarUrl: avatarFor("Sègla Hounkpatin"),
+    city: "Cotonou",
+    language: "fr",
+    kycStatus: "verified",
+    createdAt: isoAgo(120 * 86400_000),
+  };
+
+  const users: Record<string, User> = { [me.id]: me, [demoClient.id]: demoClient };
 
   // Chauffeurs
   const drivers: Record<string, DriverProfile> = {};
@@ -128,12 +144,14 @@ function seed(): Db {
     };
   });
 
-  // Wallet
+  // Wallet — le nouvel inscrit (`me`) démarre à 0 ; l'activité de démo est
+  // portée par le client de démonstration pour les tableaux de bord internes.
   const wallets: Record<string, Wallet> = {
-    [me.id]: { userId: me.id, balanceXOF: 12500, pendingXOF: 0, currency: "XOF" },
+    [me.id]: { userId: me.id, balanceXOF: 0, pendingXOF: 0, currency: "XOF" },
+    [demoClient.id]: { userId: demoClient.id, balanceXOF: 12500, pendingXOF: 0, currency: "XOF" },
   };
 
-  // Historique de courses
+  // Historique de courses — rattaché au client de démonstration (pas à `me`)
   const rides: Record<string, Ride> = {};
   const rideEvents: RideEvent[] = [];
   const services: Ride["serviceType"][] = ["taxi_moto", "delivery", "heavy_transport", "carpool"];
@@ -146,7 +164,7 @@ function seed(): Db {
     const createdAt = isoAgo((i + 1) * 2 * 86400_000);
     rides[id] = {
       id,
-      clientId: me.id,
+      clientId: demoClient.id,
       driverId: driver.id,
       serviceType: services[i % services.length],
       status: "completed",
@@ -160,41 +178,36 @@ function seed(): Db {
     };
   }
 
-  // Transactions
+  // Transactions — rattachées au client de démonstration (pas à `me`)
   const transactions: Transaction[] = [
-    { id: uid("tx"), userId: me.id, type: "topup", method: "mtn_momo", amountXOF: 5000, status: "success", createdAt: isoAgo(3 * 86400_000), description: "Recharge MTN MoMo" },
-    { id: uid("tx"), userId: me.id, type: "ride_payment", method: "wallet", amountXOF: 1500, status: "success", createdAt: isoAgo(2 * 86400_000), description: "Course Dantokpa → Ganhi" },
-    { id: uid("tx"), userId: me.id, type: "referral_bonus", method: "wallet", amountXOF: 1000, status: "success", createdAt: isoAgo(86400_000), description: "Bonus parrainage" },
-    { id: uid("tx"), userId: me.id, type: "topup", method: "moov_money", amountXOF: 10000, status: "success", createdAt: isoAgo(6 * 3600_000), description: "Recharge Moov Money" },
+    { id: uid("tx"), userId: demoClient.id, type: "topup", method: "mtn_momo", amountXOF: 5000, status: "success", createdAt: isoAgo(3 * 86400_000), description: "Recharge MTN MoMo" },
+    { id: uid("tx"), userId: demoClient.id, type: "ride_payment", method: "wallet", amountXOF: 1500, status: "success", createdAt: isoAgo(2 * 86400_000), description: "Course Dantokpa → Ganhi" },
+    { id: uid("tx"), userId: demoClient.id, type: "referral_bonus", method: "wallet", amountXOF: 1000, status: "success", createdAt: isoAgo(86400_000), description: "Bonus parrainage" },
+    { id: uid("tx"), userId: demoClient.id, type: "topup", method: "moov_money", amountXOF: 10000, status: "success", createdAt: isoAgo(6 * 3600_000), description: "Recharge Moov Money" },
   ];
 
-  // Notifications
-  const notifications: Notification[] = [
-    { id: uid("ntf"), userId: me.id, type: "promo", title: "Moov Africa x IPPOO", body: "Course offerte à chaque recharge Illimix ce week-end !", read: false, createdAt: isoAgo(2 * 3600_000) },
-    { id: uid("ntf"), userId: me.id, type: "ride", title: "Course terminée", body: "Merci d'avoir voyagé avec Sègla. Notez votre course.", read: false, createdAt: isoAgo(5 * 3600_000) },
-    { id: uid("ntf"), userId: me.id, type: "payment", title: "Recharge réussie", body: "+5 000 FCFA crédités sur votre portefeuille.", read: true, createdAt: isoAgo(3 * 86400_000) },
-    { id: uid("ntf"), userId: me.id, type: "system", title: "Bienvenue sur IPPOO TRIIP", body: "Votre compte est vérifié. Bon voyage !", read: true, createdAt: isoAgo(120 * 86400_000) },
-  ];
+  // Notifications — boîte de réception vide pour le nouvel inscrit
+  const notifications: Notification[] = [];
 
   // Parrainages
   const referrals: Referral[] = [
-    { id: uid("ref"), referrerId: me.id, code: "DOSSOU-IPP2026", inviteeName: "Aïdatou Tokpanou", inviteePhone: "+22996221144", status: "rewarded", rewardXOF: 1000, createdAt: isoAgo(20 * 86400_000) },
-    { id: uid("ref"), referrerId: me.id, code: "DOSSOU-IPP2026", inviteeName: "Fifamè Dossou", inviteePhone: "+22997334455", status: "rewarded", rewardXOF: 1000, createdAt: isoAgo(12 * 86400_000) },
-    { id: uid("ref"), referrerId: me.id, code: "DOSSOU-IPP2026", inviteeName: "Gbètoho Bokossa", inviteePhone: "+22997556600", status: "registered", rewardXOF: 1000, createdAt: isoAgo(8 * 86400_000) },
-    { id: uid("ref"), referrerId: me.id, code: "DOSSOU-IPP2026", inviteePhone: "+22994556677", status: "pending", rewardXOF: 1000, createdAt: isoAgo(2 * 86400_000) },
+    { id: uid("ref"), referrerId: demoClient.id, code: "DOSSOU-IPP2026", inviteeName: "Aïdatou Tokpanou", inviteePhone: "+22996221144", status: "rewarded", rewardXOF: 1000, createdAt: isoAgo(20 * 86400_000) },
+    { id: uid("ref"), referrerId: demoClient.id, code: "DOSSOU-IPP2026", inviteeName: "Fifamè Dossou", inviteePhone: "+22997334455", status: "rewarded", rewardXOF: 1000, createdAt: isoAgo(12 * 86400_000) },
+    { id: uid("ref"), referrerId: demoClient.id, code: "DOSSOU-IPP2026", inviteeName: "Gbètoho Bokossa", inviteePhone: "+22997556600", status: "registered", rewardXOF: 1000, createdAt: isoAgo(8 * 86400_000) },
+    { id: uid("ref"), referrerId: demoClient.id, code: "DOSSOU-IPP2026", inviteePhone: "+22994556677", status: "pending", rewardXOF: 1000, createdAt: isoAgo(2 * 86400_000) },
   ];
 
   // Commandes groupées
   const groupOrders: Record<string, GroupOrder> = {};
   const go1: GroupOrder = {
     id: "go_1",
-    hostId: me.id,
+    hostId: demoClient.id,
     title: "Déjeuner bureau · Akpakpa",
     vendor: "Chez Maman Bénin",
     status: "open",
     deliveryFeeXOF: 1000,
     participants: [
-      { userId: me.id, name: "Kossi Ayodélé", items: 2, amountXOF: 3000 },
+      { userId: demoClient.id, name: "Kossi Ayodélé", items: 2, amountXOF: 3000 },
       { userId: "u_x1", name: "Bénédicta Zinsou", items: 1, amountXOF: 1500 },
       { userId: "u_x2", name: "Saïdou Boukari", items: 3, amountXOF: 4500 },
     ],
@@ -233,7 +246,7 @@ function seed(): Db {
   const airFreight: Record<string, AirFreightShipment> = {
     af_1: {
       id: "af_1",
-      clientId: me.id,
+      clientId: demoClient.id,
       fromAirport: "COO · Cotonou Cadjèhoun",
       toAirport: "LFW · Lomé",
       weightKg: 12,

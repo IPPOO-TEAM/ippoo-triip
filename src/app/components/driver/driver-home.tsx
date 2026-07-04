@@ -183,7 +183,7 @@ export function DriverHomePage() {
   return (
     <div className="min-h-full bg-slate-50 pb-4">
       {/* ═══ HEADER ═══ */}
-      <div className="relative bg-gradient-to-br from-[#2A9D8F] to-[#1E6091] pt-12 pb-6 px-5 overflow-hidden">
+      <div className="relative bg-[#2A9D8F] pt-12 pb-6 px-5 overflow-hidden">
         <div className="absolute -right-12 -top-12 w-40 h-40 bg-white/5 rounded-full blur-2xl" />
         <div className="absolute -left-8 bottom-0 w-32 h-32 bg-[#E9C46A]/10 rounded-full blur-2xl" />
 
@@ -282,9 +282,9 @@ export function DriverHomePage() {
             const Icon = typeIcon(req.type);
             const remaining = countdowns[req.id] ?? 0;
             return (
-              <div key={req.id} className="bg-white rounded-2xl border border-slate-100 shadow-lg shadow-slate-200/60 p-4 mb-3 relative overflow-hidden">
+              <div key={req.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm shadow-slate-200/60 p-4 mb-3 relative overflow-hidden">
                 {req.urgent && (
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#D62828] to-[#F77F00]" />
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-[#D62828]" />
                 )}
                 {/* Timer */}
                 <div className="flex items-center justify-between mb-3">
@@ -341,7 +341,7 @@ export function DriverHomePage() {
                   </button>
                   <button
                     onClick={() => acceptRequest(req.id)}
-                    className="py-3 rounded-xl bg-[#2A9D8F] text-white text-xs shadow-lg shadow-emerald-500/20 active:bg-[#238B7F] transition"
+                    className="py-3 rounded-xl bg-[#2A9D8F] text-white text-xs shadow-sm shadow-emerald-500/20 active:bg-[#238B7F] transition"
                   >
                     Accepter
                   </button>
@@ -357,7 +357,7 @@ export function DriverHomePage() {
         <div className="px-5 mb-4">
           <button
             onClick={() => navigate("/driver/tracking")}
-            className="w-full bg-gradient-to-r from-[#1E6091] to-[#2A9D8F] rounded-2xl p-4 text-left shadow-lg shadow-blue-500/15"
+            className="w-full bg-[#1E6091] rounded-2xl p-4 text-left shadow-sm shadow-blue-500/15"
           >
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
@@ -425,7 +425,7 @@ export function DriverHomePage() {
                 <div key={i} className="flex-1 flex flex-col items-center gap-1">
                   <div className="w-full flex justify-center">
                     <div
-                      className={`w-full max-w-[24px] rounded-lg transition-all ${isToday ? "bg-gradient-to-t from-[#2A9D8F] to-[#1E6091]" : "bg-slate-100"}`}
+                      className={`w-full max-w-[24px] rounded-lg transition-all ${isToday ? "bg-[#2A9D8F]" : "bg-slate-100"}`}
                       style={{ height: `${Math.max(height, 4)}%` }}
                     />
                   </div>

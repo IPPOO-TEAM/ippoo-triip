@@ -193,7 +193,7 @@ export function HistoryPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <div ref={headerRef} className="relative overflow-hidden rounded-b-[2rem] shadow-lg">
+      <div ref={headerRef} className="relative overflow-hidden rounded-b-[2rem] shadow-sm">
         {/* Background image with parallax */}
         <img src={articleImg} alt="" className="absolute inset-0 w-full h-[130%] object-cover will-change-transform" style={{ transform: `translateY(-${parallaxY}px) scale(${1 + parallaxY * 0.001})` }} />
         {/* Gradient overlay */}
@@ -225,7 +225,7 @@ export function HistoryPage() {
                 onClick={() => setActive(f.id)}
                 className={`flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs whitespace-nowrap transition-all ${
                   active === f.id
-                    ? "bg-white text-[#1E6091] shadow-lg shadow-black/15"
+                    ? "bg-white text-[#1E6091] shadow-sm shadow-black/15"
                     : "bg-white/15 text-white/80 border border-white/10 active:bg-white/25"
                 }`}
               >
@@ -285,7 +285,7 @@ export function HistoryPage() {
       {selectedItem && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
           <div className="absolute inset-0 bg-black/40" onClick={() => setSelectedItem(null)} />
-          <div className="relative bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 pb-8 shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="relative bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl p-5 pb-8 shadow-sm max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <p className="text-slate-800">Detail de la commande</p>
               <button onClick={() => setSelectedItem(null)} className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center">
@@ -295,7 +295,7 @@ export function HistoryPage() {
 
             {/* Status & price */}
             <div className="text-center mb-5">
-              <div className={`w-14 h-14 bg-gradient-to-br ${selectedItem.gradient} rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg`}>
+              <div className={`w-14 h-14 bg-gradient-to-br ${selectedItem.gradient} rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-sm`}>
                 <selectedItem.Icon className="w-6 h-6 text-white" />
               </div>
               <p className="text-xl text-slate-800" style={{ fontFamily: "'Space Grotesk', monospace" }}>{selectedItem.price}CFA</p>
@@ -305,7 +305,7 @@ export function HistoryPage() {
             {/* Route */}
             <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 mb-4">
               <div className="relative pl-7">
-                <div className="absolute left-2 top-1 bottom-1 w-[2px] bg-gradient-to-b from-emerald-400 to-blue-500 rounded-full" />
+                <div className="absolute left-2 top-1 bottom-1 w-[2px] bg-emerald-400 rounded-full" />
                 <div className="absolute left-0.5 top-0 w-3 h-3 rounded-full bg-emerald-400 border-2 border-white" />
                 <div className="absolute left-0.5 bottom-0 w-3 h-3 rounded-full bg-blue-500 border-2 border-white" />
                 <div className="space-y-4">
@@ -346,7 +346,7 @@ export function HistoryPage() {
             <div className="flex gap-2 mb-3">
               {selectedItem.status === "completed" && (
                 <button onClick={() => { handleRebook(selectedItem); setSelectedItem(null); }}
-                  className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 rounded-xl text-sm shadow-lg shadow-blue-500/20 active:scale-[0.98] transition">
+                  className="flex-1 flex items-center justify-center gap-2 bg-blue-500 text-white py-3 rounded-xl text-sm shadow-sm shadow-blue-500/20 active:scale-[0.98] transition">
                   <RotateCcw className="w-4 h-4" /> Reprendre
                 </button>
               )}

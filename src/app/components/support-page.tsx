@@ -435,7 +435,7 @@ export function SupportPage() {
             ].map((item, i) => (
               <button key={i} onClick={item.action}
                 className="flex items-center gap-3 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm active:scale-[0.98] transition text-left">
-                <div className={`w-10 h-10 bg-gradient-to-br ${item.gradient} rounded-xl flex items-center justify-center shadow-lg ${item.shadow} shrink-0`}>
+                <div className={`w-10 h-10 bg-gradient-to-br ${item.gradient} rounded-xl flex items-center justify-center shadow-sm ${item.shadow} shrink-0`}>
                   <item.icon className="w-5 h-5 text-white" />
                 </div>
                 <div>
@@ -541,7 +541,7 @@ export function SupportPage() {
                     {/* Avatar for bot/agent */}
                     {m.from !== "user" && (
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-1 ${
-                        m.from === "agent" ? "bg-gradient-to-br from-amber-400 to-orange-500" : "bg-gradient-to-br from-blue-500 to-indigo-600"
+                        m.from === "agent" ? "bg-amber-400" : "bg-blue-500"
                       }`}>
                         {m.from === "agent" ? <Headphones className="w-4 h-4 text-white" /> : <Bot className="w-4 h-4 text-white" />}
                       </div>
@@ -568,7 +568,7 @@ export function SupportPage() {
                       <div
                         className={`px-4 py-3 text-sm whitespace-pre-line ${
                           m.from === "user"
-                            ? "bg-gradient-to-br from-[#1E6091] to-[#1E6091]/85 text-white rounded-2xl rounded-br-md shadow-lg shadow-[#1E6091]/20"
+                            ? "bg-[#1E6091]/85 text-white rounded-2xl rounded-br-md shadow-sm shadow-[#1E6091]/20"
                             : m.from === "agent"
                             ? "bg-white border border-amber-200 text-slate-700 rounded-2xl rounded-bl-md shadow-sm"
                             : "bg-white border border-slate-100 text-slate-700 rounded-2xl rounded-bl-md shadow-sm"
@@ -670,7 +670,7 @@ export function SupportPage() {
             {isTyping && (
               <div className="flex gap-2">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                  agentConnected ? "bg-gradient-to-br from-amber-400 to-orange-500" : "bg-gradient-to-br from-blue-500 to-indigo-600"
+                  agentConnected ? "bg-amber-400" : "bg-blue-500"
                 }`}>
                   {agentConnected ? <Headphones className="w-4 h-4 text-white" /> : <Bot className="w-4 h-4 text-white" />}
                 </div>
@@ -688,7 +688,7 @@ export function SupportPage() {
 
           {/* Scroll to bottom button */}
           {showScrollBtn && (
-            <button onClick={scrollToBottom} className="absolute bottom-44 right-4 w-10 h-10 bg-white rounded-full shadow-lg border border-slate-200 flex items-center justify-center active:scale-90 transition z-20">
+            <button onClick={scrollToBottom} className="absolute bottom-44 right-4 w-10 h-10 bg-white rounded-full shadow-sm border border-slate-200 flex items-center justify-center active:scale-90 transition z-20">
               <ArrowDown className="w-4 h-4 text-slate-500" />
             </button>
           )}
@@ -747,7 +747,7 @@ export function SupportPage() {
                   { icon: FileText, label: "Document", color: "from-orange-400 to-amber-500", action: () => { toast("📄 Sélection de document..."); setShowAttach(false); } },
                 ].map(item => (
                   <button key={item.label} onClick={item.action} className="flex flex-col items-center gap-1.5 active:scale-90 transition">
-                    <div className={`w-12 h-12 bg-gradient-to-br ${item.color} rounded-2xl flex items-center justify-center shadow-lg`}>
+                    <div className={`w-12 h-12 bg-gradient-to-br ${item.color} rounded-2xl flex items-center justify-center shadow-sm`}>
                       <item.icon className="w-5 h-5 text-white" />
                     </div>
                     <span className="text-[10px] text-slate-500">{item.label}</span>
@@ -776,7 +776,7 @@ export function SupportPage() {
                 <Trash2 className="w-4 h-4 text-red-500" />
               </button>
               <button onClick={stopRecording}
-                className="w-10 h-10 bg-gradient-to-br from-red-500 to-rose-600 rounded-full flex items-center justify-center shadow-lg active:scale-90 transition">
+                className="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center shadow-sm active:scale-90 transition">
                 <Send className="w-4 h-4 text-white" />
               </button>
             </div>
@@ -806,7 +806,7 @@ export function SupportPage() {
               </div>
               {chatMsg.trim() ? (
                 <button onClick={() => sendChat()}
-                  className="w-10 h-10 bg-gradient-to-br from-[#1E6091] to-[#1E6091]/85 rounded-2xl flex items-center justify-center shadow-lg shadow-[#1E6091]/25 active:scale-90 transition shrink-0">
+                  className="w-10 h-10 bg-[#1E6091]/85 rounded-2xl flex items-center justify-center shadow-sm shadow-[#1E6091]/25 active:scale-90 transition shrink-0">
                   <Send className="w-4 h-4 text-white" />
                 </button>
               ) : (
@@ -822,7 +822,7 @@ export function SupportPage() {
 
           {/* Chat rating */}
           {!chatRated && messages.length > 5 && !isRecording && (
-            <div className="px-4 py-2.5 bg-gradient-to-r from-blue-50 to-indigo-50 border-t border-blue-100 flex items-center justify-between shrink-0">
+            <div className="px-4 py-2.5 bg-blue-50 border-t border-blue-100 flex items-center justify-between shrink-0">
               <span className="text-xs text-blue-700">Notez cette conversation</span>
               <div className="flex gap-1.5">
                 {[1, 2, 3, 4, 5].map(s => (
@@ -884,7 +884,7 @@ export function SupportPage() {
       {view === "tickets" && (
         <div className="px-5 py-5 flex-1 space-y-4">
           <button onClick={() => setView("newTicket")}
-            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-orange-400 to-amber-500 text-white py-3.5 rounded-2xl shadow-lg shadow-orange-400/25 active:scale-[0.98] transition">
+            className="w-full flex items-center justify-center gap-2 bg-orange-400 text-black py-3.5 rounded-2xl shadow-sm shadow-orange-400/25 active:scale-[0.98] transition">
             <Plus className="w-4 h-4" /> Créer un nouveau ticket
           </button>
           {tickets.length === 0 && (
@@ -937,7 +937,7 @@ export function SupportPage() {
               rows={4} className="w-full bg-slate-50 rounded-2xl px-4 py-3.5 text-sm border border-slate-100 outline-none focus:border-orange-400 resize-none" />
           </div>
           <button onClick={handleNewTicket}
-            className="w-full bg-gradient-to-r from-orange-400 to-amber-500 text-white py-3.5 rounded-2xl shadow-lg shadow-orange-400/25 active:scale-[0.98] transition flex items-center justify-center gap-2">
+            className="w-full bg-orange-400 text-black py-3.5 rounded-2xl shadow-sm shadow-orange-400/25 active:scale-[0.98] transition flex items-center justify-center gap-2">
             <Send className="w-4 h-4" /> Envoyer le ticket
           </button>
         </div>
@@ -958,13 +958,13 @@ export function SupportPage() {
             {selectedTicket.messages.map((msg, i) => (
               <div key={i} className={`flex ${msg.from === "Vous" ? "justify-end" : "justify-start"} gap-2`}>
                 {msg.from !== "Vous" && (
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shrink-0 mt-1">
+                  <div className="w-8 h-8 rounded-full bg-amber-400 flex items-center justify-center shrink-0 mt-1">
                     <Headphones className="w-4 h-4 text-white" />
                   </div>
                 )}
                 <div className={`max-w-[75%] px-4 py-3 text-sm rounded-2xl ${
                   msg.from === "Vous"
-                    ? "bg-gradient-to-br from-[#1E6091] to-[#1E6091]/85 text-white rounded-br-md shadow-lg shadow-[#1E6091]/20"
+                    ? "bg-[#1E6091]/85 text-white rounded-br-md shadow-sm shadow-[#1E6091]/20"
                     : "bg-white border border-slate-100 text-slate-700 rounded-bl-md shadow-sm"
                 }`}>
                   {msg.from !== "Vous" && <p className="text-[10px] text-slate-400 mb-1">{msg.from}</p>}
@@ -980,7 +980,7 @@ export function SupportPage() {
               <input value={ticketReply} onChange={e => setTicketReply(e.target.value)} onKeyDown={e => e.key === "Enter" && handleTicketReply()}
                 placeholder="Répondre..." className="flex-1 bg-slate-50 rounded-2xl px-4 py-2.5 text-sm outline-none border border-slate-200 focus:border-[#1E6091]/50" />
               <button onClick={handleTicketReply}
-                className={`w-10 h-10 rounded-2xl flex items-center justify-center transition ${ticketReply.trim() ? "bg-gradient-to-br from-[#1E6091] to-[#1E6091]/85 shadow-lg shadow-[#1E6091]/20" : "bg-slate-100"}`}>
+                className={`w-10 h-10 rounded-2xl flex items-center justify-center transition ${ticketReply.trim() ? "bg-[#1E6091]/85 shadow-sm shadow-[#1E6091]/20" : "bg-slate-100"}`}>
                 <Send className={`w-4 h-4 ${ticketReply.trim() ? "text-white" : "text-slate-400"}`} />
               </button>
             </div>

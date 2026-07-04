@@ -146,11 +146,11 @@ export function DriverTrackingPage() {
         {/* Top bar */}
         <div className="absolute top-0 left-0 right-0 pt-12 px-5 z-10">
           <div className="flex items-center justify-between">
-            <button onClick={() => navigate("/driver")} className="w-10 h-10 rounded-2xl bg-white shadow-lg flex items-center justify-center">
+            <button onClick={() => navigate("/driver")} className="w-10 h-10 rounded-2xl bg-white shadow-sm flex items-center justify-center">
               <ChevronLeft className="w-5 h-5 text-slate-600" />
             </button>
             <StatusBadge color={config.color} text={config.label} pulse={rideState !== "completed"} />
-            <button onClick={() => setShowEmergency(true)} className="w-10 h-10 rounded-2xl bg-white shadow-lg flex items-center justify-center">
+            <button onClick={() => setShowEmergency(true)} className="w-10 h-10 rounded-2xl bg-white shadow-sm flex items-center justify-center">
               <Shield className="w-5 h-5 text-red-400" />
             </button>
           </div>
@@ -158,7 +158,7 @@ export function DriverTrackingPage() {
 
         {/* ETA bubble */}
         {rideState !== "completed" && (
-          <div className="absolute top-28 left-1/2 -translate-x-1/2 z-10 bg-white rounded-full px-4 py-2 shadow-lg flex items-center gap-2">
+          <div className="absolute top-28 left-1/2 -translate-x-1/2 z-10 bg-white rounded-full px-4 py-2 shadow-sm flex items-center gap-2">
             <Clock className="w-4 h-4 text-[#1E6091]" />
             <span className="text-slate-700 text-xs" style={{ fontFamily: "'Space Grotesk', monospace" }}>~{eta} min</span>
           </div>
@@ -166,7 +166,7 @@ export function DriverTrackingPage() {
       </div>
 
       {/* Bottom panel */}
-      <div className="bg-white rounded-t-3xl shadow-2xl -mt-6 relative z-20 p-5 pb-8 max-h-[55vh] overflow-y-auto">
+      <div className="bg-white rounded-t-3xl shadow-sm -mt-6 relative z-20 p-5 pb-8 max-h-[55vh] overflow-y-auto">
         {/* Ride info */}
         <div className="flex items-center justify-between mb-4">
           <div>
@@ -242,7 +242,7 @@ export function DriverTrackingPage() {
               <button
                 onClick={validateOtp}
                 disabled={otpInput.length < 6}
-                className="px-4 rounded-xl bg-[#F77F00] text-white text-xs disabled:opacity-50"
+                className="px-4 rounded-xl bg-[#F77F00] text-black text-xs disabled:opacity-50"
               >
                 <Check className="w-5 h-5" />
               </button>
@@ -258,7 +258,7 @@ export function DriverTrackingPage() {
               if (rideState === "at_pickup") setRideState("waiting_otp");
               else advanceState();
             }}
-            className={`w-full py-4 rounded-2xl text-white text-sm shadow-lg flex items-center justify-center gap-2 ${config.actionColor}`}
+            className={`w-full py-4 rounded-2xl text-white text-sm shadow-sm flex items-center justify-center gap-2 ${config.actionColor}`}
           >
             <Navigation className="w-5 h-5" />
             {config.action}
@@ -280,7 +280,7 @@ export function DriverTrackingPage() {
       {showChat && (
         <div className="fixed inset-0 z-50 flex flex-col">
           <div className="absolute inset-0 bg-black/40" onClick={() => setShowChat(false)} />
-          <div className="mt-auto relative bg-white rounded-t-3xl shadow-2xl flex flex-col" style={{ maxHeight: "75vh" }}>
+          <div className="mt-auto relative bg-white rounded-t-3xl shadow-sm flex flex-col" style={{ maxHeight: "75vh" }}>
             <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100 shrink-0">
               <ProfileAvatar initials={client.initials} size={36} />
               <div className="flex-1">
@@ -312,7 +312,7 @@ export function DriverTrackingPage() {
                 className="flex-1 bg-slate-100 rounded-full px-4 py-2.5 text-xs"
                 placeholder="Votre message..."
               />
-              <button onClick={sendMessage} className="w-10 h-10 rounded-full bg-[#2A9D8F] flex items-center justify-center shadow-lg shadow-emerald-500/20">
+              <button onClick={sendMessage} className="w-10 h-10 rounded-full bg-[#2A9D8F] flex items-center justify-center shadow-sm shadow-emerald-500/20">
                 <Send className="w-4 h-4 text-white" />
               </button>
             </div>
@@ -324,7 +324,7 @@ export function DriverTrackingPage() {
       {showEmergency && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-5">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowEmergency(false)} />
-          <div className="relative bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl">
+          <div className="relative bg-white rounded-2xl p-6 max-w-sm w-full shadow-sm">
             <AlertTriangle className="w-10 h-10 text-red-500 mx-auto mb-3" />
             <p className="text-slate-800 text-sm text-center mb-1">Urgence</p>
             <p className="text-slate-400 text-[10px] text-center mb-5">Selectionnez le type d'urgence</p>
@@ -349,7 +349,7 @@ export function DriverTrackingPage() {
       {showComplete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-5">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-          <div className="relative bg-white rounded-3xl p-6 max-w-sm w-full shadow-xl text-center">
+          <div className="relative bg-white rounded-2xl p-6 max-w-sm w-full shadow-sm text-center">
             <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle2 className="w-8 h-8 text-emerald-500" />
             </div>
@@ -374,7 +374,7 @@ export function DriverTrackingPage() {
 
             <button
               onClick={() => { setShowComplete(false); navigate("/driver"); }}
-              className="w-full py-4 rounded-2xl bg-[#2A9D8F] text-white text-sm shadow-lg shadow-emerald-500/20"
+              className="w-full py-4 rounded-2xl bg-[#2A9D8F] text-white text-sm shadow-sm shadow-emerald-500/20"
             >
               Retour au tableau de bord
             </button>

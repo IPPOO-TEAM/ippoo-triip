@@ -119,7 +119,7 @@ export function CarpoolPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="relative overflow-hidden rounded-b-[2rem] shadow-lg">
+      <div className="relative overflow-hidden rounded-b-[2rem] shadow-sm">
         <ImageWithFallback src={CARPOOL_IMG} alt="" className="absolute inset-0 w-full h-[130%] object-cover will-change-transform" style={{ transform: `translateY(-${parallaxY}px) scale(${1 + parallaxY * 0.001})` }} />
         <div className="absolute inset-0 bg-gradient-to-b from-[#2A9D8F]/85 via-[#2A9D8F]/70 to-[#1E6091]/80" />
         <div className="absolute -right-10 -top-10 w-48 h-48 bg-[#E9C46A]/20 rounded-full blur-3xl" />
@@ -137,19 +137,19 @@ export function CarpoolPage() {
 
           {/* Tab switcher */}
           <div className="flex gap-2 bg-white/10 p-1.5 rounded-2xl backdrop-blur-sm border border-white/10 mb-4">
-            <button onClick={() => setTab("find")} className={`flex-1 py-2.5 rounded-xl text-sm transition-all ${tab === "find" ? "bg-white text-cyan-600 shadow-lg" : "text-white"}`}>
+            <button onClick={() => setTab("find")} className={`flex-1 py-2.5 rounded-xl text-sm transition-all ${tab === "find" ? "bg-white text-cyan-600 shadow-sm" : "text-white"}`}>
               Trouver un trajet
             </button>
-            <button onClick={() => setTab("offer")} className={`flex-1 py-2.5 rounded-xl text-sm transition-all ${tab === "offer" ? "bg-white text-cyan-600 shadow-lg" : "text-white"}`}>
+            <button onClick={() => setTab("offer")} className={`flex-1 py-2.5 rounded-xl text-sm transition-all ${tab === "offer" ? "bg-white text-cyan-600 shadow-sm" : "text-white"}`}>
               Proposer un trajet
             </button>
           </div>
 
           {tab === "find" && (
             <>
-              <div className="bg-white rounded-2xl p-4 shadow-xl">
+              <div className="bg-white rounded-2xl p-4 shadow-sm">
                 <div className="relative pl-8">
-                  <div className="absolute left-3 top-3 bottom-3 w-[2px] bg-gradient-to-b from-emerald-400 to-cyan-500 rounded-full" />
+                  <div className="absolute left-3 top-3 bottom-3 w-[2px] bg-emerald-400 rounded-full" />
                   <div className="absolute left-[6px] top-2 w-3 h-3 rounded-full bg-emerald-400 border-2 border-white shadow-md" />
                   <div className="absolute left-[6px] bottom-2 w-3 h-3 rounded-full bg-cyan-500 border-2 border-white shadow-md" />
                   <div className="space-y-2">
@@ -170,7 +170,7 @@ export function CarpoolPage() {
                   <button
                     key={d}
                     onClick={() => setDateFilter(d)}
-                    className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs border transition ${dateFilter === d ? "bg-white text-cyan-600 border-white shadow-lg" : "bg-white/15 text-white border-white/10 backdrop-blur-sm"}`}
+                    className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs border transition ${dateFilter === d ? "bg-white text-cyan-600 border-white shadow-sm" : "bg-white/15 text-white border-white/10 backdrop-blur-sm"}`}
                   >
                     <Calendar className="w-3 h-3" /> {d}
                   </button>
@@ -192,7 +192,7 @@ export function CarpoolPage() {
 
             {filteredTrips.length === 0 && (
               <div className="text-center py-12">
-                <div className="w-16 h-16 bg-cyan-50 rounded-3xl flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-cyan-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <Search className="w-7 h-7 text-cyan-400" />
                 </div>
                 <p className="text-slate-500 text-sm mb-1">Aucun trajet trouve</p>
@@ -206,7 +206,7 @@ export function CarpoolPage() {
                 return (
                   <div key={t.id} className={`bg-white rounded-2xl p-4 border shadow-sm transition ${isBooked ? "border-cyan-200 shadow-cyan-100/50" : "border-slate-100"}`}>
                     <div className="flex items-center gap-3 mb-4">
-                      <ProfileAvatar initials={t.initials} size={44} className="rounded-2xl shadow-lg shadow-cyan-500/20" gradient={t.gradient} />
+                      <ProfileAvatar initials={t.initials} size={44} className="rounded-2xl shadow-sm shadow-cyan-500/20" gradient={t.gradient} />
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
                           <p className="text-sm text-slate-800">{t.driver}</p>
@@ -220,7 +220,7 @@ export function CarpoolPage() {
                     </div>
 
                     <div className="relative pl-6 mb-4">
-                      <div className="absolute left-1.5 top-1 bottom-1 w-[2px] bg-gradient-to-b from-emerald-400 to-cyan-500 rounded-full" />
+                      <div className="absolute left-1.5 top-1 bottom-1 w-[2px] bg-emerald-400 rounded-full" />
                       <div className="absolute left-0 top-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-white" />
                       <div className="absolute left-0 bottom-0.5 w-3 h-3 rounded-full bg-cyan-500 border-2 border-white" />
                       <div className="space-y-3">
@@ -252,7 +252,7 @@ export function CarpoolPage() {
                       className={`w-full py-3 rounded-2xl text-sm transition-all ${
                         isBooked
                           ? "bg-cyan-50 text-cyan-600 border-2 border-cyan-200"
-                          : "bg-gradient-to-r from-cyan-500 to-teal-600 text-white shadow-lg shadow-cyan-500/20"
+                          : "bg-cyan-500 text-white shadow-sm shadow-cyan-500/20"
                       }`}
                     >
                       {isBooked ? (
@@ -271,10 +271,10 @@ export function CarpoolPage() {
         {/* ═══ OFFER RIDE ═══ */}
         {tab === "offer" && (
           <div className="space-y-4">
-            <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm">
+            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
               <label className="text-sm text-slate-500 mb-3 block">Itineraire</label>
               <div className="relative pl-8">
-                <div className="absolute left-3 top-5 bottom-5 w-[2px] bg-gradient-to-b from-emerald-400 to-cyan-500 rounded-full" />
+                <div className="absolute left-3 top-5 bottom-5 w-[2px] bg-emerald-400 rounded-full" />
                 <div className="absolute left-[6px] top-3.5 w-3 h-3 rounded-full bg-emerald-400 shadow-md shadow-emerald-400/40 border-2 border-white" />
                 <div className="absolute left-[6px] bottom-3.5 w-3 h-3 rounded-full bg-cyan-500 shadow-md shadow-cyan-500/40 border-2 border-white" />
                 <div className="space-y-2.5">
@@ -290,7 +290,7 @@ export function CarpoolPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm space-y-3">
+            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm space-y-3">
               <label className="text-sm text-slate-500">Date & heure</label>
               <div className="flex gap-2.5">
                 <input type="date" value={offerDate} onChange={(e) => setOfferDate(e.target.value)} className="flex-1 bg-slate-50 text-sm rounded-2xl px-4 py-3 border border-slate-100 outline-none focus:border-cyan-300" />
@@ -304,13 +304,13 @@ export function CarpoolPage() {
                   <Calendar className={`w-4 h-4 ${isRecurrent ? "text-cyan-600" : "text-slate-400"}`} />
                   <span className="text-sm text-slate-700">Trajet recurrent</span>
                 </div>
-                <div className={`w-5 h-5 rounded-full border-2 transition ${isRecurrent ? "bg-gradient-to-br from-cyan-500 to-teal-600 border-cyan-500" : "border-slate-300"}`}>
+                <div className={`w-5 h-5 rounded-full border-2 transition ${isRecurrent ? "bg-cyan-500 border-cyan-500" : "border-slate-300"}`}>
                   {isRecurrent && <svg width="20" height="20" viewBox="0 0 20 20"><path d="M5 10L9 14L15 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>}
                 </div>
               </button>
             </div>
 
-            <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm space-y-3">
+            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm space-y-3">
               <label className="text-sm text-slate-500">Vehicule & places</label>
               <div className="flex items-center gap-2 bg-slate-50 rounded-2xl px-4 py-3 border border-slate-100 focus-within:border-cyan-300 transition">
                 <Car className="w-4 h-4 text-cyan-500" />
@@ -323,7 +323,7 @@ export function CarpoolPage() {
                     <button
                       key={n}
                       onClick={() => setOfferSeats(n)}
-                      className={`flex-1 py-3 rounded-xl text-sm transition border-2 ${offerSeats === n ? "bg-gradient-to-br from-cyan-500 to-teal-600 text-white border-cyan-500 shadow-lg shadow-cyan-500/20" : "bg-slate-50 text-slate-600 border-transparent"}`}
+                      className={`flex-1 py-3 rounded-xl text-sm transition border-2 ${offerSeats === n ? "bg-cyan-500 text-white border-cyan-500 shadow-sm shadow-cyan-500/20" : "bg-slate-50 text-slate-600 border-transparent"}`}
                     >
                       {n}
                     </button>
@@ -332,7 +332,7 @@ export function CarpoolPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm">
+            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
               <label className="text-sm text-slate-500 mb-2 block">Prix par siege (FCFA)</label>
               <div className="flex items-center gap-2 bg-slate-50 rounded-2xl px-4 py-3 border border-slate-100 focus-within:border-cyan-300 transition">
                 <span className="text-sm text-slate-400">F</span>
@@ -354,7 +354,7 @@ export function CarpoolPage() {
 
             <button
               onClick={handleOfferRide}
-              className="w-full bg-gradient-to-r from-cyan-500 to-teal-600 text-white py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/25 active:scale-[0.98] transition-transform"
+              className="w-full bg-cyan-500 text-white py-4 rounded-2xl flex items-center justify-center gap-2 shadow-sm shadow-cyan-500/25 active:scale-[0.98] transition-transform"
             >
               <Plus className="w-4 h-4" /> Publier le trajet
             </button>

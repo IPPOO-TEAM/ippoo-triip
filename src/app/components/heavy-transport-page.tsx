@@ -83,7 +83,7 @@ export function HeavyTransportPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="relative overflow-hidden rounded-b-[2rem] shadow-lg">
+      <div className="relative overflow-hidden rounded-b-[2rem] shadow-sm">
         <ImageWithFallback src={HEAVY_IMG} alt="" className="absolute inset-0 w-full h-[130%] object-cover will-change-transform" style={{ transform: `translateY(-${parallaxY}px) scale(${1 + parallaxY * 0.001})` }} />
         <div className="absolute inset-0 bg-gradient-to-b from-[#D62828]/85 via-[#D62828]/70 to-[#F77F00]/75" />
         <div className="absolute -right-10 -top-10 w-48 h-48 bg-[#E9C46A]/20 rounded-full blur-3xl" />
@@ -101,7 +101,7 @@ export function HeavyTransportPage() {
 
       <div className="px-5 py-5 space-y-5">
         {/* Vehicle type */}
-        <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm">
+        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
           <label className="text-sm text-slate-500 mb-3 block">Type de véhicule</label>
           <div className="space-y-2.5">
             {vehicles.map((v) => {
@@ -114,7 +114,7 @@ export function HeavyTransportPage() {
                     isSelected ? `${v.accent} bg-slate-50` : "border-transparent bg-slate-50/50 hover:bg-slate-50"
                   }`}
                 >
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${isSelected ? `bg-gradient-to-br ${v.gradient} shadow-lg` : "bg-gray-100"}`}>
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${isSelected ? `bg-gradient-to-br ${v.gradient} shadow-sm` : "bg-gray-100"}`}>
                     {isSelected ? <Check className="w-5 h-5 text-white" strokeWidth={2.5} /> : <v.Icon className="w-5 h-5 text-gray-400" strokeWidth={1.8} />}
                   </div>
                   <div className="text-left flex-1">
@@ -132,10 +132,10 @@ export function HeavyTransportPage() {
         </div>
 
         {/* Addresses */}
-        <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm">
+        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
           <label className="text-sm text-slate-500 mb-3 block">Itinéraire</label>
           <div className="relative pl-8">
-            <div className="absolute left-3 top-5 bottom-5 w-[2px] bg-gradient-to-b from-emerald-400 to-red-500 rounded-full" />
+            <div className="absolute left-3 top-5 bottom-5 w-[2px] bg-emerald-400 rounded-full" />
             <div className="absolute left-[6px] top-3.5 w-3 h-3 rounded-full bg-emerald-400 shadow-md shadow-emerald-400/40 border-2 border-white" />
             <div className="absolute left-[6px] bottom-3.5 w-3 h-3 rounded-full bg-red-500 shadow-md shadow-red-500/40 border-2 border-white" />
             <div className="space-y-2.5">
@@ -157,7 +157,7 @@ export function HeavyTransportPage() {
         </div>
 
         {/* Description & photo */}
-        <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm space-y-3">
+        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm space-y-3">
           <label className="text-sm text-slate-500">Details du chargement</label>
           <textarea
             placeholder="Décrivez les biens à transporter (meubles, cartons, électroménager...)"
@@ -193,7 +193,7 @@ export function HeavyTransportPage() {
           onClick={() => setScheduled(!scheduled)}
           className={`w-full flex items-center gap-3 p-4 rounded-2xl border-2 transition bg-white ${scheduled ? "border-amber-400 bg-amber-50" : "border-transparent"}`}
         >
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${scheduled ? "bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg" : "bg-slate-100"}`}>
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${scheduled ? "bg-amber-400 shadow-sm" : "bg-slate-100"}`}>
             <Calendar className={`w-5 h-5 ${scheduled ? "text-white" : "text-slate-400"}`} />
           </div>
           <div className="text-left flex-1">
@@ -217,7 +217,7 @@ export function HeavyTransportPage() {
               labor ? "border-emerald-400" : "border-transparent"
             }`}
           >
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${labor ? "bg-gradient-to-br from-emerald-500 to-green-600 shadow-lg shadow-green-500/25" : "bg-slate-100"}`}>
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${labor ? "bg-emerald-500 shadow-sm shadow-green-500/25" : "bg-slate-100"}`}>
               <Users className={`w-5 h-5 ${labor ? "text-white" : "text-slate-400"}`} />
             </div>
             <div className="text-left flex-1">
@@ -236,7 +236,7 @@ export function HeavyTransportPage() {
               insurance ? "border-violet-400" : "border-transparent"
             }`}
           >
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${insurance ? "bg-gradient-to-br from-violet-500 to-purple-600 shadow-lg shadow-violet-500/25" : "bg-slate-100"}`}>
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${insurance ? "bg-violet-500 shadow-sm shadow-violet-500/25" : "bg-slate-100"}`}>
               <Shield className={`w-5 h-5 ${insurance ? "text-white" : "text-slate-400"}`} />
             </div>
             <div className="text-left flex-1">
@@ -255,7 +255,7 @@ export function HeavyTransportPage() {
           <button
             onClick={() => setPayTime("before")}
             className={`flex-1 py-3.5 rounded-2xl text-sm transition-all ${
-              payTime === "before" ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/20" : "bg-white text-slate-600 border border-slate-100"
+              payTime === "before" ? "bg-blue-500 text-white shadow-sm shadow-blue-500/20" : "bg-white text-slate-600 border border-slate-100"
             }`}
           >
             Avant la course
@@ -263,7 +263,7 @@ export function HeavyTransportPage() {
           <button
             onClick={() => setPayTime("after")}
             className={`flex-1 py-3.5 rounded-2xl text-sm transition-all ${
-              payTime === "after" ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/20" : "bg-white text-slate-600 border border-slate-100"
+              payTime === "after" ? "bg-blue-500 text-white shadow-sm shadow-blue-500/20" : "bg-white text-slate-600 border border-slate-100"
             }`}
           >
             Après livraison
@@ -287,7 +287,7 @@ export function HeavyTransportPage() {
         <button
           onClick={handleOrder}
           disabled={ordering}
-          className={`w-full bg-gradient-to-r from-rose-500 to-red-600 text-white py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-red-500/25 transition-transform ${ordering ? "opacity-70 scale-[0.98]" : "active:scale-[0.98]"}`}
+          className={`w-full bg-rose-500 text-white py-4 rounded-2xl flex items-center justify-center gap-2 shadow-sm shadow-red-500/25 transition-transform ${ordering ? "opacity-70 scale-[0.98]" : "active:scale-[0.98]"}`}
         >
           {ordering ? (
             <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Confirmation...</>
@@ -302,7 +302,7 @@ export function HeavyTransportPage() {
 
 function ToggleCircle({ active }: { active: boolean }) {
   return (
-    <div className={`w-5 h-5 rounded-full border-2 transition-all ${active ? "bg-gradient-to-br from-blue-500 to-indigo-600 border-blue-500" : "border-slate-300"}`}>
+    <div className={`w-5 h-5 rounded-full border-2 transition-all ${active ? "bg-blue-500 border-blue-500" : "border-slate-300"}`}>
       {active && <svg width="20" height="20" viewBox="0 0 20 20"><path d="M5 10L9 14L15 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>}
     </div>
   );

@@ -1,10 +1,10 @@
 import { useNavigate } from "react-router";
 import { useState, useRef, useCallback, useEffect } from "react";
 import {
-  ChevronRight, ChevronLeft, User, MapPin, Moon, FileText, LogOut,
+  ChevronRight, ChevronLeft, User, MapPin, Type, FileText, LogOut,
   Camera, Star, Settings, Key, Fingerprint, Eye, Award, Ticket,
   X, Check, Plus, Trash2, Upload, Globe, Bell, Phone, Mail, Shield,
-  Edit3, EyeOff, AlertTriangle, Info, Sun, Monitor, MapPinned,
+  Edit3, EyeOff, AlertTriangle, Info, MapPinned,
   Share2, HelpCircle, MessageCircle, Heart, Smartphone, Clock,
   Database, UserX, Copy, ExternalLink, ChevronDown, Lock, Pencil,
   Image, RotateCcw, SwitchCamera, ZoomIn
@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { AVATARS } from "./avatars";
 import { SettingsCard } from "./settings-card";
 import { BrandLogo } from "./brand-logo";
+import { compressImage } from "./utils";
 import { api } from "../api/client";
 
 /* ─── Types ─── */
@@ -40,7 +41,7 @@ function SlidePanel({ open, onClose, title, children }: { open: boolean; onClose
   return (
     <div className={`fixed inset-0 z-50 transition-all duration-300 ${open ? "visible" : "invisible"}`}>
       <div className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ${open ? "opacity-100" : "opacity-0"}`} onClick={onClose} />
-      <div className={`absolute inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl transition-transform duration-300 flex flex-col ${open ? "translate-x-0" : "translate-x-full"}`}>
+      <div className={`absolute inset-y-0 right-0 w-full max-w-md bg-white shadow-sm transition-transform duration-300 flex flex-col ${open ? "translate-x-0" : "translate-x-full"}`}>
         <div className="flex items-center gap-3 px-5 pt-14 pb-4 border-b border-slate-100 shrink-0">
           <button onClick={onClose} className="w-10 h-10 rounded-2xl bg-slate-100 flex items-center justify-center active:bg-slate-200 transition">
             <ChevronLeft className="w-5 h-5 text-slate-600" />
@@ -100,7 +101,7 @@ function SaveButton({ onClick, label = "Enregistrer", loading = false, disabled 
   return (
     <button
       onClick={loading || disabled ? undefined : onClick}
-      className={`w-full mt-6 bg-gradient-to-r from-[#F77F00] to-[#E9C46A] text-white py-3.5 rounded-xl shadow-lg shadow-orange-200/50 active:scale-[0.98] transition flex items-center justify-center gap-2 ${(loading || disabled) ? "opacity-60 cursor-not-allowed" : ""}`}
+      className={`w-full mt-6 bg-[#F77F00] text-white py-3.5 rounded-xl shadow-sm shadow-orange-200/50 active:scale-[0.98] transition flex items-center justify-center gap-2 ${(loading || disabled) ? "opacity-60 cursor-not-allowed" : ""}`}
     >
       {loading && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
       {label}
@@ -171,7 +172,7 @@ const menuSections = [
   {
     title: "PREFERENCES",
     items: [
-      { icon: Moon, label: "Apparence", desc: "Theme de l'application", gradient: "from-indigo-500 to-violet-600", panel: "darkmode" as PanelId },
+      { icon: Type, label: "Apparence", desc: "Taille du texte", gradient: "from-indigo-500 to-violet-600", panel: "darkmode" as PanelId },
       { icon: Settings, label: "Parametres", desc: "Langue, notifications, compte", gradient: "from-slate-400 to-slate-600", panel: "settings" as PanelId },
     ],
   },
@@ -357,9 +358,14 @@ export function ProfilePage() {
   const [allowDataCollection, setAllowDataCollection] = useState(true);
   const [twoFactor, setTwoFactor] = useState(false);
 
-  /* Appearance */
-  const [themeMode, setThemeMode] = useState<"light" | "dark" | "auto">("light");
-  const [fontSize, setFontSize] = useState<"small" | "medium" | "large">("medium");
+  /* Appearance — taille du texte (persistée) */
+  const [fontSize, setFontSize] = useState<"small" | "medium" | "large">(
+    () => (localStorage.getItem("ippoo_font_size") as "small" | "medium" | "large") || "medium",
+  );
+  useEffect(() => {
+    localStorage.setItem("ippoo_font_size", fontSize);
+    document.documentElement.dataset.fontSize = fontSize;
+  }, [fontSize]);
 
   /* Settings */
   const [language, setLanguage] = useState("Francais");
@@ -489,22 +495,21 @@ export function ProfilePage() {
         accept="image/png,image/jpeg,image/webp,image/gif"
         className="hidden"
         onClick={(e) => { (e.target as HTMLInputElement).value = ""; }}
-        onChange={(e) => {
+        onChange={async (e) => {
           const file = e.target.files?.[0];
           if (!file) return;
-          if (file.size > 5 * 1024 * 1024) {
-            toast.error("Image trop lourde", { description: "Taille max : 5 Mo" });
+          if (file.size > 10 * 1024 * 1024) {
+            toast.error("Image trop lourde", { description: "Taille max : 10 Mo" });
             return;
           }
-          const reader = new FileReader();
-          reader.onload = (ev) => {
-            setAvatarSrc(ev.target?.result as string);
+          try {
+            // Compression/redimensionnement avant stockage (upload optimisé)
+            const optimized = await compressImage(file, { maxSize: 512, quality: 0.82 });
+            setAvatarSrc(optimized);
             toast.success("Photo de profil mise à jour !");
-          };
-          reader.onerror = () => {
+          } catch {
             toast.error("Erreur de lecture du fichier");
-          };
-          reader.readAsDataURL(file);
+          }
         }}
       />
       {/* Input cache pour documents */}
@@ -534,18 +539,18 @@ export function ProfilePage() {
         <div className="absolute top-0 right-0 w-40 h-40 bg-cyan-400/15 rounded-full -mr-20 -mt-10 blur-3xl" />
         <div className="relative z-10 flex items-center gap-4">
           <div className="relative">
-            <div className="w-[72px] h-[72px] bg-white/15 rounded-3xl flex items-center justify-center border-2 border-white/20 overflow-hidden shadow-xl">
+            <div className="w-[72px] h-[72px] bg-white/15 rounded-2xl flex items-center justify-center border-2 border-white/20 overflow-hidden shadow-sm">
               {avatarSrc ? (
                 <ImageWithFallback src={avatarSrc} alt="Profil" className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-[#F77F00] to-amber-400 flex items-center justify-center">
+                <div className="w-full h-full bg-[#F77F00] flex items-center justify-center">
                   <span className="text-white text-xl">DA</span>
                 </div>
               )}
             </div>
             <button
               onClick={() => setShowPhotoMenu(true)}
-              className="absolute -bottom-1 -right-1 w-8 h-8 bg-white rounded-xl flex items-center justify-center shadow-lg active:scale-90 transition"
+              className="absolute -bottom-1 -right-1 w-8 h-8 bg-white rounded-xl flex items-center justify-center shadow-sm active:scale-90 transition"
             >
               <Camera className="w-4 h-4 text-blue-600" />
             </button>
@@ -569,7 +574,7 @@ export function ProfilePage() {
 
       {/* ═══ STATS ═══ */}
       <div className="px-5 -mt-16 relative z-10">
-        <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/60 p-5 border border-white/80">
+        <div className="bg-white rounded-2xl shadow-sm shadow-slate-200/60 p-5 border border-white/80">
           <div className="grid grid-cols-3 gap-4">
             <button onClick={() => navigate("/app/history")} className="text-center group">
               <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-2 group-active:scale-90 transition">
@@ -634,7 +639,7 @@ export function ProfilePage() {
           <p className="text-[10px] text-slate-400 tracking-widest mb-2.5 px-1">AIDE</p>
           <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
             <button onClick={() => navigate("/app/support")} className="w-full flex items-center gap-3.5 px-4 py-3.5 hover:bg-slate-50 transition active:bg-slate-100 border-b border-slate-50">
-              <div className="w-9 h-9 bg-gradient-to-br from-pink-400 to-rose-500 rounded-xl flex items-center justify-center shadow-sm">
+              <div className="w-9 h-9 bg-pink-400 rounded-xl flex items-center justify-center shadow-sm">
                 <HelpCircle className="w-4 h-4 text-white" />
               </div>
               <div className="flex-1 text-left">
@@ -644,7 +649,7 @@ export function ProfilePage() {
               <ChevronRight className="w-4 h-4 text-slate-300" />
             </button>
             <button onClick={() => { navigator.clipboard?.writeText("IPPOO-2024-USR-DA"); toast.success("ID copie : IPPOO-2024-USR-DA"); }} className="w-full flex items-center gap-3.5 px-4 py-3.5 hover:bg-slate-50 transition active:bg-slate-100">
-              <div className="w-9 h-9 bg-gradient-to-br from-slate-400 to-slate-600 rounded-xl flex items-center justify-center shadow-sm">
+              <div className="w-9 h-9 bg-slate-400 rounded-xl flex items-center justify-center shadow-sm">
                 <Copy className="w-4 h-4 text-white" />
               </div>
               <div className="flex-1 text-left">
@@ -659,7 +664,7 @@ export function ProfilePage() {
         {/* App version */}
         <div className="flex flex-col items-center gap-2 py-2">
           <BrandLogo height={22} />
-          <p className="text-[10px] text-slate-300">IPPOO TRIIP · v1.4.2</p>
+          <p className="text-[10px] text-slate-300"><strong className="font-bold">IPPOO TRIIP</strong> · v1.4.2</p>
         </div>
 
         <button
@@ -674,11 +679,11 @@ export function ProfilePage() {
 
       {/* ─── INFORMATIONS PERSONNELLES ─── */}
       <SlidePanel open={activePanel === "personal"} onClose={closePanel} title="Informations personnelles">
-        <div className="relative w-24 h-24 rounded-3xl overflow-hidden mx-auto mb-6 shadow-lg">
+        <div className="relative w-24 h-24 rounded-2xl overflow-hidden mx-auto mb-6 shadow-sm">
           {avatarSrc ? (
             <ImageWithFallback src={avatarSrc} alt="Profil" className="w-full h-full object-cover" />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-[#F77F00] to-amber-400 flex items-center justify-center">
+            <div className="w-full h-full bg-[#F77F00] flex items-center justify-center">
               <span className="text-white text-3xl">DA</span>
             </div>
           )}
@@ -853,7 +858,7 @@ export function ProfilePage() {
         ) : (
           <button
             onClick={() => setShowDocUpload(true)}
-            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#F77F00] to-[#E9C46A] text-white py-3.5 rounded-xl shadow-lg shadow-orange-200/50 active:scale-[0.98] transition"
+            className="w-full flex items-center justify-center gap-2 bg-[#F77F00] text-black py-3.5 rounded-xl shadow-sm shadow-orange-200/50 active:scale-[0.98] transition"
           >
             <Upload className="w-4 h-4" /> Telecharger un document
           </button>
@@ -887,7 +892,7 @@ export function ProfilePage() {
 
       {/* ─── BIOMETRIQUE ─── */}
       <SlidePanel open={activePanel === "biometric"} onClose={closePanel} title="Connexion biometrique">
-        <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 transition ${biometric ? "bg-violet-100" : "bg-violet-50"}`}>
+        <div className={`w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 transition ${biometric ? "bg-violet-100" : "bg-violet-50"}`}>
           {biometricEnrolling ? (
             <div className="w-10 h-10 border-3 border-violet-200 border-t-violet-600 rounded-full animate-spin" />
           ) : (
@@ -980,28 +985,10 @@ export function ProfilePage() {
         </div>
       </SlidePanel>
 
-      {/* ─── APPARENCE ─── */}
+      {/* ─── APPARENCE (taille du texte) ─── */}
       <SlidePanel open={activePanel === "darkmode"} onClose={closePanel} title="Apparence">
-        <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
-          {themeMode === "light" ? <Sun className="w-7 h-7 text-amber-500" /> : themeMode === "dark" ? <Moon className="w-7 h-7 text-indigo-600" /> : <Monitor className="w-7 h-7 text-slate-600" />}
-        </div>
-
-        <SectionLabel>Theme</SectionLabel>
-        <div className="grid grid-cols-3 gap-3 mb-6">
-          {([
-            { val: "light" as const, label: "Clair", Icon: Sun, preview: "bg-white border-slate-200" },
-            { val: "dark" as const, label: "Sombre", Icon: Moon, preview: "bg-slate-800" },
-            { val: "auto" as const, label: "Auto", Icon: Monitor, preview: "bg-gradient-to-r from-white to-slate-800" },
-          ]).map(({ val, label, Icon: Ic, preview }) => (
-            <button key={val} onClick={() => { setThemeMode(val); toast.success(`Theme: ${label}`); }}
-              className={`rounded-2xl border-2 p-3 text-center transition ${themeMode === val ? "border-[#F77F00] bg-orange-50" : "border-slate-200 bg-white"}`}>
-              <div className={`w-full h-12 rounded-xl mb-2 border ${preview}`} />
-              <div className="flex items-center justify-center gap-1.5">
-                <Ic className="w-3.5 h-3.5 text-slate-500" />
-                <p className="text-xs text-slate-700">{label}</p>
-              </div>
-            </button>
-          ))}
+        <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
+          <Type className="w-7 h-7 text-[#1E6091]" />
         </div>
 
         <SectionLabel>Taille du texte</SectionLabel>
@@ -1016,12 +1003,12 @@ export function ProfilePage() {
         </div>
 
         <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
-          <p className="text-xs text-slate-400 mb-2">Apercu</p>
-          <div className={`bg-white rounded-xl p-4 border border-slate-100 ${themeMode === "dark" ? "!bg-slate-800 !border-slate-700" : ""}`}>
-            <p className={`${fontSize === "small" ? "text-xs" : fontSize === "large" ? "text-base" : "text-sm"} ${themeMode === "dark" ? "text-white" : "text-slate-800"}`}>
-              Bonjour Dosso ! Votre prochain trajet est a 14h30.
+          <p className="text-xs text-slate-400 mb-2">Aperçu</p>
+          <div className="bg-white rounded-xl p-4 border border-slate-100">
+            <p className={`${fontSize === "small" ? "text-xs" : fontSize === "large" ? "text-base" : "text-sm"} text-slate-800`}>
+              Bonjour ! Votre prochain trajet est à 14h30.
             </p>
-            <p className={`${fontSize === "small" ? "text-[10px]" : fontSize === "large" ? "text-sm" : "text-xs"} ${themeMode === "dark" ? "text-slate-400" : "text-slate-500"} mt-1`}>
+            <p className={`${fontSize === "small" ? "text-[10px]" : fontSize === "large" ? "text-sm" : "text-xs"} text-slate-500 mt-1`}>
               Campus → Cotonou Centre
             </p>
           </div>
@@ -1124,7 +1111,7 @@ export function ProfilePage() {
       {/* ─── DECONNEXION ─── */}
       <SlidePanel open={activePanel === "logout"} onClose={closePanel} title="Deconnexion">
         <div className="flex flex-col items-center py-8">
-          <div className="w-20 h-20 bg-red-50 rounded-3xl flex items-center justify-center mb-6">
+          <div className="w-20 h-20 bg-red-50 rounded-2xl flex items-center justify-center mb-6">
             <LogOut className="w-9 h-9 text-[#D62828]" />
           </div>
           <p className="text-slate-800 text-center mb-2">Vous souhaitez vous deconnecter ?</p>
@@ -1149,16 +1136,16 @@ export function ProfilePage() {
       {showPhotoMenu && (
         <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center">
           <div className="absolute inset-0 bg-black/40" onClick={() => setShowPhotoMenu(false)} />
-          <div className="relative bg-white w-full max-w-sm rounded-t-3xl sm:rounded-3xl p-5 pb-8 shadow-2xl">
+          <div className="relative bg-white w-full max-w-sm rounded-t-3xl sm:rounded-2xl p-5 pb-8 shadow-sm">
             <div className="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-5" />
             <p className="text-slate-800 text-center mb-5">Changer la photo de profil</p>
 
             {/* Preview current */}
-            <div className="w-20 h-20 rounded-2xl overflow-hidden mx-auto mb-6 shadow-lg border-2 border-slate-100">
+            <div className="w-20 h-20 rounded-2xl overflow-hidden mx-auto mb-6 shadow-sm border-2 border-slate-100">
               {avatarSrc ? (
                 <ImageWithFallback src={avatarSrc} alt="Profil" className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-[#F77F00] to-amber-400 flex items-center justify-center">
+                <div className="w-full h-full bg-[#F77F00] flex items-center justify-center">
                   <span className="text-white text-2xl">DA</span>
                 </div>
               )}
@@ -1173,7 +1160,7 @@ export function ProfilePage() {
                 }}
                 className="w-full flex items-center gap-4 bg-blue-50 rounded-2xl px-5 py-4 border border-blue-100 active:bg-blue-100 transition"
               >
-                <div className="w-11 h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-md shadow-blue-500/25">
+                <div className="w-11 h-11 bg-blue-500 rounded-xl flex items-center justify-center shadow-md shadow-blue-500/25">
                   <Camera className="w-5 h-5 text-white" />
                 </div>
                 <div className="flex-1 text-left">
@@ -1189,7 +1176,7 @@ export function ProfilePage() {
                 }}
                 className="w-full flex items-center gap-4 bg-violet-50 rounded-2xl px-5 py-4 border border-violet-100 active:bg-violet-100 transition"
               >
-                <div className="w-11 h-11 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center shadow-md shadow-violet-500/25">
+                <div className="w-11 h-11 bg-violet-500 rounded-xl flex items-center justify-center shadow-md shadow-violet-500/25">
                   <Image className="w-5 h-5 text-white" />
                 </div>
                 <div className="flex-1 text-left">
@@ -1207,7 +1194,7 @@ export function ProfilePage() {
                   }}
                   className="w-full flex items-center gap-4 bg-slate-50 rounded-2xl px-5 py-4 border border-slate-100 active:bg-slate-100 transition"
                 >
-                  <div className="w-11 h-11 bg-gradient-to-br from-slate-400 to-slate-600 rounded-xl flex items-center justify-center shadow-md shadow-slate-400/25">
+                  <div className="w-11 h-11 bg-slate-400 rounded-xl flex items-center justify-center shadow-md shadow-slate-400/25">
                     <RotateCcw className="w-5 h-5 text-white" />
                   </div>
                   <div className="flex-1 text-left">
@@ -1241,7 +1228,7 @@ export function ProfilePage() {
 
           {/* Video / Captured preview */}
           <div className="flex-1 flex items-center justify-center px-6">
-            <div className="relative w-full max-w-[340px] aspect-square rounded-[32px] overflow-hidden bg-slate-900 shadow-2xl">
+            <div className="relative w-full max-w-[340px] aspect-square rounded-[32px] overflow-hidden bg-slate-900 shadow-sm">
               {/* Circular overlay guide */}
               <div className="absolute inset-0 z-10 pointer-events-none">
                 <svg viewBox="0 0 340 340" className="w-full h-full">
@@ -1295,7 +1282,7 @@ export function ProfilePage() {
                 </button>
                 <button onClick={confirmCapturedPhoto}
                   className="flex flex-col items-center gap-2 active:scale-90 transition">
-                  <div className="w-16 h-16 bg-gradient-to-br from-[#2A9D8F] to-emerald-500 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/40">
+                  <div className="w-16 h-16 bg-[#2A9D8F] rounded-full flex items-center justify-center shadow-sm shadow-emerald-500/40">
                     <Check className="w-7 h-7 text-white" />
                   </div>
                   <span className="text-white/70 text-[11px]">Confirmer</span>

@@ -308,7 +308,7 @@ export function LoginPage() {
   const timerRef   = useRef<ReturnType<typeof setInterval> | null>(null);
   const otpRefs    = useRef<(HTMLInputElement | null)[]>([]);
 
-  const getTargetRoute = () => form.type === "Chauffeur/Agent" ? "/driver" : form.type === "Administrateur" ? "/admin" : "/";
+  const getTargetRoute = () => form.type === "Chauffeur/Agent" ? "/driver" : form.type === "Administrateur" ? "/admin" : "/app";
   const accent   = STEP_ACCENT[step];
   const gradFrom = STEP_GRADIENT[step];
 
@@ -495,9 +495,7 @@ export function LoginPage() {
       {/* ── Header ── */}
       <div className="absolute inset-x-0 top-0 flex items-center justify-between px-6 pt-12" style={{ zIndex: 10 }}>
         {/* Logo */}
-        <div className="flex items-center gap-2.5">
-          <img src={ippooLogo} alt="IPPOO TRIIP" className="h-10 w-auto" />
-        </div>
+        <div className="flex items-center gap-2.5" />
 
         {step === "phone" && (
           <button
@@ -543,7 +541,7 @@ export function LoginPage() {
           </div>
 
           {/* Glass card */}
-          <div className="rounded-3xl border border-white/12 p-5" style={{ background: "rgba(10,6,2,0.55)", backdropFilter: "blur(24px) saturate(1.6)", WebkitBackdropFilter: "blur(24px) saturate(1.6)" }}>
+          <div className="rounded-2xl border border-white/12 p-5" style={{ background: "rgba(10,6,2,0.55)", backdropFilter: "blur(24px) saturate(1.6)", WebkitBackdropFilter: "blur(24px) saturate(1.6)" }}>
 
             {/* ══ PHONE STEP ══ */}
             {step === "phone" && (
@@ -605,7 +603,7 @@ export function LoginPage() {
             {step === "otp" && (
               <div className="space-y-5">
                 <div className="flex justify-center">
-                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg" style={{ background: `${accent}22`, border: `1px solid ${accent}44` }}>
+                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm" style={{ background: `${accent}22`, border: `1px solid ${accent}44` }}>
                     <Shield className="w-7 h-7" style={{ color: accent }} />
                   </div>
                 </div>

@@ -152,7 +152,7 @@ export function ReferralPage() {
   return (
     <div className="min-h-screen bg-slate-50 pb-6">
       {/* ── Header ── */}
-      <div className="relative overflow-hidden rounded-b-[2rem] shadow-lg">
+      <div className="relative overflow-hidden rounded-b-[2rem] shadow-sm">
         <div className="absolute inset-0 bg-gradient-to-b from-[#F77F00]/90 via-[#E9C46A]/75 to-[#2A9D8F]/85" />
         <div className="absolute -right-10 -top-10 w-48 h-48 bg-white/15 rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-0 w-36 h-36 bg-[#D62828]/15 rounded-full -ml-16 -mb-10 blur-3xl" />
@@ -162,7 +162,7 @@ export function ReferralPage() {
               <ChevronLeft className="w-5 h-5 text-white" />
             </button>
             <div className="flex-1" />
-            <img src={logoImg} alt="IPPOO" className="h-7 object-contain drop-shadow-lg" />
+            <img src={logoImg} alt="IPPOO" className="h-7 object-contain drop-shadow-sm" />
           </div>
           <h1 className="text-white mb-1 drop-shadow-md">Parrainage & Partage</h1>
           <p className="text-white/80 text-xs">Invitez vos proches, gagnez des bonus</p>
@@ -179,7 +179,7 @@ export function ReferralPage() {
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl transition-all ${tab === t.key ? "bg-gradient-to-r from-[#F77F00] to-[#E9C46A] text-white shadow-md" : "text-slate-500"}`}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl transition-all ${tab === t.key ? "bg-[#F77F00] text-black shadow-md" : "text-slate-500"}`}
             >
               <t.icon className="w-4 h-4" />
               <span className="text-xs">{t.label}</span>
@@ -208,7 +208,7 @@ export function ReferralPage() {
           </div>
 
           {/* Code & Link */}
-          <div className="bg-white rounded-3xl p-5 shadow-md">
+          <div className="bg-white rounded-2xl p-5 shadow-md">
             <h3 className="title-gradient mb-3 text-center">Votre code parrain</h3>
             <div className="bg-slate-50 rounded-2xl p-4 flex items-center justify-between mb-3">
               <p className="text-[#1E6091] tracking-widest text-sm">{referralCode}</p>
@@ -259,7 +259,7 @@ export function ReferralPage() {
               "Votre filleul reçoit aussi 500 FCFA de bonus !",
             ].map((step, i) => (
               <div key={i} className="flex items-start gap-2 py-1.5">
-                <div className="w-5 h-5 rounded-full bg-[#F77F00] text-white text-[9px] flex items-center justify-center shrink-0 mt-0.5">{i + 1}</div>
+                <div className="w-5 h-5 rounded-full bg-[#F77F00] text-black text-[9px] flex items-center justify-center shrink-0 mt-0.5">{i + 1}</div>
                 <p className="text-slate-600 text-[11px]">{step}</p>
               </div>
             ))}
@@ -300,7 +300,7 @@ export function ReferralPage() {
         <div className="px-5 mt-5 space-y-5">
           {/* Current share */}
           {shareActive && (
-            <div className="bg-gradient-to-br from-[#2A9D8F] to-[#1E6091] rounded-3xl p-5 shadow-lg text-white">
+            <div className="bg-[#2A9D8F] rounded-2xl p-5 shadow-sm text-white">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse" />
                 <span className="text-xs">Partage actif</span>
@@ -388,7 +388,7 @@ export function ReferralPage() {
           {!shareActive && (
             <button
               onClick={handleStartShare}
-              className="w-full py-4 bg-gradient-to-r from-[#2A9D8F] to-[#1E6091] text-white rounded-2xl shadow-lg shadow-teal-500/25 flex items-center justify-center gap-2 active:scale-[0.98] transition"
+              className="w-full py-4 bg-[#2A9D8F] text-white rounded-2xl shadow-sm shadow-teal-500/25 flex items-center justify-center gap-2 active:scale-[0.98] transition"
             >
               <Link className="w-4 h-4" />
               <span>Créer un lien de suivi</span>

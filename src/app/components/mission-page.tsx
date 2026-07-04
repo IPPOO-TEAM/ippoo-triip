@@ -100,7 +100,7 @@ export function MissionPage() {
   return (
     <div className="min-h-screen bg-slate-50 pb-6">
       {/* ── Header ── */}
-      <div className="relative overflow-hidden rounded-b-[2rem] shadow-lg">
+      <div className="relative overflow-hidden rounded-b-[2rem] shadow-sm">
         <div className="absolute inset-0 bg-gradient-to-b from-[#1E6091] via-[#2A9D8F] to-[#1E6091]" />
         <div className="absolute -right-10 -top-10 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-0 w-36 h-36 bg-[#E9C46A]/15 rounded-full -ml-16 -mb-10 blur-3xl" />
@@ -110,7 +110,7 @@ export function MissionPage() {
               <ChevronLeft className="w-5 h-5 text-white" />
             </button>
             <div className="flex-1" />
-            <img src={logoImg} alt="IPPOO" className="h-7 object-contain drop-shadow-lg" />
+            <img src={logoImg} alt="IPPOO" className="h-7 object-contain drop-shadow-sm" />
           </div>
           <h1 className="text-white mb-1 drop-shadow-md">Réservation par Mission</h1>
           <p className="text-white/80 text-xs">Créez une mission multi-arrêts</p>
@@ -167,7 +167,7 @@ export function MissionPage() {
                 key={slot}
                 onClick={() => setSelectedSlot(slot)}
                 className={`py-2.5 rounded-xl text-[11px] transition ${selectedSlot === slot
-                  ? "bg-gradient-to-r from-[#2A9D8F] to-[#1E6091] text-white shadow-md"
+                  ? "bg-[#2A9D8F] text-white shadow-md"
                   : "bg-white text-slate-500 shadow-sm"}`}
               >
                 {slot}
@@ -278,7 +278,7 @@ export function MissionPage() {
         <button
           onClick={handleSubmit}
           disabled={submitting}
-          className="w-full py-4 bg-gradient-to-r from-[#1E6091] to-[#2A9D8F] text-white rounded-2xl shadow-lg shadow-teal-500/25 flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-60"
+          className="w-full py-4 bg-[#1E6091] text-white rounded-2xl shadow-sm shadow-teal-500/25 flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-60"
         >
           {submitting ? (
             <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

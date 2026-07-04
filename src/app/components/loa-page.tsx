@@ -119,7 +119,7 @@ export function LOAPage() {
   return (
     <div className="min-h-screen bg-slate-50 pb-6">
       {/* ── Header ── */}
-      <div className="relative overflow-hidden rounded-b-[2rem] shadow-lg">
+      <div className="relative overflow-hidden rounded-b-[2rem] shadow-sm">
         <img src={LOA_IMG} alt="" className="absolute inset-0 w-full h-[130%] object-cover will-change-transform" style={{ transform: `translateY(-${parallaxY}px) scale(${1 + parallaxY * 0.001})` }} />
         <div className="absolute inset-0 bg-gradient-to-b from-[#D62828]/85 via-[#D62828]/70 to-[#F77F00]/80" />
         <div className="absolute -right-10 -top-10 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
@@ -168,7 +168,7 @@ export function LOAPage() {
           {/* Rotation CTA */}
           <button
             onClick={() => navigate("/app/loa/rotation")}
-            className="w-full bg-gradient-to-r from-[#1E6091] to-[#2A9D8F] rounded-2xl p-4 shadow-lg shadow-blue-400/20 text-left active:scale-[0.98] transition flex items-center gap-3"
+            className="w-full bg-[#1E6091] rounded-2xl p-4 shadow-sm shadow-blue-400/20 text-left active:scale-[0.98] transition flex items-center gap-3"
           >
             <div className="w-11 h-11 bg-white/15 rounded-2xl flex items-center justify-center backdrop-blur-sm">
               <Users className="w-5 h-5 text-white" />
@@ -206,7 +206,7 @@ export function LOAPage() {
                     <span>{v.paidMonths}/{v.totalMonths}</span>
                   </div>
                   <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-[#D62828] to-[#F77F00] rounded-full" style={{ width: `${(v.paidMonths / v.totalMonths) * 100}%` }} />
+                    <div className="h-full bg-[#D62828] rounded-full" style={{ width: `${(v.paidMonths / v.totalMonths) * 100}%` }} />
                   </div>
                 </div>
                 <p className="text-slate-600 text-xs shrink-0">{v.monthlyPayment.toLocaleString()} F/m</p>
@@ -267,7 +267,7 @@ export function LOAPage() {
                 <span>{Math.round((vehicle.paidMonths / vehicle.totalMonths) * 100)}%</span>
               </div>
               <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-[#D62828] to-[#F77F00] rounded-full transition-all" style={{ width: `${(vehicle.paidMonths / vehicle.totalMonths) * 100}%` }} />
+                <div className="h-full bg-[#D62828] rounded-full transition-all" style={{ width: `${(vehicle.paidMonths / vehicle.totalMonths) * 100}%` }} />
               </div>
             </div>
           </div>
@@ -315,7 +315,7 @@ export function LOAPage() {
 
           {/* Actions */}
           <div className="space-y-3">
-            <button onClick={() => toast.success("Paiement enregistré !")} className="w-full py-3.5 bg-gradient-to-r from-[#D62828] to-[#F77F00] text-white rounded-2xl shadow-lg shadow-red-400/25 flex items-center justify-center gap-2 active:scale-[0.98] transition">
+            <button onClick={() => toast.success("Paiement enregistré !")} className="w-full py-3.5 bg-[#D62828] text-white rounded-2xl shadow-sm shadow-red-400/25 flex items-center justify-center gap-2 active:scale-[0.98] transition">
               <CreditCard className="w-4 h-4" />
               <span>Payer la mensualité · {vehicle.monthlyPayment.toLocaleString()} FCFA</span>
             </button>

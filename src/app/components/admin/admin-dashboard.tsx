@@ -163,7 +163,7 @@ export function AdminDashboardPage() {
       </div>
 
       {/* Live metrics bar */}
-      <div className="bg-gradient-to-r from-[#1E6091] to-[#2A9D8F] rounded-2xl p-4 flex flex-wrap gap-4 md:gap-8 items-center shadow-lg">
+      <div className="bg-[#1E6091] rounded-2xl p-4 flex flex-wrap gap-4 md:gap-8 items-center shadow-sm">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
           <span className="text-white/80 text-xs">En direct</span>

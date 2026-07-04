@@ -346,7 +346,7 @@ export function TrackingMap({
 
       {/* Badge GPS */}
       <div
-        className="absolute top-3 right-3 flex items-center gap-1.5 bg-[#F77F00] text-white text-[10px] px-2.5 py-1.5 rounded-full shadow-lg pointer-events-none"
+        className="absolute top-3 right-3 flex items-center gap-1.5 bg-[#F77F00] text-black text-[10px] px-2.5 py-1.5 rounded-full shadow-sm pointer-events-none"
         style={{ zIndex: 401 }}
       >
         <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />

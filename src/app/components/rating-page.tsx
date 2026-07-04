@@ -125,7 +125,7 @@ export function RatingPage() {
   return (
     <div className="min-h-screen bg-slate-50 pb-6">
       {/* ── Header ── */}
-      <div className="relative overflow-hidden rounded-b-[2rem] shadow-lg">
+      <div className="relative overflow-hidden rounded-b-[2rem] shadow-sm">
         <img src={RATING_IMG} alt="" className="absolute inset-0 w-full h-[130%] object-cover will-change-transform" style={{ transform: `translateY(-${parallaxY}px) scale(${1 + parallaxY * 0.001})` }} />
         <div className="absolute inset-0 bg-gradient-to-b from-[#2A9D8F]/85 via-[#2A9D8F]/70 to-[#1E6091]/80" />
         <div className="absolute -right-10 -top-10 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
@@ -136,7 +136,7 @@ export function RatingPage() {
               <ChevronLeft className="w-5 h-5 text-white" />
             </button>
             <div className="flex-1" />
-            <img src={logoImg} alt="IPPOO" className="h-7 object-contain drop-shadow-lg" />
+            <img src={logoImg} alt="IPPOO" className="h-7 object-contain drop-shadow-sm" />
           </div>
           <h1 className="text-white mb-1 drop-shadow-md">Évaluation Client</h1>
           <p className="text-white/80 text-xs">Notation par les chauffeurs & livreurs</p>
@@ -186,7 +186,7 @@ export function RatingPage() {
               <button
                 onClick={handleSubmitRating}
                 disabled={submitting}
-                className="w-full py-4 bg-gradient-to-r from-[#2A9D8F] to-[#1E6091] text-white rounded-2xl shadow-lg shadow-teal-500/25 flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-60"
+                className="w-full py-4 bg-[#2A9D8F] text-white rounded-2xl shadow-sm shadow-teal-500/25 flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-60"
               >
                 {submitting ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -203,7 +203,7 @@ export function RatingPage() {
       ) : (
         <div className="px-5 mt-5 space-y-5">
           {/* Score global */}
-          <div className="bg-white rounded-3xl p-5 shadow-md text-center">
+          <div className="bg-white rounded-2xl p-5 shadow-md text-center">
             <div className="flex items-center justify-center gap-3 mb-3">
               <ProfileAvatar initials="DA" size={56} />
               <div className="text-left">

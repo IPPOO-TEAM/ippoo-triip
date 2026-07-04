@@ -4,6 +4,7 @@ import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { ProfileAvatar } from "./profile-avatar";
 import { BrandLogo } from "./brand-logo";
 import { usePlatformConfig } from "../store/platform-config";
+import { useAppStore } from "../store/app-store";
 import {
   IconCourse, IconLivraison, IconGroupOrder, IconCovoiturage,
   IconGrosColis, IconFretAerien, IconWallet, IconHistorique, IconSupport,
@@ -227,6 +228,11 @@ const nearbyDrivers = [
 
 export function HomePage() {
   const navigate = useNavigate();
+  const { state } = useAppStore();
+  const userName = state.user?.fullName ?? "Bienvenue";
+  const firstName = userName.split(" ")[0];
+  const walletBalance = state.wallet?.balanceXOF ?? 0;
+  const unreadNotifs = state.notifications.filter((n) => !n.read).length;
   // Masque les services dont l'offre a été désactivée depuis le back office admin
   const config = usePlatformConfig();
   const visibleServices = services.filter(
@@ -273,8 +279,8 @@ export function HomePage() {
 
   const currentSlide = promoSlides[activeSlide];
   const badgeConfig: Record<string, { bg: string; text: string }> = {
-    Nouveau: { bg: "bg-gradient-to-r from-[#2A9D8F] to-emerald-500", text: "text-white" },
-    Limité: { bg: "bg-gradient-to-r from-[#D62828] to-rose-500", text: "text-white" },
+    Nouveau: { bg: "bg-[#2A9D8F]", text: "text-white" },
+    Limité: { bg: "bg-[#D62828]", text: "text-white" },
   };
 
   // Time-based greeting
@@ -300,7 +306,7 @@ export function HomePage() {
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
               <button onClick={() => navigate("/app/profile")} className="relative">
-                <ProfileAvatar initials="DA" size={52} className="rounded-2xl border-2 border-white/40 shadow-lg shadow-black/20" />
+                <ProfileAvatar initials="DA" size={52} className="rounded-2xl border-2 border-white/40 shadow-sm shadow-black/20" />
                 <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-[#2A9D8F] rounded-full border-2 border-white flex items-center justify-center">
                   <div className="w-1.5 h-1.5 bg-white rounded-full" />
                 </div>
@@ -310,7 +316,7 @@ export function HomePage() {
                   <GreetingIcon className="w-3.5 h-3.5 text-[#E9C46A]" strokeWidth={2} />
                   <p className="text-white/70 text-xs">{greeting}</p>
                 </div>
-                <p className="text-white">Dosso Adjovi</p>
+                <p className="text-white">{firstName}</p>
               </div>
             </div>
             <div className="flex items-center gap-2.5">
@@ -322,7 +328,7 @@ export function HomePage() {
                 <Wallet className="w-4 h-4 text-[#E9C46A]" strokeWidth={1.8} />
                 <div className="text-left">
                   <p className="text-[9px] text-white/50 leading-none">IPPOO Cash</p>
-                  <p className="text-white text-xs" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>12 500 F</p>
+                  <p className="text-white text-xs" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{walletBalance.toLocaleString("fr-FR")} F</p>
                 </div>
               </button>
               {/* Notifications */}
@@ -331,14 +337,16 @@ export function HomePage() {
                 className="relative w-11 h-11 bg-white/15 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20 hover:bg-white/20 transition"
               >
                 <Bell className="w-5 h-5 text-white" strokeWidth={1.8} />
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#F77F00] rounded-full text-[10px] text-white flex items-center justify-center shadow-lg shadow-orange-500/50 border-2 border-white/30">3</span>
+                {unreadNotifs > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#F77F00] rounded-full text-[10px] text-black flex items-center justify-center border-2 border-white/30">{unreadNotifs > 9 ? "9+" : unreadNotifs}</span>
+                )}
               </button>
             </div>
           </div>
 
           {/* Search bar — glassmorphism */}
           <div className="relative mb-4">
-            <div className="flex items-center gap-3 bg-white/95 backdrop-blur-xl rounded-2xl px-4 py-4 shadow-2xl shadow-black/10 border border-white/80">
+            <div className="flex items-center gap-3 bg-white/95 backdrop-blur-xl rounded-2xl px-4 py-4 shadow-sm shadow-black/10 border border-white/80">
               <div className="w-10 h-10 bg-[#F77F00] rounded-xl flex items-center justify-center shadow-md shadow-orange-400/30 flex-shrink-0">
                 <Search className="w-5 h-5 text-white" strokeWidth={2} />
               </div>
@@ -384,11 +392,11 @@ export function HomePage() {
 
       {/* ═══════════════ SERVICES GRID — Premium floating card ═══════════════ */}
       <div className="px-4 -mt-1 relative z-20">
-        <div className="bg-white rounded-3xl shadow-xl shadow-gray-200/80 p-4 pt-5 border border-gray-100">
+        <div className="bg-white rounded-2xl shadow-sm shadow-gray-200/80 p-4 pt-5 border border-gray-100">
           {/* Section header */}
           <div className="flex items-center justify-between mb-4 px-1">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 bg-gradient-to-br from-[#F77F00] to-[#E9C46A] rounded-lg flex items-center justify-center">
+              <div className="w-7 h-7 bg-[#F77F00] rounded-lg flex items-center justify-center">
                 <Zap className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
               </div>
               <h3 className="title-gradient">Services</h3>
@@ -407,7 +415,7 @@ export function HomePage() {
                 className="flex flex-col items-center gap-2 group"
               >
                 <div className="relative">
-                  <div className={`w-[52px] h-[52px] rounded-2xl flex items-center justify-center bg-gradient-to-br ${s.gradient} shadow-lg ${s.shadow} transition-all group-active:scale-90 group-hover:shadow-xl group-hover:-translate-y-0.5`}>
+                  <div className={`w-[52px] h-[52px] rounded-2xl flex items-center justify-center bg-gradient-to-br ${s.gradient} shadow-sm ${s.shadow} transition-all group-active:scale-90 group-hover:shadow-sm group-hover:-translate-y-0.5`}>
                     <s.Icon className="text-white" size={22} />
                   </div>
                   {/* Subtle glow behind icon */}
@@ -452,7 +460,7 @@ export function HomePage() {
             const slide = promoSlides[activeSlide];
             if (slide.path) navigate(slide.path);
           }}
-          className="relative w-full h-40 rounded-2xl overflow-hidden shadow-lg active:scale-[0.98] transition-transform cursor-pointer"
+          className="relative w-full h-40 rounded-2xl overflow-hidden shadow-sm active:scale-[0.98] transition-transform cursor-pointer"
         >
           {promoSlides[activeSlide].type === "partner" ? (
             <>
@@ -474,7 +482,8 @@ export function HomePage() {
                 alt={promoSlides[activeSlide].title ?? ""}
                 className="absolute inset-0 w-full h-full object-cover"
               />
-              <div className={`absolute inset-0 bg-gradient-to-r ${promoSlides[activeSlide].gradient} opacity-75`} />
+              {/* Dégradé neutre bas uniquement (lisibilité) — pas de teinte de couleur sur l'image */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
               <div className="absolute inset-0 flex flex-col justify-end p-4">
                 <p className="text-white text-xs opacity-80 mb-0.5">{promoSlides[activeSlide].subtitle}</p>
                 <div className="flex items-center justify-between">
@@ -489,7 +498,7 @@ export function HomePage() {
           {currentSlide.badge && (
             <div className="absolute top-2.5 right-2.5">
               <span
-                className={`${badgeConfig[currentSlide.badge].bg} ${badgeConfig[currentSlide.badge].text} text-[10px] px-2.5 py-1 rounded-full shadow-lg`}
+                className={`${badgeConfig[currentSlide.badge].bg} ${badgeConfig[currentSlide.badge].text} text-[10px] px-2.5 py-1 rounded-full shadow-sm`}
               >
                 {currentSlide.badge}
               </span>
@@ -564,7 +573,7 @@ export function HomePage() {
               onClick={() => navigate("/app/book-ride")}
               className="w-full bg-white rounded-2xl p-3.5 flex items-center gap-3.5 shadow-sm shadow-blue-100/40 hover:shadow-md hover:shadow-blue-100/60 transition-all active:scale-[0.99] border border-blue-50"
             >
-              <ProfileAvatar initials={d.initials} size={44} className="rounded-2xl shadow-lg shadow-blue-500/20" gradient={d.gradient} />
+              <ProfileAvatar initials={d.initials} size={44} className="rounded-2xl shadow-sm shadow-blue-500/20" gradient={d.gradient} />
               <div className="flex-1 text-left">
                 <p className="text-sm text-gray-800">{d.name}</p>
                 <p className="text-xs text-gray-400">{d.vehicle} · a {d.distance}</p>

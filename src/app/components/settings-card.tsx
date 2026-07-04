@@ -8,7 +8,7 @@
 import { useEffect, useState } from "react";
 import { Plus, Trash2, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
-import { ThemeToggle, LowDataToggle, LanguagePicker, haptic } from "./ui-extras";
+import { LowDataToggle, LanguagePicker, haptic } from "./ui-extras";
 import { getEmergencyContacts, setEmergencyContacts, type EmergencyContact } from "../services/sos";
 import { PhoneBJSchema } from "../types/domain";
 
@@ -44,10 +44,6 @@ export function SettingsCard() {
 
       {/* Préférences */}
       <div className="space-y-3 mb-5">
-        <div className="flex items-center justify-between">
-          <span className="text-gray-700">Apparence</span>
-          <ThemeToggle />
-        </div>
         <div className="flex items-center justify-between">
           <span className="text-gray-700">Économie de données</span>
           <LowDataToggle />
@@ -109,7 +105,7 @@ export function SettingsCard() {
             <button
               onClick={addContact}
               aria-label="Ajouter le contact"
-              className="px-3 rounded-lg bg-[#F77F00] text-white flex items-center justify-center"
+              className="px-3 rounded-lg bg-[#F77F00] text-black flex items-center justify-center"
             >
               <Plus className="w-4 h-4" aria-hidden />
             </button>

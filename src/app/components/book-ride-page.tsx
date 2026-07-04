@@ -164,7 +164,7 @@ export function BookRidePage() {
         {/* Driver selected banner */}
         {driverName && (
           <div className="flex items-center gap-3 bg-emerald-50 rounded-2xl px-4 py-3 mb-4 border border-emerald-100">
-            <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl flex items-center justify-center shadow-md shadow-emerald-400/30">
+            <div className="w-10 h-10 bg-emerald-400 rounded-xl flex items-center justify-center shadow-md shadow-emerald-400/30">
               <UserCheck className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1">
@@ -180,7 +180,7 @@ export function BookRidePage() {
 
         {/* Route inputs */}
         <div className="relative pl-8">
-          <div className="absolute left-3 top-5 bottom-5 w-[2px] bg-gradient-to-b from-emerald-400 to-blue-500 rounded-full" />
+          <div className="absolute left-3 top-5 bottom-5 w-[2px] bg-emerald-400 rounded-full" />
           <div className="absolute left-[6px] top-3.5 w-3 h-3 rounded-full bg-emerald-400 shadow-md shadow-emerald-400/50 border-2 border-white" />
           <div className="absolute left-[6px] bottom-3.5 w-3 h-3 rounded-full bg-blue-500 shadow-md shadow-blue-500/50 border-2 border-white" />
 
@@ -235,7 +235,7 @@ export function BookRidePage() {
 
         {/* Suggestions dropdown */}
         {focusedField && (
-          <div className="ml-8 mt-2 bg-white rounded-2xl border border-slate-100 shadow-lg overflow-hidden max-h-48 overflow-y-auto">
+          <div className="ml-8 mt-2 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden max-h-48 overflow-y-auto">
             {filteredPlaces(focusedField === "departure" ? departure : arrival).map((p, i) => (
               <button
                 key={i}
@@ -299,11 +299,11 @@ export function BookRidePage() {
                 onClick={() => setSelected(v.id)}
                 className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all ${
                   isSelected
-                    ? `bg-white border-2 ${v.accent} shadow-lg shadow-blue-100/60`
+                    ? `bg-white border-2 ${v.accent} shadow-sm shadow-blue-100/60`
                     : "bg-white border-2 border-transparent hover:border-blue-100 hover:bg-blue-50/30"
                 }`}
               >
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${isSelected ? `bg-gradient-to-br ${v.gradient} shadow-lg ${v.shadow}` : "bg-slate-100"}`}>
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${isSelected ? `bg-gradient-to-br ${v.gradient} shadow-sm ${v.shadow}` : "bg-slate-100"}`}>
                   <v.Icon className={isSelected ? "text-white" : "text-slate-400"} size={26} />
                 </div>
                 <div className="flex-1 text-left">
@@ -353,7 +353,7 @@ export function BookRidePage() {
         <button
           onClick={handleOrder}
           disabled={ordering}
-          className={`w-full bg-gradient-to-r ${selectedVehicle.gradient} text-white py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg ${selectedVehicle.shadow} transition-transform ${ordering ? "opacity-70 scale-[0.98]" : "active:scale-[0.98]"}`}
+          className={`w-full bg-gradient-to-r ${selectedVehicle.gradient} text-white py-4 rounded-2xl flex items-center justify-center gap-2 shadow-sm ${selectedVehicle.shadow} transition-transform ${ordering ? "opacity-70 scale-[0.98]" : "active:scale-[0.98]"}`}
         >
           {ordering ? (
             <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Recherche en cours...</>

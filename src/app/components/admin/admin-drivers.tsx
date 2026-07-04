@@ -109,7 +109,7 @@ export function AdminDriversPage() {
       {selectedDriver && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/40" onClick={() => setSelectedDriver(null)} />
-          <div className="relative bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl max-h-[85vh] overflow-y-auto">
+          <div className="relative bg-white rounded-2xl w-full max-w-lg p-6 shadow-sm max-h-[85vh] overflow-y-auto">
             <button onClick={() => setSelectedDriver(null)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
               <XCircle className="w-5 h-5" />
             </button>

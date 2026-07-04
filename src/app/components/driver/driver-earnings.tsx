@@ -136,7 +136,7 @@ export function DriverEarningsPage() {
   return (
     <div className="min-h-full bg-slate-50 pb-4">
       {/* Header */}
-      <div className="bg-gradient-to-br from-[#2A9D8F] to-[#1E6091] pt-12 pb-6 px-5 relative overflow-hidden">
+      <div className="bg-[#2A9D8F] pt-12 pb-6 px-5 relative overflow-hidden">
         <div className="absolute -right-12 -top-12 w-40 h-40 bg-white/5 rounded-full blur-2xl" />
         <div className="flex items-center gap-3 mb-5">
           <button onClick={() => navigate("/driver")} className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center">
@@ -184,7 +184,7 @@ export function DriverEarningsPage() {
           <div className="grid grid-cols-2 gap-2 mt-3">
             <button
               onClick={() => setModal("withdraw")}
-              className="py-3 rounded-xl bg-[#F77F00] text-white text-xs flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20"
+              className="py-3 rounded-xl bg-[#F77F00] text-black text-xs flex items-center justify-center gap-2 shadow-sm shadow-orange-500/20"
             >
               <ArrowUpRight className="w-4 h-4" /> Retirer
             </button>
@@ -340,7 +340,7 @@ export function DriverEarningsPage() {
             <button
               onClick={handleWithdraw}
               disabled={withdrawLoading}
-              className="w-full py-4 rounded-2xl bg-[#2A9D8F] text-white text-sm shadow-lg shadow-emerald-500/20 disabled:opacity-50"
+              className="w-full py-4 rounded-2xl bg-[#2A9D8F] text-white text-sm shadow-sm shadow-emerald-500/20 disabled:opacity-50"
             >
               {withdrawLoading ? "Traitement..." : "Confirmer le retrait"}
             </button>

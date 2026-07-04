@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { getAvatar } from "../avatars";
 import { PWAInstallPrompt } from "../pwa-install-prompt";
+import { PushNotificationHost } from "../push-host";
 import logoImg from "../../../imports/IPPOO_Transport_&_Logistique-1.png";
 
 const NAV_ITEMS = [
@@ -54,7 +55,7 @@ export function AdminLayout() {
               onClick={() => { navigate(item.path); setMobileOpen(false); }}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all ${
                 active
-                  ? "bg-[#F77F00] text-white shadow-lg shadow-orange-500/20"
+                  ? "bg-[#F77F00] text-black shadow-sm shadow-orange-500/20"
                   : "text-slate-400 hover:text-white hover:bg-white/5"
               }`}
               title={collapsed ? item.label : undefined}
@@ -97,6 +98,7 @@ export function AdminLayout() {
   return (
     <div className="flex h-screen bg-slate-100 overflow-hidden">
       <PWAInstallPrompt />
+      <PushNotificationHost audience="admin" />
       {/* Desktop Sidebar */}
       <aside
         className={`hidden lg:block relative bg-[#0F172A] shrink-0 transition-all duration-300 ${collapsed ? "w-[68px]" : "w-[240px]"}`}

@@ -139,7 +139,7 @@ function generateTrackingId(prefix: string) {
 
 /* ─── Sub Components ─── */
 function SectionCard({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <div className={`bg-white rounded-3xl p-5 border border-slate-100 shadow-sm ${className}`}>{children}</div>;
+  return <div className={`bg-white rounded-2xl p-5 border border-slate-100 shadow-sm ${className}`}>{children}</div>;
 }
 
 function InputField({ icon: Icon, iconColor = "text-[#1E6091]", ...props }: {
@@ -430,7 +430,7 @@ export function AirFreightPage() {
       <div ref={scrollRef} className="min-h-screen bg-slate-50 pb-8 overflow-y-auto" style={{ height: "100vh" }}>
         {showShare && <SharePanel trackingId={trackingId} onClose={() => setShowShare(false)} />}
         {/* Header */}
-        <div className="relative overflow-hidden rounded-b-[2rem] shadow-lg">
+        <div className="relative overflow-hidden rounded-b-[2rem] shadow-sm">
           <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${tabColor}ee, ${tabColor}cc)` }} />
           <div className="absolute -right-10 -top-10 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
           <div className="absolute bottom-0 left-0 w-36 h-36 bg-[#E9C46A]/15 rounded-full -ml-16 -mb-10 blur-3xl" />
@@ -443,7 +443,7 @@ export function AirFreightPage() {
                 <h2 className="text-white flex items-center gap-2"><Plane className="w-5 h-5" /> Suivi IPPOO AIR</h2>
                 <p className="text-white/70 text-xs">{serviceTabsMeta.find(t => t.key === activeTab)?.label}</p>
               </div>
-              <img src={logoImg} alt="IPPOO" className="h-7 object-contain drop-shadow-lg" />
+              <img src={logoImg} alt="IPPOO" className="h-7 object-contain drop-shadow-sm" />
             </div>
             {/* Tracking ID card */}
             <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-4 border border-white/15">
@@ -529,7 +529,7 @@ export function AirFreightPage() {
     const toAP = airports.find(a => a.code === (activeTab === "passagers" ? paxTo : activeTab === "colis" ? colisTo : fretTo));
     return (
       <div ref={scrollRef} className="min-h-screen bg-white pb-8 overflow-y-auto" style={{ height: "100vh" }}>
-        <div className="relative overflow-hidden rounded-b-[2rem] shadow-lg">
+        <div className="relative overflow-hidden rounded-b-[2rem] shadow-sm">
           <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${tabColor}ee, ${tabColor}cc)` }} />
           <div className="absolute -right-10 -top-10 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
           <div className="relative z-10 px-5 pt-14 pb-8 flex items-center gap-3">
@@ -610,7 +610,7 @@ export function AirFreightPage() {
                   aria-pressed={sel}
                   className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all ${sel ? "border-[#2A9D8F] bg-emerald-50" : "border-transparent bg-slate-50"}`}
                 >
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${sel ? "bg-gradient-to-br from-emerald-400 to-teal-600 shadow-lg shadow-emerald-500/25" : "bg-slate-100"}`}>
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${sel ? "bg-emerald-400 shadow-sm shadow-emerald-500/25" : "bg-slate-100"}`}>
                     <m.icon className={`w-5 h-5 ${sel ? "text-white" : "text-slate-400"}`} />
                   </div>
                   <div className="text-left">
@@ -626,7 +626,7 @@ export function AirFreightPage() {
           <button
             onClick={handleConfirm}
             disabled={ordering}
-            className={`w-full py-4 rounded-2xl flex items-center justify-center gap-2 text-sm shadow-lg transition-transform ${ordering ? "opacity-70 scale-[0.98]" : "active:scale-[0.98]"}`}
+            className={`w-full py-4 rounded-2xl flex items-center justify-center gap-2 text-sm shadow-sm transition-transform ${ordering ? "opacity-70 scale-[0.98]" : "active:scale-[0.98]"}`}
             style={{ background: `linear-gradient(135deg, ${tabColor}, ${tabColor}cc)`, color: "white" }}
           >
             {ordering ? (
@@ -644,7 +644,7 @@ export function AirFreightPage() {
   return (
     <div ref={scrollRef} className="min-h-screen bg-white pb-8 overflow-y-auto" style={{ height: "100vh" }}>
       {/* Header */}
-      <div className="relative overflow-hidden rounded-b-[2rem] shadow-lg">
+      <div className="relative overflow-hidden rounded-b-[2rem] shadow-sm">
         <ImageWithFallback
           src={headerImg}
           alt=""
@@ -663,7 +663,7 @@ export function AirFreightPage() {
               <h2 className="text-white flex items-center gap-2"><Plane className="w-5 h-5" /> IPPOO AIR</h2>
               <p className="text-white/70 text-xs">Transport par avion · Passagers, Colis, Fret</p>
             </div>
-            <img src={logoImg} alt="IPPOO" className="h-7 object-contain drop-shadow-lg" />
+            <img src={logoImg} alt="IPPOO" className="h-7 object-contain drop-shadow-sm" />
           </div>
         </div>
       </div>
@@ -744,9 +744,9 @@ export function AirFreightPage() {
             {/* Assistance */}
             <button
               onClick={() => setPaxAssistance(!paxAssistance)}
-              className={`w-full flex items-center gap-4 p-5 rounded-3xl border-2 transition-all ${paxAssistance ? "border-[#E9C46A] bg-amber-50" : "border-slate-100 bg-white"}`}
+              className={`w-full flex items-center gap-4 p-5 rounded-2xl border-2 transition-all ${paxAssistance ? "border-[#E9C46A] bg-amber-50" : "border-slate-100 bg-white"}`}
             >
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${paxAssistance ? "bg-gradient-to-br from-[#E9C46A] to-[#F77F00] shadow-lg shadow-amber-400/25" : "bg-slate-100"}`}>
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${paxAssistance ? "bg-[#E9C46A] shadow-sm shadow-amber-400/25" : "bg-slate-100"}`}>
                 <BadgeCheck className={`w-5 h-5 ${paxAssistance ? "text-white" : "text-slate-400"}`} />
               </div>
               <div className="text-left flex-1">
@@ -831,13 +831,13 @@ export function AirFreightPage() {
               <label className="text-sm text-slate-500 mb-3 block">Vitesse</label>
               <div className="grid grid-cols-2 gap-2.5">
                 <button onClick={() => setColisSpeed("express")} className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition ${colisSpeed === "express" ? "border-[#F77F00] bg-orange-50" : "border-transparent bg-slate-50"}`}>
-                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${colisSpeed === "express" ? "bg-gradient-to-br from-[#F77F00] to-[#D62828] shadow-md" : "bg-slate-100"}`}>
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${colisSpeed === "express" ? "bg-[#F77F00] shadow-md" : "bg-slate-100"}`}>
                     <Zap className={`w-4 h-4 ${colisSpeed === "express" ? "text-white" : "text-slate-400"}`} />
                   </div>
                   <div className="text-left"><p className="text-sm">Express</p><p className="text-[10px] text-slate-400">Prioritaire ×1.8</p></div>
                 </button>
                 <button onClick={() => setColisSpeed("standard")} className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition ${colisSpeed === "standard" ? "border-[#1E6091] bg-blue-50" : "border-transparent bg-slate-50"}`}>
-                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${colisSpeed === "standard" ? "bg-gradient-to-br from-[#1E6091] to-[#2A9D8F] shadow-md" : "bg-slate-100"}`}>
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${colisSpeed === "standard" ? "bg-[#1E6091] shadow-md" : "bg-slate-100"}`}>
                     <Clock className={`w-4 h-4 ${colisSpeed === "standard" ? "text-white" : "text-slate-400"}`} />
                   </div>
                   <div className="text-left"><p className="text-sm">Standard</p><p className="text-[10px] text-slate-400">Délai normal</p></div>
@@ -1000,7 +1000,7 @@ export function AirFreightPage() {
           onClick={() => navigate("/app/referral")}
           className="w-full flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-[#E9C46A]/15 to-[#F77F00]/15 border border-[#E9C46A]/30"
         >
-          <div className="w-10 h-10 bg-gradient-to-br from-[#E9C46A] to-[#F77F00] rounded-xl flex items-center justify-center shadow-md shadow-amber-400/25">
+          <div className="w-10 h-10 bg-[#E9C46A] rounded-xl flex items-center justify-center shadow-md shadow-amber-400/25">
             <Gift className="w-5 h-5 text-white" />
           </div>
           <div className="text-left flex-1">
@@ -1013,7 +1013,7 @@ export function AirFreightPage() {
         {/* ── Submit ── */}
         <button
           onClick={handleSubmit}
-          className="w-full py-4 rounded-2xl flex items-center justify-center gap-2 text-sm shadow-lg active:scale-[0.98] transition-transform"
+          className="w-full py-4 rounded-2xl flex items-center justify-center gap-2 text-sm shadow-sm active:scale-[0.98] transition-transform"
           style={{ background: `linear-gradient(135deg, ${tabColor}, ${tabColor}cc)`, color: "white" }}
         >
           Continuer <ChevronRight className="w-4 h-4" />

@@ -91,7 +91,7 @@ export function SubscriptionsPage() {
   return (
     <div className="min-h-screen bg-slate-50 pb-6">
       {/* ── Header Parallax ── */}
-      <div className="relative overflow-hidden rounded-b-[2rem] shadow-lg">
+      <div className="relative overflow-hidden rounded-b-[2rem] shadow-sm">
         <img
           src={MEMBER_IMG} alt=""
           className="absolute inset-0 w-full h-[130%] object-cover will-change-transform"
@@ -106,7 +106,7 @@ export function SubscriptionsPage() {
               <ChevronLeft className="w-5 h-5 text-white" />
             </button>
             <div className="flex-1" />
-            <img src={logoImg} alt="IPPOO" className="h-7 object-contain drop-shadow-lg" />
+            <img src={logoImg} alt="IPPOO" className="h-7 object-contain drop-shadow-sm" />
           </div>
           <h1 className="text-white mb-1 drop-shadow-md">Abonnements</h1>
           <p className="text-white/80 text-xs">Carte Membre & Forfaits Courses</p>
@@ -123,7 +123,7 @@ export function SubscriptionsPage() {
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl transition-all ${tab === t.key ? "bg-gradient-to-r from-[#F77F00] to-[#E9C46A] text-white shadow-md" : "text-slate-500"}`}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl transition-all ${tab === t.key ? "bg-[#F77F00] text-black shadow-md" : "text-slate-500"}`}
             >
               <t.icon className="w-4 h-4" />
               <span className="text-xs">{t.label}</span>
@@ -136,7 +136,7 @@ export function SubscriptionsPage() {
         /* ─────── CARTE MEMBRE ─────── */
         <div className="px-5 mt-5 space-y-5">
           {/* Carte visuelle */}
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1E6091] via-[#2A9D8F] to-[#1E6091] p-5 shadow-xl">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1E6091] via-[#2A9D8F] to-[#1E6091] p-5 shadow-sm">
             <div className="absolute -right-12 -top-12 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
             <div className="absolute bottom-0 left-0 w-32 h-32 bg-[#E9C46A]/15 rounded-full -ml-10 -mb-10 blur-2xl" />
             <div className="flex items-start justify-between relative z-10">
@@ -184,7 +184,7 @@ export function SubscriptionsPage() {
           <button
             onClick={handleRenew}
             disabled={renewing}
-            className="w-full py-4 bg-gradient-to-r from-[#F77F00] to-[#E9C46A] text-white rounded-2xl shadow-lg shadow-orange-400/30 flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-60"
+            className="w-full py-4 bg-[#F77F00] text-black rounded-2xl shadow-sm shadow-orange-400/30 flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-60"
           >
             {renewing ? (
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -265,7 +265,7 @@ export function SubscriptionsPage() {
                 key={f.key}
                 onClick={() => setForfaitType(f.key)}
                 className={`flex-1 py-3.5 rounded-xl transition-all flex flex-col items-center gap-1 ${forfaitType === f.key
-                  ? "bg-gradient-to-br from-[#1E6091] to-[#2A9D8F] text-white shadow-md"
+                  ? "bg-[#1E6091] text-white shadow-md"
                   : "text-slate-500"}`}
               >
                 <f.icon className="w-5 h-5" />
@@ -276,7 +276,7 @@ export function SubscriptionsPage() {
           </div>
 
           {/* Quota Card */}
-          <div className="bg-white rounded-3xl p-5 shadow-md">
+          <div className="bg-white rounded-2xl p-5 shadow-md">
             <div className="flex items-center justify-between mb-4">
               <h3 className="title-gradient flex items-center gap-2">
                 <Gauge className="w-4 h-4 text-[#2A9D8F]" />
@@ -295,7 +295,7 @@ export function SubscriptionsPage() {
               </div>
               <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-[#2A9D8F] to-[#1E6091] rounded-full transition-all"
+                  className="h-full bg-[#2A9D8F] rounded-full transition-all"
                   style={{ width: `${(weekdayUsed / dailyLimit) * 100}%` }}
                 />
               </div>
@@ -309,7 +309,7 @@ export function SubscriptionsPage() {
               </div>
               <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-[#F77F00] to-[#E9C46A] rounded-full transition-all"
+                  className="h-full bg-[#F77F00] rounded-full transition-all"
                   style={{ width: `${(weekendUsed / dailyLimit) * 100}%` }}
                 />
               </div>
@@ -356,7 +356,7 @@ export function SubscriptionsPage() {
           <button
             onClick={handleSubscribeForfait}
             disabled={subscribingForfait}
-            className="w-full py-4 bg-gradient-to-r from-[#1E6091] to-[#2A9D8F] text-white rounded-2xl shadow-lg shadow-teal-500/30 flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-60"
+            className="w-full py-4 bg-[#1E6091] text-white rounded-2xl shadow-sm shadow-teal-500/30 flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-60"
           >
             {subscribingForfait ? (
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

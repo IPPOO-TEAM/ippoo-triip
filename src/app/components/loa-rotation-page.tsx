@@ -97,7 +97,7 @@ function TenantAvatar({ initials, size = 40 }: { initials: string; size?: number
       {src ? (
         <img src={src} alt={initials} className="w-full h-full object-cover" loading="lazy" />
       ) : (
-        <div className="w-full h-full bg-gradient-to-br from-[#F77F00] to-amber-400 flex items-center justify-center">
+        <div className="w-full h-full bg-[#F77F00] flex items-center justify-center">
           <span className="text-white text-xs">{initials}</span>
         </div>
       )}
@@ -205,7 +205,7 @@ export function LOARotationPage() {
   return (
     <div ref={scrollRef} className="min-h-screen bg-slate-50 pb-6 overflow-y-auto" style={{ height: "100vh" }}>
       {/* ── Header ── */}
-      <div className="relative overflow-hidden rounded-b-[2rem] shadow-lg">
+      <div className="relative overflow-hidden rounded-b-[2rem] shadow-sm">
         <img src={ROTATION_IMG} alt="" className="absolute inset-0 w-full h-[130%] object-cover will-change-transform" style={{ transform: `translateY(-${parallaxY}px) scale(${1 + parallaxY * 0.001})` }} />
         <div className="absolute inset-0 bg-gradient-to-b from-[#1E6091]/85 via-[#1E6091]/70 to-[#2A9D8F]/80" />
         <div className="absolute -right-10 -top-10 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
@@ -216,7 +216,7 @@ export function LOARotationPage() {
               <ChevronLeft className="w-5 h-5 text-white" />
             </button>
             <div className="flex-1" />
-            <img src={logoImg} alt="IPPOO" className="h-7 object-contain drop-shadow-lg" />
+            <img src={logoImg} alt="IPPOO" className="h-7 object-contain drop-shadow-sm" />
           </div>
           <h1 className="text-white mb-1 drop-shadow-md">LOA Rotation</h1>
           <p className="text-white/80 text-xs">{VEHICLE.model} · {VEHICLE.plate}, 4 locataires</p>
@@ -347,7 +347,7 @@ export function LOARotationPage() {
                       <div
                         key={w.weekNumber}
                         className={`rounded-2xl p-3 flex items-center gap-3 transition ${
-                          isCurrent ? "bg-[#1E6091] shadow-lg shadow-blue-400/20" :
+                          isCurrent ? "bg-[#1E6091] shadow-sm shadow-blue-400/20" :
                           isCompleted ? "bg-slate-50 border border-slate-100" :
                           isBlocked ? "bg-red-50 border border-red-100" :
                           "bg-white shadow-sm"
@@ -536,7 +536,7 @@ export function LOARotationPage() {
                 disabled={!canSubmitDeclaration || declStatus === "validated"}
                 className={`w-full py-3.5 rounded-2xl flex items-center justify-center gap-2 text-xs transition active:scale-[0.98] ${
                   canSubmitDeclaration && declStatus !== "validated"
-                    ? "bg-gradient-to-r from-[#1E6091] to-[#2A9D8F] text-white shadow-lg shadow-blue-400/25"
+                    ? "bg-[#1E6091] text-white shadow-sm shadow-blue-400/25"
                     : "bg-slate-100 text-slate-400"
                 }`}
               >
@@ -658,7 +658,7 @@ export function LOARotationPage() {
 
                   <button
                     onClick={submitRestitution}
-                    className="w-full py-3.5 bg-gradient-to-r from-[#D62828] to-[#F77F00] text-white rounded-2xl shadow-lg shadow-red-400/25 flex items-center justify-center gap-2 text-xs active:scale-[0.98] transition"
+                    className="w-full py-3.5 bg-[#D62828] text-white rounded-2xl shadow-sm shadow-red-400/25 flex items-center justify-center gap-2 text-xs active:scale-[0.98] transition"
                   >
                     <RotateCcw className="w-4 h-4" />
                     Soumettre la restitution

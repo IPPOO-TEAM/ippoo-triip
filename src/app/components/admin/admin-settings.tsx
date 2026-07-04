@@ -108,7 +108,7 @@ export function AdminSettingsPage() {
         </div>
         <button
           onClick={handleSave}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs shadow-lg transition ${
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs shadow-sm transition ${
             saved ? "bg-[#2A9D8F] text-white" : "bg-[#1E6091] text-white shadow-blue-400/20"
           }`}
         >

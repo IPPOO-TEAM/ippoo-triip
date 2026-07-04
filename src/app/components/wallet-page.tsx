@@ -192,7 +192,7 @@ export function WalletPage() {
             </div>
           </div>
 
-          <div className="bg-white/15 backdrop-blur-xl rounded-3xl p-6 border border-white/25 shadow-lg">
+          <div className="bg-white/15 backdrop-blur-xl rounded-2xl p-6 border border-white/25 shadow-sm">
             <div className="flex items-center justify-between mb-1">
               <p className="text-green-100 text-sm">Solde disponible</p>
               <button onClick={() => setShowBalance(!showBalance)} className="w-8 h-8 bg-white/15 rounded-full flex items-center justify-center active:scale-90 transition">
@@ -216,7 +216,7 @@ export function WalletPage() {
 
       <div className="px-5 -mt-20 relative z-10">
         {/* Quick actions — 3 boutons uniquement */}
-        <div className="bg-white rounded-3xl shadow-xl shadow-emerald-100/60 p-6 border border-emerald-50">
+        <div className="bg-white rounded-2xl shadow-sm shadow-emerald-100/60 p-6 border border-emerald-50">
           <div className="grid grid-cols-3 gap-6">
             {[
               { icon: Plus, label: "Recharger", gradient: "from-emerald-400 to-green-500", shadow: "shadow-emerald-400/30", action: () => setModal("recharge") },
@@ -224,7 +224,7 @@ export function WalletPage() {
               { icon: Navigation, label: "Régler course", gradient: "from-[#F77F00] to-[#D62828]", shadow: "shadow-orange-400/30", action: () => setModal("payRide") },
             ].map((a) => (
               <button key={a.label} onClick={a.action} className="flex flex-col items-center gap-2 active:scale-90 transition">
-                <div className={`w-14 h-14 rounded-full flex items-center justify-center bg-gradient-to-br ${a.gradient} shadow-lg ${a.shadow}`}>
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center bg-gradient-to-br ${a.gradient} shadow-sm ${a.shadow}`}>
                   <a.icon className="w-5 h-5 text-white" />
                 </div>
                 <span className="text-[11px] text-gray-500">{a.label}</span>
@@ -281,7 +281,7 @@ export function WalletPage() {
           <div className="flex gap-2 mb-4">
             {operators.map(op => (
               <button key={op.name} onClick={() => setSelectedOp(op.name)}
-                className={`flex-1 py-3 rounded-2xl text-sm transition-all ${selectedOp === op.name ? `bg-gradient-to-br ${op.color} text-white shadow-lg ${op.shadow}` : "bg-gray-50 text-gray-600 border border-gray-100"}`}>
+                className={`flex-1 py-3 rounded-2xl text-sm transition-all ${selectedOp === op.name ? `bg-gradient-to-br ${op.color} text-white shadow-sm ${op.shadow}` : "bg-gray-50 text-gray-600 border border-gray-100"}`}>
                 {op.name}
               </button>
             ))}
@@ -310,7 +310,7 @@ export function WalletPage() {
             </div>
           )}
           <button onClick={handleRecharge} disabled={rechargeLoading}
-            className="w-full bg-gradient-to-r from-emerald-400 to-green-500 text-white py-3.5 rounded-2xl text-sm shadow-lg shadow-emerald-400/30 flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-60">
+            className="w-full bg-emerald-400 text-white py-3.5 rounded-2xl text-sm shadow-sm shadow-emerald-400/30 flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-60">
             {rechargeLoading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Check className="w-4 h-4" />}
             {rechargeLoading ? "Traitement..." : "Confirmer la recharge"}
           </button>
@@ -351,7 +351,7 @@ export function WalletPage() {
               else { navigator.clipboard?.writeText(shareData.url); toast.success("Lien copié !"); }
               closeModal();
             }}
-              className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-violet-500 to-purple-600 text-white py-3 rounded-xl text-sm shadow-lg shadow-violet-500/20 active:scale-[0.98] transition">
+              className="flex-1 flex items-center justify-center gap-2 bg-violet-500 text-white py-3 rounded-xl text-sm shadow-sm shadow-violet-500/20 active:scale-[0.98] transition">
               <Share2 className="w-4 h-4" /> Partager
             </button>
           </div>
@@ -397,7 +397,7 @@ export function WalletPage() {
             </div>
           )}
           <button onClick={handlePayRide} disabled={rideLoading}
-            className="w-full bg-gradient-to-r from-[#F77F00] to-[#D62828] text-white py-3.5 rounded-2xl text-sm shadow-lg shadow-orange-400/30 flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-60">
+            className="w-full bg-[#F77F00] text-black py-3.5 rounded-2xl text-sm shadow-sm shadow-orange-400/30 flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-60">
             {rideLoading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Check className="w-4 h-4" />}
             {rideLoading ? "Paiement en cours..." : "Régler la course"}
           </button>
@@ -445,7 +445,7 @@ function ModalOverlay({ onClose, title, children }: { onClose: () => void; title
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-white w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 pb-8 shadow-2xl max-h-[85vh] overflow-y-auto">
+      <div className="relative bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl p-5 pb-8 shadow-sm max-h-[85vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <p className="text-slate-800">{title}</p>
           <button onClick={onClose} className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center active:bg-slate-200 transition">

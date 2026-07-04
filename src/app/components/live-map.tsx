@@ -137,7 +137,7 @@ export function LiveMap() {
             onClick={() => setFilter(t)}
             className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] shadow-md backdrop-blur-sm transition-all ${
               filter === t
-                ? "bg-[#F77F00] text-white shadow-orange-400/30"
+                ? "bg-[#F77F00] text-black shadow-orange-400/30"
                 : "bg-white/90 text-slate-600 hover:bg-white"
             }`}
           >
@@ -150,7 +150,7 @@ export function LiveMap() {
 
       {/* Overlay UI */}
       <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between" style={{ zIndex: 401 }}>
-        <div className="flex items-center gap-1.5 bg-white/95 backdrop-blur-sm rounded-full px-3 py-1.5 text-[11px] shadow-lg text-gray-700">
+        <div className="flex items-center gap-1.5 bg-white/95 backdrop-blur-sm rounded-full px-3 py-1.5 text-[11px] shadow-sm text-gray-700">
           <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
           {filteredDrivers.length} chauffeur{filteredDrivers.length > 1 ? "s" : ""} {filter !== "Tous" ? filter : ""} à proximité
         </div>

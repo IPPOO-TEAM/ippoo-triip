@@ -140,7 +140,7 @@ export function DriverSupportPage() {
       {/* ═══ MAIN VIEW ═══ */}
       {view === "main" && (
         <>
-          <div className="bg-gradient-to-br from-[#F77F00] to-[#E9C46A] pt-12 pb-6 px-5 relative overflow-hidden">
+          <div className="bg-[#F77F00] pt-12 pb-6 px-5 relative overflow-hidden">
             <div className="absolute -right-12 -top-12 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
             <div className="flex items-center gap-3 mb-5">
               <button onClick={() => navigate("/driver")} className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center">
@@ -198,7 +198,7 @@ export function DriverSupportPage() {
             <button onClick={() => setView("main")} className="w-10 h-10 rounded-2xl bg-slate-100 flex items-center justify-center">
               <ChevronLeft className="w-5 h-5 text-slate-600" />
             </button>
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#2A9D8F] to-[#1E6091] flex items-center justify-center">
+            <div className="w-9 h-9 rounded-full bg-[#2A9D8F] flex items-center justify-center">
               <Bot className="w-4 h-4 text-white" />
             </div>
             <div className="flex-1">
@@ -282,7 +282,7 @@ export function DriverSupportPage() {
               className="flex-1 bg-slate-100 rounded-full px-4 py-2.5 text-xs"
               placeholder="Votre question..."
             />
-            <button onClick={sendChatMsg} className="w-10 h-10 rounded-full bg-[#2A9D8F] flex items-center justify-center shadow-lg shadow-emerald-500/20">
+            <button onClick={sendChatMsg} className="w-10 h-10 rounded-full bg-[#2A9D8F] flex items-center justify-center shadow-sm shadow-emerald-500/20">
               <Send className="w-4 h-4 text-white" />
             </button>
           </div>
@@ -402,7 +402,7 @@ export function DriverSupportPage() {
       {/* ═══ EMERGENCY VIEW ═══ */}
       {view === "emergency" && (
         <>
-          <div className="bg-gradient-to-br from-[#D62828] to-[#F77F00] pt-12 pb-6 px-5 relative overflow-hidden">
+          <div className="bg-[#D62828] pt-12 pb-6 px-5 relative overflow-hidden">
             <div className="absolute -right-12 -top-12 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
             <div className="flex items-center gap-3 mb-4">
               <button onClick={() => setView("main")} className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center">

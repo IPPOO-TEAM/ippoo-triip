@@ -78,7 +78,7 @@ export function CouponTicket({ coupon, compact = false }: { coupon: Coupon; comp
 
       {coupon.used && (
         <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-          <div className="bg-slate-600/80 text-white px-5 py-1.5 rounded-xl text-xs -rotate-12 shadow-lg tracking-widest uppercase">
+          <div className="bg-slate-600/80 text-white px-5 py-1.5 rounded-xl text-xs -rotate-12 shadow-sm tracking-widest uppercase">
             Utilise
           </div>
         </div>

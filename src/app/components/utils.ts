@@ -26,6 +26,49 @@ export function getGPSPosition(
   );
 }
 
+/**
+ * Optimise/compresse une image avant upload : redimensionne au plus grand côté
+ * `maxSize` et ré-encode en JPEG à la qualité `quality`. Renvoie un dataURL
+ * léger (idéal pour stocker un avatar sans saturer le stockage).
+ */
+export async function compressImage(
+  file: File,
+  { maxSize = 720, quality = 0.8 }: { maxSize?: number; quality?: number } = {},
+): Promise<string> {
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Le fichier n'est pas une image");
+  }
+  const dataUrl = await new Promise<string>((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result as string);
+    r.onerror = () => reject(r.error);
+    r.readAsDataURL(file);
+  });
+  const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const i = new Image();
+    i.onload = () => resolve(i);
+    i.onerror = () => reject(new Error("Image illisible"));
+    i.src = dataUrl;
+  });
+  const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+  const w = Math.round(img.width * scale);
+  const h = Math.round(img.height * scale);
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return dataUrl; // repli : pas de canvas
+  ctx.drawImage(img, 0, 0, w, h);
+  return canvas.toDataURL("image/jpeg", quality);
+}
+
+/** Taille lisible (Ko/Mo) d'un fichier */
+export function humanFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} o`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} Ko`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
+}
+
 /** Télécharge un Blob sous forme de fichier */
 export function downloadBlob(content: string, filename: string, type = "text/plain;charset=utf-8") {
   const blob = new Blob([content], { type });

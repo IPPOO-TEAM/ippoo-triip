@@ -2,3 +2,39 @@
 @import './tailwind.css';
 @import './theme.css';
 @import './dark-and-data.css';
+
+/* ─── Ressenti « app native » (transverse, sans toucher à la DA) ─── */
+/* Supprime le flash bleu au tap (Android/iOS) sur tous les éléments cliquables */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+/* Lissage des polices façon natif */
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-size-adjust: 100%;
+}
+/* Empêche le rebond / pull-to-refresh parasite du document */
+html,
+body {
+  overscroll-behavior-y: none;
+}
+/* Les contrôles ne sont pas sélectionnables (les contenus texte et champs le restent) */
+button,
+a,
+[role="button"],
+nav,
+label {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+input,
+textarea,
+[contenteditable],
+p,
+span,
+h1, h2, h3, h4 {
+  -webkit-user-select: auto;
+  user-select: auto;
+}

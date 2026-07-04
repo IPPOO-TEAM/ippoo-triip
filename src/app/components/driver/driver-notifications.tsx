@@ -79,7 +79,7 @@ export function DriverNotificationsPage() {
   return (
     <div className="min-h-full bg-slate-50 pb-4">
       {/* Header */}
-      <div className="bg-gradient-to-br from-[#2A9D8F] to-[#1E6091] pt-12 pb-5 px-5 relative overflow-hidden">
+      <div className="bg-[#2A9D8F] pt-12 pb-5 px-5 relative overflow-hidden">
         <div className="absolute -right-12 -top-12 w-40 h-40 bg-white/5 rounded-full blur-2xl" />
         <div className="flex items-center gap-3 mb-4">
           <button onClick={() => navigate("/driver")} className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center">

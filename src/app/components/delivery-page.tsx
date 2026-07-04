@@ -98,7 +98,7 @@ export function DeliveryPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <div className="relative overflow-hidden rounded-b-[2rem] shadow-lg">
+      <div className="relative overflow-hidden rounded-b-[2rem] shadow-sm">
         <img src={deliveryHeaderImg} alt="" className="absolute inset-0 w-full h-[130%] object-cover will-change-transform" style={{ transform: `translateY(-${parallaxY}px) scale(${1 + parallaxY * 0.001})` }} />
         <div className="absolute inset-0 bg-gradient-to-b from-[#F77F00]/85 via-[#F77F00]/70 to-[#E9C46A]/80" />
         <div className="absolute -right-10 -top-10 w-48 h-48 bg-white/15 rounded-full blur-3xl" />
@@ -116,7 +116,7 @@ export function DeliveryPage() {
 
       <div className="px-5 py-5 space-y-5">
         {/* Parcel type */}
-        <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm">
+        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
           <label className="text-sm text-slate-500 mb-3 block">Type de colis</label>
           <div className="grid grid-cols-4 gap-2.5">
             {parcelTypes.map((t) => {
@@ -129,7 +129,7 @@ export function DeliveryPage() {
                     isSelected ? `${t.accent} ${t.lightBg}` : "border-transparent bg-slate-50"
                   }`}
                 >
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isSelected ? `bg-gradient-to-br ${t.gradient} shadow-lg ${t.shadow}` : "bg-slate-100"}`}>
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isSelected ? `bg-gradient-to-br ${t.gradient} shadow-sm ${t.shadow}` : "bg-slate-100"}`}>
                     <t.icon className={`w-4 h-4 ${isSelected ? "text-white" : "text-slate-400"}`} />
                   </div>
                   <span className="text-[11px]">{t.label}</span>
@@ -152,7 +152,7 @@ export function DeliveryPage() {
         />
         <button
           onClick={handleTakePhoto}
-          className={`w-full border-2 border-dashed rounded-3xl p-6 flex flex-col items-center gap-2 transition ${
+          className={`w-full border-2 border-dashed rounded-2xl p-6 flex flex-col items-center gap-2 transition ${
             photoTaken
               ? "border-emerald-300 bg-emerald-50/30"
               : "border-orange-200 bg-white hover:bg-orange-50/30"
@@ -164,7 +164,7 @@ export function DeliveryPage() {
                 <img src={photoPreview} alt="Colis" className="w-24 h-24 object-cover rounded-2xl mb-1 shadow-md" />
               )}
               {!photoPreview && (
-                <div className="w-14 h-14 bg-gradient-to-br from-emerald-400 to-green-600 rounded-2xl flex items-center justify-center shadow-lg shadow-green-500/25">
+                <div className="w-14 h-14 bg-emerald-400 rounded-2xl flex items-center justify-center shadow-sm shadow-green-500/25">
                   <Check className="w-6 h-6 text-white" />
                 </div>
               )}
@@ -173,7 +173,7 @@ export function DeliveryPage() {
             </>
           ) : (
             <>
-              <div className="w-14 h-14 bg-gradient-to-br from-orange-400 to-rose-500 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/25">
+              <div className="w-14 h-14 bg-orange-400 rounded-2xl flex items-center justify-center shadow-sm shadow-orange-500/25">
                 <Camera className="w-6 h-6 text-white" />
               </div>
               <span className="text-sm text-slate-500">Prendre une photo du colis</span>
@@ -183,7 +183,7 @@ export function DeliveryPage() {
         </button>
 
         {/* Description */}
-        <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm">
+        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
           <label className="text-sm text-slate-500 mb-2 block">Description du colis (optionnel)</label>
           <textarea
             placeholder="Ex: Carton contenant des vetements..."
@@ -195,10 +195,10 @@ export function DeliveryPage() {
         </div>
 
         {/* Addresses */}
-        <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm">
+        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
           <label className="text-sm text-slate-500 mb-3 block">Itineraire</label>
           <div className="relative pl-8">
-            <div className="absolute left-3 top-5 bottom-5 w-[2px] bg-gradient-to-b from-emerald-400 to-orange-500 rounded-full" />
+            <div className="absolute left-3 top-5 bottom-5 w-[2px] bg-emerald-400 rounded-full" />
             <div className="absolute left-[6px] top-3.5 w-3 h-3 rounded-full bg-emerald-400 shadow-md shadow-emerald-400/40 border-2 border-white" />
             <div className="absolute left-[6px] bottom-3.5 w-3 h-3 rounded-full bg-orange-500 shadow-md shadow-orange-500/40 border-2 border-white" />
             <div className="space-y-2.5">
@@ -242,7 +242,7 @@ export function DeliveryPage() {
         </div>
 
         {/* Recipient */}
-        <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm space-y-2.5">
+        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm space-y-2.5">
           <label className="text-sm text-slate-500">Destinataire</label>
           <div className="flex items-center gap-3 bg-slate-50 rounded-2xl px-4 py-3 border border-slate-100 focus-within:border-violet-300 transition">
             <User className="w-4 h-4 text-violet-500" />
@@ -255,7 +255,7 @@ export function DeliveryPage() {
         </div>
 
         {/* Delivery type */}
-        <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm">
+        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
           <label className="text-sm text-slate-500 mb-3 block">Type de livraison</label>
           <div className="grid grid-cols-2 gap-2.5">
             <button
@@ -264,7 +264,7 @@ export function DeliveryPage() {
                 deliveryType === "express" ? "border-orange-400 bg-orange-50" : "border-transparent bg-slate-50"
               }`}
             >
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${deliveryType === "express" ? "bg-gradient-to-br from-orange-400 to-rose-500 shadow-lg shadow-orange-500/25" : "bg-slate-100"}`}>
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${deliveryType === "express" ? "bg-orange-400 shadow-sm shadow-orange-500/25" : "bg-slate-100"}`}>
                 <Zap className={`w-5 h-5 ${deliveryType === "express" ? "text-white" : "text-slate-400"}`} />
               </div>
               <div className="text-left">
@@ -278,7 +278,7 @@ export function DeliveryPage() {
                 deliveryType === "standard" ? "border-blue-400 bg-blue-50" : "border-transparent bg-slate-50"
               }`}
             >
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${deliveryType === "standard" ? "bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/25" : "bg-slate-100"}`}>
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${deliveryType === "standard" ? "bg-blue-500 shadow-sm shadow-blue-500/25" : "bg-slate-100"}`}>
                 <Clock className={`w-5 h-5 ${deliveryType === "standard" ? "text-white" : "text-slate-400"}`} />
               </div>
               <div className="text-left">
@@ -294,7 +294,7 @@ export function DeliveryPage() {
           <button
             onClick={() => setPayer("me")}
             className={`flex-1 py-3.5 rounded-2xl text-sm transition-all ${
-              payer === "me" ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/25" : "bg-white text-slate-600 border border-slate-100"
+              payer === "me" ? "bg-blue-500 text-white shadow-sm shadow-blue-500/25" : "bg-white text-slate-600 border border-slate-100"
             }`}
           >
             Moi (expediteur)
@@ -302,7 +302,7 @@ export function DeliveryPage() {
           <button
             onClick={() => setPayer("dest")}
             className={`flex-1 py-3.5 rounded-2xl text-sm transition-all ${
-              payer === "dest" ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/25" : "bg-white text-slate-600 border border-slate-100"
+              payer === "dest" ? "bg-blue-500 text-white shadow-sm shadow-blue-500/25" : "bg-white text-slate-600 border border-slate-100"
             }`}
           >
             Destinataire
@@ -332,7 +332,7 @@ export function DeliveryPage() {
         <button
           onClick={handleOrder}
           disabled={ordering}
-          className={`w-full bg-gradient-to-r from-orange-400 to-rose-500 text-white py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-orange-500/25 transition-transform ${ordering ? "opacity-70 scale-[0.98]" : "active:scale-[0.98]"}`}
+          className={`w-full bg-orange-400 text-white py-4 rounded-2xl flex items-center justify-center gap-2 shadow-sm shadow-orange-500/25 transition-transform ${ordering ? "opacity-70 scale-[0.98]" : "active:scale-[0.98]"}`}
         >
           {ordering ? (
             <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Envoi en cours...</>

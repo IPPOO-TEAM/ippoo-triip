@@ -36,7 +36,7 @@ export function SosButton({ rideId, className }: Props) {
         type="button"
         aria-label={t("sos.title")}
         onClick={() => setOpen(true)}
-        className={`fixed bottom-24 right-4 z-40 w-14 h-14 rounded-full bg-[#D62828] text-white shadow-lg flex items-center justify-center active:scale-95 transition ${className ?? ""}`}
+        className={`fixed bottom-24 right-4 z-40 w-14 h-14 rounded-full bg-[#D62828] text-white shadow-sm flex items-center justify-center active:scale-95 transition ${className ?? ""}`}
       >
         <AlertOctagon className="w-6 h-6" aria-hidden />
       </button>

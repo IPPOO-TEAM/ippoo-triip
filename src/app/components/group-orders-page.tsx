@@ -176,7 +176,7 @@ export function GroupOrdersPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="relative overflow-hidden rounded-b-[2rem] shadow-lg">
+      <div className="relative overflow-hidden rounded-b-[2rem] shadow-sm">
         <ImageWithFallback src={GROUP_IMG} alt="" className="absolute inset-0 w-full h-[130%] object-cover will-change-transform" style={{ transform: `translateY(-${parallaxY}px) scale(${1 + parallaxY * 0.001})` }} />
         <div className="absolute inset-0 bg-gradient-to-b from-violet-600/85 via-violet-600/70 to-purple-800/80" />
         <div className="absolute -right-10 -top-10 w-48 h-48 bg-[#E9C46A]/20 rounded-full blur-3xl" />
@@ -194,13 +194,13 @@ export function GroupOrdersPage() {
           <div className="flex gap-2 bg-white/10 p-1.5 rounded-2xl backdrop-blur-sm border border-white/10">
             <button
               onClick={() => { setTab("join"); setSelectedGroup(null); }}
-              className={`flex-1 py-2.5 rounded-xl text-sm transition-all ${tab === "join" ? "bg-white text-violet-600 shadow-lg" : "text-white"}`}
+              className={`flex-1 py-2.5 rounded-xl text-sm transition-all ${tab === "join" ? "bg-white text-violet-600 shadow-sm" : "text-white"}`}
             >
               Mes groupes
             </button>
             <button
               onClick={() => { setTab("create"); setSelectedGroup(null); }}
-              className={`flex-1 py-2.5 rounded-xl text-sm transition-all ${tab === "create" ? "bg-white text-violet-600 shadow-lg" : "text-white"}`}
+              className={`flex-1 py-2.5 rounded-xl text-sm transition-all ${tab === "create" ? "bg-white text-violet-600 shadow-sm" : "text-white"}`}
             >
               Creer un groupe
             </button>
@@ -233,7 +233,7 @@ export function GroupOrdersPage() {
 
             {groups.length === 0 && (
               <div className="text-center py-12">
-                <div className="w-16 h-16 bg-violet-50 rounded-3xl flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-violet-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <Users className="w-7 h-7 text-violet-400" />
                 </div>
                 <p className="text-slate-500 text-sm mb-1">Aucun groupe</p>
@@ -254,13 +254,13 @@ export function GroupOrdersPage() {
                   </div>
                   <div className="flex items-center gap-4 text-xs text-slate-400 mb-3">
                     <span className="flex items-center gap-1.5">
-                      <div className="w-6 h-6 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center">
+                      <div className="w-6 h-6 bg-violet-500 rounded-lg flex items-center justify-center">
                         <Users className="w-3 h-3 text-white" />
                       </div>
                       {g.members.length} membres
                     </span>
                     <span className="flex items-center gap-1.5">
-                      <div className="w-6 h-6 bg-gradient-to-br from-orange-400 to-rose-500 rounded-lg flex items-center justify-center">
+                      <div className="w-6 h-6 bg-orange-400 rounded-lg flex items-center justify-center">
                         <Package className="w-3 h-3 text-white" />
                       </div>
                       {g.totalItems} articles
@@ -285,7 +285,7 @@ export function GroupOrdersPage() {
                           toast.success("Articles ajoutes au groupe", { description: `+2 articles dans "${g.name}"` });
                           setGroups(prev => prev.map(gr => gr.id === g.id ? { ...gr, totalItems: gr.totalItems + 2, totalAmount: gr.totalAmount + 1500 } : gr));
                         }}
-                        className="flex items-center gap-1.5 bg-gradient-to-r from-violet-500 to-purple-600 text-white text-sm px-4 py-2.5 rounded-xl shadow-lg shadow-violet-500/20"
+                        className="flex items-center gap-1.5 bg-violet-500 text-white text-sm px-4 py-2.5 rounded-xl shadow-sm shadow-violet-500/20"
                       >
                         <ShoppingCart className="w-3.5 h-3.5" /> Ajouter
                       </button>
@@ -296,7 +296,7 @@ export function GroupOrdersPage() {
             })}
 
             {/* Join existing */}
-            <div className="bg-violet-50/50 rounded-3xl p-5 border border-violet-100">
+            <div className="bg-violet-50/50 rounded-2xl p-5 border border-violet-100">
               <p className="text-sm text-center text-slate-600 mb-4">Rejoindre un groupe existant</p>
               <div className="flex items-center gap-2 bg-white rounded-2xl px-4 py-3 border border-slate-100 mb-3">
                 <Link2 className="w-4 h-4 text-violet-500" />
@@ -317,7 +317,7 @@ export function GroupOrdersPage() {
                 </button>
                 <button
                   onClick={handleJoinByCode}
-                  className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-violet-500 to-purple-600 text-white py-3.5 rounded-2xl text-sm shadow-lg shadow-violet-500/20"
+                  className="flex-1 flex items-center justify-center gap-2 bg-violet-500 text-white py-3.5 rounded-2xl text-sm shadow-sm shadow-violet-500/20"
                 >
                   <Check className="w-4 h-4" /> Rejoindre
                 </button>
@@ -333,7 +333,7 @@ export function GroupOrdersPage() {
               <ChevronLeft className="w-4 h-4" /> Retour aux groupes
             </button>
 
-            <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm">
+            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="title-gradient">{selectedGroup.name}</h3>
                 <span className={`text-[10px] px-2.5 py-1 rounded-full ${statusConfig[selectedGroup.status].color}`}>
@@ -350,7 +350,7 @@ export function GroupOrdersPage() {
               <div className="space-y-2 mb-4">
                 {selectedGroup.members.map((m) => (
                   <div key={m.id} className="flex items-center gap-3 bg-slate-50 rounded-xl p-3">
-                    <div className="w-9 h-9 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center">
+                    <div className="w-9 h-9 bg-violet-500 rounded-xl flex items-center justify-center">
                       <span className="text-white text-xs">{m.name.charAt(0)}</span>
                     </div>
                     <div className="flex-1">
@@ -401,7 +401,7 @@ export function GroupOrdersPage() {
             {/* QR Code Modal */}
             {showGroupQr && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowGroupQr(false)}>
-                <div className="bg-white rounded-3xl p-6 mx-5 shadow-2xl" onClick={e => e.stopPropagation()}>
+                <div className="bg-white rounded-2xl p-6 mx-5 shadow-sm" onClick={e => e.stopPropagation()}>
                   <p className="text-center text-slate-800 mb-4">QR Code du groupe</p>
                   <div className="flex justify-center mb-4">
                     <QRCodeSVG
@@ -437,7 +437,7 @@ export function GroupOrdersPage() {
         {/* ═══ CREER UN GROUPE ═══ */}
         {tab === "create" && (
           <div className="space-y-4">
-            <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm space-y-3">
+            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm space-y-3">
               <label className="text-sm text-slate-500">Informations du groupe</label>
               <div className="bg-slate-50 rounded-2xl px-4 py-3.5 border border-slate-100 focus-within:border-violet-300 transition">
                 <input placeholder="Nom du groupe (ex: Commande campus)" value={groupName} onChange={(e) => setGroupName(e.target.value)} className="w-full bg-transparent outline-none text-sm" />
@@ -448,7 +448,7 @@ export function GroupOrdersPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm">
+            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
               <p className="text-sm mb-4 text-slate-600">Inviter des membres</p>
               <div className="bg-slate-50 rounded-2xl px-4 py-3 border border-slate-100 mb-3 flex items-center gap-2">
                 <Link2 className="w-4 h-4 text-slate-400" />
@@ -492,7 +492,7 @@ export function GroupOrdersPage() {
 
             <button
               onClick={handleCreateGroup}
-              className="w-full bg-gradient-to-r from-violet-500 to-purple-600 text-white py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-violet-500/25 active:scale-[0.98] transition-transform"
+              className="w-full bg-violet-500 text-white py-4 rounded-2xl flex items-center justify-center gap-2 shadow-sm shadow-violet-500/25 active:scale-[0.98] transition-transform"
             >
               <Plus className="w-4 h-4" /> Creer le groupe
             </button>

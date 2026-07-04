@@ -6,7 +6,7 @@
  * colorés (header). Pensé compact pour le mobile afin de ne pas gêner les
  * autres éléments du header.
  */
-import triipLogo from "../../imports/triip_fav.jpg";
+import triipLogo from "../../imports/triip_fav-1.jpg";
 
 export function BrandLogo({
   height = 24,
