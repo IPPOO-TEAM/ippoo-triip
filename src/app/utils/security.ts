@@ -13,10 +13,14 @@ export function sanitizeId(id: string): string {
 
 /**
  * Sanitizes a color value to prevent CSS injection.
- * Strips characters that could be used to break out of a CSS rule or the <style> tag.
+ * Strips characters and keywords that could be used for CSS injection or XSS.
  */
 export function sanitizeColor(color: string): string {
   if (!color) return "";
-  // Remove characters that could be used for CSS injection or closing the style tag
-  return color.replace(/[;}\\]|<\/style>/gi, "");
+  // Block common CSS injection patterns
+  if (/(url\(|expression\(|javascript:|<\/style>)/gi.test(color)) {
+    return "transparent";
+  }
+  // Strip characters that can break out of a CSS rule
+  return color.replace(/[;}\\]/g, "");
 }
