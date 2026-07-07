@@ -3,7 +3,7 @@
 import * as React from "react";
 import * as RechartsPrimitive from "recharts";
 
-import { sanitizeColor, sanitizeId } from "../utils/security";
+import { sanitizeColor, sanitizeId } from "../../utils/security";
 import { cn } from "./utils";
 
 // Format: { THEME_NAME: CSS_SELECTOR }
