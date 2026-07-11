@@ -1,0 +1,4 @@
+## 2025-05-15 - [XSS via CSS Injection in Charts]
+**Vulnerability:** The `ChartStyle` component used `dangerouslySetInnerHTML` to inject user-provided or config-provided IDs and colors directly into a `<style>` tag without sanitization. An attacker could provide a malicious ID like `chart-id] { } </style><script>alert(1)</script>` to execute arbitrary JS.
+**Learning:** Even within CSS contexts, `dangerouslySetInnerHTML` is extremely risky. Standard CSS sanitization must be applied to any value injected into a style tag.
+**Prevention:** Use a centralized sanitization utility for any string injected into `dangerouslySetInnerHTML`. For CSS, use a strict whitelist for identifiers (alphanumeric, -, _) and a blacklist/filter for values (block `url(`, `expression(`, etc., and strip `;`, `}`, `\`).
