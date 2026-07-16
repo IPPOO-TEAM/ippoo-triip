@@ -9,7 +9,7 @@ import { AfricanPattern } from "./icons";
 import { toast } from "sonner";
 import { downloadBlob } from "./utils";
 import { api } from "../api/client";
-import articleImg from "../../imports/article3.jpg";
+import articleImg from "../../assets/article3.jpg";
 
 type Category = "all" | "courses" | "livraisons" | "groupees" | "biens";
 
