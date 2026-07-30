@@ -1,0 +1,4 @@
+## 2026-07-30 - Dynamic CSS Injection in ChartStyle
+**Vulnerability:** The ChartStyle component injected un-sanitized dynamic config keys, theme names, and color values into a dynamic style tag using dangerouslySetInnerHTML, leading to potential CSS injection and Cross-Site Scripting (XSS).
+**Learning:** Recharts wrapper components in React that generate local stylesheets dynamically are susceptible to stylesheet breakouts or execution of active content (like expression or javascript) if the dynamic values are not properly sanitized.
+**Prevention:** Sanitize CSS identifiers using regex targeting alphanumeric characters with hyphens and underscores (`/[^a-zA-Z0-9-_]/g`), and sanitize CSS values by blocking dangerous constructs (`url(`, `expression(`, `javascript:`, and `</style>`) while stripping separator characters like semicolon, closing brace, and backslash.
