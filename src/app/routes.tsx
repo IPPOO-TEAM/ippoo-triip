@@ -1,50 +1,61 @@
 import { createBrowserRouter } from "react-router";
-import { AppLayout } from "./components/app-layout";
-import { HomePage } from "./components/home-page";
-import { LoginPage } from "./components/login-page";
-import { OnboardingPage } from "./components/onboarding-page";
-import { BookRidePage } from "./components/book-ride-page";
-import { DeliveryPage } from "./components/delivery-page";
-import { HeavyTransportPage } from "./components/heavy-transport-page";
-import { GroupOrdersPage } from "./components/group-orders-page";
-import { CarpoolPage } from "./components/carpool-page";
-import { WalletPage } from "./components/wallet-page";
-import { HistoryPage } from "./components/history-page";
-import { NotificationsPage } from "./components/notifications-page";
-import { ProfilePage } from "./components/profile-page";
-import { SupportPage } from "./components/support-page";
-import { RideTrackingPage } from "./components/ride-tracking-page";
-import { CouponsPage } from "./components/coupons-page";
-import { PromoDetailPage } from "./components/promo-detail-page";
-import { NotFoundPage } from "./components/not-found-page";
-import { SubscriptionsPage } from "./components/subscriptions-page";
-import { LOAPage } from "./components/loa-page";
-import { RatingPage } from "./components/rating-page";
-import { MissionPage } from "./components/mission-page";
-import { ReferralPage } from "./components/referral-page";
-import { LOARotationPage } from "./components/loa-rotation-page";
-import { AirFreightPage } from "./components/air-freight-page";
-import { LandingPage } from "./components/landing-page";
-import { DriverLayout } from "./components/driver/driver-layout";
-import { DriverHomePage } from "./components/driver/driver-home";
-import { DriverMissionsPage } from "./components/driver/driver-missions";
-import { DriverEarningsPage } from "./components/driver/driver-earnings";
-import { DriverHistoryPage } from "./components/driver/driver-history";
-import { DriverNotificationsPage } from "./components/driver/driver-notifications";
-import { DriverProfilePage } from "./components/driver/driver-profile";
-import { DriverTrackingPage } from "./components/driver/driver-tracking";
-import { DriverRatingPage } from "./components/driver/driver-rating";
-import { DriverSupportPage } from "./components/driver/driver-support";
-import { AdminLayout } from "./components/admin/admin-layout";
-import { AdminDashboardPage } from "./components/admin/admin-dashboard";
-import { AdminOffersPage } from "./components/admin/admin-offers";
-import { AdminUsersPage } from "./components/admin/admin-users";
-import { AdminDriversPage } from "./components/admin/admin-drivers";
-import { AdminRidesPage } from "./components/admin/admin-rides";
-import { AdminFinancesPage } from "./components/admin/admin-finances";
-import { AdminSupportPage } from "./components/admin/admin-support";
-import { AdminNotificationsPage } from "./components/admin/admin-notifications";
-import { AdminSettingsPage } from "./components/admin/admin-settings";
+import { lazyRoute } from "./utils/lazy-route";
+
+// Standalone pages
+const LandingPage = lazyRoute(() => import("./components/landing-page"), "LandingPage");
+const OnboardingPage = lazyRoute(() => import("./components/onboarding-page"), "OnboardingPage");
+const LoginPage = lazyRoute(() => import("./components/login-page"), "LoginPage");
+
+// Layouts
+const AppLayout = lazyRoute(() => import("./components/app-layout"), "AppLayout");
+const DriverLayout = lazyRoute(() => import("./components/driver/driver-layout"), "DriverLayout");
+const AdminLayout = lazyRoute(() => import("./components/admin/admin-layout"), "AdminLayout");
+
+// Client Child Pages
+const HomePage = lazyRoute(() => import("./components/home-page"), "HomePage");
+const BookRidePage = lazyRoute(() => import("./components/book-ride-page"), "BookRidePage");
+const DeliveryPage = lazyRoute(() => import("./components/delivery-page"), "DeliveryPage");
+const HeavyTransportPage = lazyRoute(() => import("./components/heavy-transport-page"), "HeavyTransportPage");
+const GroupOrdersPage = lazyRoute(() => import("./components/group-orders-page"), "GroupOrdersPage");
+const CarpoolPage = lazyRoute(() => import("./components/carpool-page"), "CarpoolPage");
+const WalletPage = lazyRoute(() => import("./components/wallet-page"), "WalletPage");
+const HistoryPage = lazyRoute(() => import("./components/history-page"), "HistoryPage");
+const NotificationsPage = lazyRoute(() => import("./components/notifications-page"), "NotificationsPage");
+const ProfilePage = lazyRoute(() => import("./components/profile-page"), "ProfilePage");
+const SupportPage = lazyRoute(() => import("./components/support-page"), "SupportPage");
+const RideTrackingPage = lazyRoute(() => import("./components/ride-tracking-page"), "RideTrackingPage");
+const CouponsPage = lazyRoute(() => import("./components/coupons-page"), "CouponsPage");
+const PromoDetailPage = lazyRoute(() => import("./components/promo-detail-page"), "PromoDetailPage");
+const NotFoundPage = lazyRoute(() => import("./components/not-found-page"), "NotFoundPage");
+const SubscriptionsPage = lazyRoute(() => import("./components/subscriptions-page"), "SubscriptionsPage");
+const LOAPage = lazyRoute(() => import("./components/loa-page"), "LOAPage");
+const RatingPage = lazyRoute(() => import("./components/rating-page"), "RatingPage");
+const MissionPage = lazyRoute(() => import("./components/mission-page"), "MissionPage");
+const ReferralPage = lazyRoute(() => import("./components/referral-page"), "ReferralPage");
+const LOARotationPage = lazyRoute(() => import("./components/loa-rotation-page"), "LOARotationPage");
+const AirFreightPage = lazyRoute(() => import("./components/air-freight-page"), "AirFreightPage");
+
+// Driver Child Pages
+const DriverHomePage = lazyRoute(() => import("./components/driver/driver-home"), "DriverHomePage");
+const DriverMissionsPage = lazyRoute(() => import("./components/driver/driver-missions"), "DriverMissionsPage");
+const DriverEarningsPage = lazyRoute(() => import("./components/driver/driver-earnings"), "DriverEarningsPage");
+const DriverHistoryPage = lazyRoute(() => import("./components/driver/driver-history"), "DriverHistoryPage");
+const DriverNotificationsPage = lazyRoute(() => import("./components/driver/driver-notifications"), "DriverNotificationsPage");
+const DriverProfilePage = lazyRoute(() => import("./components/driver/driver-profile"), "DriverProfilePage");
+const DriverTrackingPage = lazyRoute(() => import("./components/driver/driver-tracking"), "DriverTrackingPage");
+const DriverRatingPage = lazyRoute(() => import("./components/driver/driver-rating"), "DriverRatingPage");
+const DriverSupportPage = lazyRoute(() => import("./components/driver/driver-support"), "DriverSupportPage");
+
+// Admin Child Pages
+const AdminDashboardPage = lazyRoute(() => import("./components/admin/admin-dashboard"), "AdminDashboardPage");
+const AdminOffersPage = lazyRoute(() => import("./components/admin/admin-offers"), "AdminOffersPage");
+const AdminUsersPage = lazyRoute(() => import("./components/admin/admin-users"), "AdminUsersPage");
+const AdminDriversPage = lazyRoute(() => import("./components/admin/admin-drivers"), "AdminDriversPage");
+const AdminRidesPage = lazyRoute(() => import("./components/admin/admin-rides"), "AdminRidesPage");
+const AdminFinancesPage = lazyRoute(() => import("./components/admin/admin-finances"), "AdminFinancesPage");
+const AdminSupportPage = lazyRoute(() => import("./components/admin/admin-support"), "AdminSupportPage");
+const AdminNotificationsPage = lazyRoute(() => import("./components/admin/admin-notifications"), "AdminNotificationsPage");
+const AdminSettingsPage = lazyRoute(() => import("./components/admin/admin-settings"), "AdminSettingsPage");
 
 export const router = createBrowserRouter([
   {
