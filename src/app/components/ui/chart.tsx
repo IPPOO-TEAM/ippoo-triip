@@ -69,6 +69,8 @@ function ChartContainer({
   );
 }
 
+import { sanitizeCSSIdentifier, sanitizeCSSValue } from "../../utils/security";
+
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(
     ([, config]) => config.theme || config.color,
@@ -78,23 +80,31 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
     return null;
   }
 
+  const cleanId = sanitizeCSSIdentifier(id);
+
   return (
     <style
       dangerouslySetInnerHTML={{
         __html: Object.entries(THEMES)
           .map(
-            ([theme, prefix]) => `
-${prefix} [data-chart=${id}] {
-${colorConfig
-  .map(([key, itemConfig]) => {
-    const color =
-      itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
-      itemConfig.color;
-    return color ? `  --color-${key}: ${color};` : null;
-  })
-  .join("\n")}
-}
-`,
+            ([theme, prefix]) => {
+              // prefix is a trusted internal constant (e.g. ".dark" or "") from the THEMES map
+              const lines = colorConfig
+                .map(([key, itemConfig]) => {
+                  const color =
+                    itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
+                    itemConfig.color;
+                  if (!color) return null;
+                  const cleanKey = sanitizeCSSIdentifier(key);
+                  const cleanColor = sanitizeCSSValue(color);
+                  return cleanKey && cleanColor ? `  --color-${cleanKey}: ${cleanColor};` : null;
+                })
+                .filter(Boolean)
+                .join("\n");
+
+              if (!lines) return "";
+              return `\n${prefix} [data-chart=${cleanId}] {\n${lines}\n}`;
+            }
           )
           .join("\n"),
       }}
