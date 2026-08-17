@@ -1,0 +1,4 @@
+## 2025-05-18 - CSS Injection in Dynamic Chart Styles
+**Vulnerability:** The `ChartStyle` component in `src/app/components/ui/chart.tsx` rendered user/config-supplied chart identifiers, series keys, and color strings directly inside an inline `<style>` element using `dangerouslySetInnerHTML`. Unchecked input could allow CSS injection or XSS breakout out of `<style>` tags.
+**Learning:** When sanitizing dynamic selectors or properties for raw CSS generation, static trusted theme prefixes (e.g., `.dark`) must not be passed through identifier sanitization (which strips leading dots), while dynamic IDs, keys, and values require strict alphanumeric filtering and character neutralization (e.g. `;`, `{`, `}`, `\`, `url()`, `expression()`, `javascript:`).
+**Prevention:** Centralize CSS sanitization utilities in `src/app/utils/security.ts` and use `sanitizeCSSIdentifier` and `sanitizeCSSValue` for all dynamically generated `<style>` rules.
