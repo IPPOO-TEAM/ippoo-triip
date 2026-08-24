@@ -74,22 +74,10 @@
   "devDependencies": {
     "@tailwindcss/vite": "4.1.12",
     "@vitejs/plugin-react": "4.7.0",
-    "jsdom": "^30.0.1",
+    "jsdom": "30.0.1",
     "tailwindcss": "4.1.12",
     "vite": "6.3.5",
-    "vitest": "^4.1.11"
-  },
-  "peerDependencies": {
-    "react": "18.3.1",
-    "react-dom": "18.3.1"
-  },
-  "peerDependenciesMeta": {
-    "react": {
-      "optional": true
-    },
-    "react-dom": {
-      "optional": true
-    }
+    "vitest": "4.1.11"
   },
   "pnpm": {
     "overrides": {
