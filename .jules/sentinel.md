@@ -1,0 +1,4 @@
+## 2025-02-18 - Dynamic CSS Sanitization in Chart Components
+**Vulnerability:** Unsanitized dynamic IDs, keys, and color values injected into `<style dangerouslySetInnerHTML={{...}} />` in `ChartStyle` allowed potential CSS injection and XSS breakout.
+**Learning:** React components injecting dynamic styles via `dangerouslySetInnerHTML` can evaluate arbitrary CSS declarations or break out of style blocks if dynamic variables (IDs, config keys, colors) are unescaped. However, static internal theme selectors (e.g., `.dark`) must not be stripped by identifier sanitizers as dot prefixes are required for standard CSS class selector compilation.
+**Prevention:** Centralize CSS sanitization in `src/app/utils/security.ts`. Strip non-alphanumeric/hyphen/underscore characters from dynamic identifiers and sanitize dynamic CSS values to block `url()`, `expression()`, `javascript:`, and `</style>` while removing CSS delimiter characters `;`, `{`, `}`, and `\`.
