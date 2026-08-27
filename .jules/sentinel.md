@@ -1,0 +1,4 @@
+## 2026-06-26 - Dynamic CSS Injection Sanitization in Chart Components
+**Vulnerability:** `ChartStyle` in `src/app/components/ui/chart.tsx` rendered custom CSS rules inside `<style dangerouslySetInnerHTML={{ __html: ... }}>` using unsanitized identifier (`id`, `key`) and color value inputs.
+**Learning:** Component properties passed to chart configurations or custom themes can be manipulated to inject malicious CSS selectors, break out of standard rule blocks (`}`), or inject script tags (`</style><script>`). Standard HTML escaping doesn't apply within `<style>` blocks.
+**Prevention:** Always sanitize dynamic inputs embedded within CSS strings using strict regex patterns (`sanitizeCSSIdentifier` allowing only `/^a-zA-Z0-9-_/` for keys/IDs, and `sanitizeCSSValue` stripping dangerous functions `url(`, `expression(`, `javascript:`, `</style>` and syntax characters `;`, `{`, `}`, `\`).
