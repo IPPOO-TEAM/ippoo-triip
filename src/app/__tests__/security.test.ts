@@ -33,15 +33,15 @@ describe("Security Utils - CSS Sanitization", () => {
       expect(sanitizeCSSValue("rgb(255, 0, 0)")).toBe("rgb(255, 0, 0)");
     });
 
-    it("strips potentially dangerous CSS injection constructs", () => {
+    it("strips potentially dangerous CSS injection constructs and handles nested bypasses", () => {
       expect(sanitizeCSSValue("red; background: blue")).toBe("red background: blue");
       expect(sanitizeCSSValue("url(https://attacker.com/cookie.png)")).toBe(
-        "https://attacker.com/cookie.png)",
+        "https:attacker.comcookie.png)",
       );
       expect(sanitizeCSSValue("expression(alert(1))")).toBe("alert(1))");
       expect(sanitizeCSSValue("javascript:alert(1)")).toBe("alert(1)");
-      expect(sanitizeCSSValue("red</style><script>alert(1)</script>")).toBe(
-        "red><script>alert(1)</script>",
+      expect(sanitizeCSSValue("red</s</style>tyle><script>alert(1)</script>")).toBe(
+        "redscriptalert(1)script",
       );
       expect(sanitizeCSSValue("blue\\;")).toBe("blue");
     });

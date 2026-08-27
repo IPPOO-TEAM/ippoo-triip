@@ -13,11 +13,18 @@ export function sanitizeCSSIdentifier(str: string): string {
  */
 export function sanitizeCSSValue(str: string): string {
   if (!str) return "";
-  return str
-    .replace(/url\(/gi, "")
-    .replace(/expression\(/gi, "")
-    .replace(/javascript:/gi, "")
-    .replace(/<\/style/gi, "")
-    .replace(/[;{}\\]/g, "")
-    .trim();
+  let clean = str;
+  let previous = "";
+  // First strip HTML brackets and delimiters
+  clean = clean.replace(/[;{}\\[\]<>'"\/]/g, "");
+  // Iteratively strip harmful patterns until fixed point to prevent nested bypasses
+  while (clean !== previous) {
+    previous = clean;
+    clean = clean
+      .replace(/url\(/gi, "")
+      .replace(/expression\(/gi, "")
+      .replace(/javascript:/gi, "")
+      .replace(/style/gi, "");
+  }
+  return clean.trim();
 }
