@@ -1,24 +1,25 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import {
-  ChevronLeft, Navigation, Clock, MessageSquare, Plus, ChevronRight, MapPin, Info, Zap, Calendar, X, Star, UserCheck
+  Navigation, MessageSquare, Plus, ChevronRight, MapPin, Info, Zap, Calendar, X, Star, UserCheck, Car
 } from "lucide-react";
-import { IconMoto, IconTricycle, IconVoiture, IconMinibus, AfricanPattern, Badge } from "./icons";
+import { IconMoto, IconTricycle, IconVoiture, IconMinibus } from "./icons";
 import { toast } from "sonner";
 import { getGPSPosition } from "./utils";
 import { api } from "../api/client";
 import { usePlatformConfig } from "../store/platform-config";
+import { M3Page, M3Card, M3Button, SectionHeader, StatTile } from "./m3";
 
 /** Coordonnée par défaut (centre Cotonou) pour seeder les points sans GPS. */
 const COTONOU = { lat: 6.3654, lng: 2.4183 };
 
-/* Visuel uniquement — les tarifs (basePrice/maxPrice/perKm) et le libellé
+/* Visuel uniquement - les tarifs (basePrice/maxPrice/perKm) et le libellé
    proviennent du store central, éditables depuis le back office admin. */
 const vehicleVisuals = [
-  { id: "moto", Icon: IconMoto, label: "Moto", time: "5 min", gradient: "from-blue-500 to-indigo-600", shadow: "shadow-blue-500/25", lightBg: "bg-blue-50", lightColor: "text-blue-600", accent: "border-blue-500" },
-  { id: "tricycle", Icon: IconTricycle, label: "Tricycle", time: "8 min", gradient: "from-cyan-500 to-teal-600", shadow: "shadow-cyan-500/25", lightBg: "bg-cyan-50", lightColor: "text-cyan-600", accent: "border-cyan-500" },
-  { id: "voiture", Icon: IconVoiture, label: "Voiture", time: "7 min", gradient: "from-emerald-500 to-green-600", shadow: "shadow-green-500/25", lightBg: "bg-emerald-50", lightColor: "text-emerald-600", accent: "border-emerald-500" },
-  { id: "minibus", Icon: IconMinibus, label: "Mini-bus", time: "12 min", gradient: "from-violet-500 to-purple-600", shadow: "shadow-violet-500/25", lightBg: "bg-violet-50", lightColor: "text-violet-600", accent: "border-violet-500" },
+  { id: "moto", Icon: IconMoto, label: "Moto", time: "5 min" },
+  { id: "tricycle", Icon: IconTricycle, label: "Tricycle", time: "8 min" },
+  { id: "voiture", Icon: IconVoiture, label: "Voiture", time: "7 min" },
+  { id: "minibus", Icon: IconMinibus, label: "Mini-bus", time: "12 min" },
 ];
 
 const suggestedPlaces = [
@@ -68,7 +69,7 @@ export function BookRidePage() {
   const selectedVehicle = vehicles.find(v => v.id === selected) ?? vehicles[0];
   const hasRoute = departure.trim().length > 2 && arrival.trim().length > 2;
 
-  // Stabilise les estimations avec useMemo — recalcule uniquement si la route ou le véhicule change
+  // Stabilise les estimations avec useMemo - recalcule uniquement si la route ou le véhicule change
   const { estimatedPrice, estimatedDist, estimatedTime } = useMemo(() => {
     if (!hasRoute) return { estimatedPrice: 0, estimatedDist: "", estimatedTime: "" };
     const v = vehicles.find(vv => vv.id === selected) ?? vehicles[0];
@@ -144,48 +145,33 @@ export function BookRidePage() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <div className="bg-white px-5 pt-14 pb-5 rounded-b-[2rem] shadow-sm shadow-blue-100/40">
-        <div className="relative rounded-2xl overflow-hidden mb-5 h-28 bg-[#1E6091]">
-          <div className="absolute inset-0 flex items-center px-5">
-            <div className="flex items-center gap-3">
-              <button onClick={() => navigate(-1)} className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/20">
-                <ChevronLeft className="w-5 h-5 text-white" />
-              </button>
-              <div>
-                <h2 className="text-white">Commander une course</h2>
-                <p className="text-blue-100 text-xs">Choisissez votre destination</p>
-              </div>
+    <M3Page title="Commander une course" subtitle="Choisissez votre destination" icon={Car}>
+      {/* Chauffeur pré-sélectionné */}
+      {driverName && (
+        <M3Card tonal className="mb-3 flex items-center gap-3">
+          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl" style={{ background: "var(--m3-primary)", color: "var(--m3-on-primary)" }}>
+            <UserCheck className="h-5 w-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-[var(--m3-on-container)] truncate">{decodeURIComponent(driverName)}</p>
+            <div className="flex items-center gap-1 text-[var(--m3-on-container)]/70">
+              <Star className="h-3 w-3 text-amber-400 fill-amber-400" />
+              <span className="text-xs">{driverRating} · {typeParam}</span>
             </div>
           </div>
-        </div>
+          <span className="shrink-0 rounded-full bg-white/60 px-2.5 py-1 text-[10px] font-semibold text-[var(--m3-primary)]">Chauffeur choisi</span>
+        </M3Card>
+      )}
 
-        {/* Driver selected banner */}
-        {driverName && (
-          <div className="flex items-center gap-3 bg-emerald-50 rounded-2xl px-4 py-3 mb-4 border border-emerald-100">
-            <div className="w-10 h-10 bg-emerald-400 rounded-xl flex items-center justify-center shadow-md shadow-emerald-400/30">
-              <UserCheck className="w-5 h-5 text-white" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm text-gray-800">{decodeURIComponent(driverName)}</p>
-              <div className="flex items-center gap-1">
-                <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
-                <span className="text-xs text-gray-500">{driverRating} · {typeParam}</span>
-              </div>
-            </div>
-            <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full">Chauffeur choisi</span>
-          </div>
-        )}
-
-        {/* Route inputs */}
+      {/* Itinéraire */}
+      <M3Card className="!p-4">
         <div className="relative pl-8">
-          <div className="absolute left-3 top-5 bottom-5 w-[2px] bg-emerald-400 rounded-full" />
-          <div className="absolute left-[6px] top-3.5 w-3 h-3 rounded-full bg-emerald-400 shadow-md shadow-emerald-400/50 border-2 border-white" />
-          <div className="absolute left-[6px] bottom-3.5 w-3 h-3 rounded-full bg-blue-500 shadow-md shadow-blue-500/50 border-2 border-white" />
+          <div className="absolute left-3 top-5 bottom-5 w-[2px] rounded-full" style={{ background: "var(--m3-primary)" }} />
+          <div className="absolute left-[6px] top-3.5 h-3 w-3 rounded-full border-2 border-white" style={{ background: "var(--m3-accent)" }} />
+          <div className="absolute left-[6px] bottom-3.5 h-3 w-3 rounded-full border-2 border-white" style={{ background: "var(--m3-primary)" }} />
 
           <div className="space-y-2.5">
-            <div className={`flex items-center gap-2 rounded-2xl px-4 py-3 border transition ${focusedField === "departure" ? "border-emerald-400 bg-emerald-50/30" : "border-gray-100 bg-gray-50"}`}>
+            <div className={`flex items-center gap-2 rounded-2xl px-4 py-3 border transition ${focusedField === "departure" ? "border-[var(--m3-primary)] bg-[var(--m3-container)]/40" : "border-black/10 bg-slate-50"}`}>
               <input
                 placeholder="Point de depart (GPS auto)"
                 value={departure}
@@ -195,23 +181,24 @@ export function BookRidePage() {
                 className="flex-1 bg-transparent outline-none text-sm"
               />
               {departure ? (
-                <button onClick={() => setDeparture("")} className="w-8 h-8 bg-slate-100 rounded-xl flex items-center justify-center">
-                  <X className="w-3 h-3 text-slate-400" />
+                <button onClick={() => setDeparture("")} className="grid h-9 w-9 place-items-center rounded-xl bg-slate-100">
+                  <X className="h-3.5 w-3.5 text-slate-400" />
                 </button>
               ) : (
                 <button
                   onClick={handleGPS}
                   disabled={gpsLoading}
-                  className="w-8 h-8 bg-emerald-50 rounded-xl flex items-center justify-center"
+                  className="grid h-9 w-9 place-items-center rounded-xl"
+                  style={{ background: "var(--m3-container)" }}
                 >
                   {gpsLoading
-                    ? <div className="w-3.5 h-3.5 border-2 border-emerald-300 border-t-emerald-500 rounded-full animate-spin" />
-                    : <Navigation className="w-3.5 h-3.5 text-emerald-500" />
+                    ? <div className="h-3.5 w-3.5 rounded-full border-2 border-[var(--m3-primary)]/30 border-t-[var(--m3-primary)] animate-spin" />
+                    : <Navigation className="h-3.5 w-3.5 text-[var(--m3-primary)]" />
                   }
                 </button>
               )}
             </div>
-            <div className={`flex items-center gap-2 rounded-2xl px-4 py-3 border transition ${focusedField === "arrival" ? "border-blue-400 bg-blue-50/30" : "border-gray-100 bg-gray-50"}`}>
+            <div className={`flex items-center gap-2 rounded-2xl px-4 py-3 border transition ${focusedField === "arrival" ? "border-[var(--m3-primary)] bg-[var(--m3-container)]/40" : "border-black/10 bg-slate-50"}`}>
               <input
                 placeholder="Destination"
                 value={arrival}
@@ -221,28 +208,28 @@ export function BookRidePage() {
                 className="flex-1 bg-transparent outline-none text-sm"
               />
               {arrival ? (
-                <button onClick={() => setArrival("")} className="w-8 h-8 bg-slate-100 rounded-xl flex items-center justify-center">
-                  <X className="w-3 h-3 text-slate-400" />
+                <button onClick={() => setArrival("")} className="grid h-9 w-9 place-items-center rounded-xl bg-slate-100">
+                  <X className="h-3.5 w-3.5 text-slate-400" />
                 </button>
               ) : (
-                <div className="w-8 h-8 bg-blue-50 rounded-xl flex items-center justify-center">
-                  <MapPin className="w-3.5 h-3.5 text-blue-500" />
+                <div className="grid h-9 w-9 place-items-center rounded-xl" style={{ background: "var(--m3-container)" }}>
+                  <MapPin className="h-3.5 w-3.5 text-[var(--m3-primary)]" />
                 </div>
               )}
             </div>
           </div>
         </div>
 
-        {/* Suggestions dropdown */}
+        {/* Suggestions */}
         {focusedField && (
-          <div className="ml-8 mt-2 bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden max-h-48 overflow-y-auto">
+          <div className="ml-8 mt-2 max-h-48 overflow-y-auto overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
             {filteredPlaces(focusedField === "departure" ? departure : arrival).map((p, i) => (
               <button
                 key={i}
                 onMouseDown={() => selectPlace(p)}
-                className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition border-b border-slate-50 last:border-0"
+                className="flex w-full items-center gap-3 border-b border-slate-50 px-4 py-3 transition last:border-0 hover:bg-slate-50"
               >
-                <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
+                <MapPin className="h-4 w-4 shrink-0 text-slate-400" />
                 <div className="text-left">
                   <p className="text-sm text-slate-700">{p.name}</p>
                   <p className="text-[10px] text-slate-400">{p.address}</p>
@@ -250,118 +237,97 @@ export function BookRidePage() {
               </button>
             ))}
             {filteredPlaces(focusedField === "departure" ? departure : arrival).length === 0 && (
-              <p className="text-sm text-slate-400 text-center py-4">Aucune suggestion</p>
+              <p className="py-4 text-center text-sm text-slate-400">Aucune suggestion</p>
             )}
           </div>
         )}
 
         <button
           onClick={() => setShowOptions(!showOptions)}
-          className="flex items-center gap-1.5 text-ippoo-blue text-xs mt-3 ml-8 bg-blue-50 px-3 py-1.5 rounded-full"
+          className="ml-8 mt-3 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold"
+          style={{ background: "var(--m3-container)", color: "var(--m3-on-container)" }}
         >
-          <Plus className="w-3.5 h-3.5" /> Options & arrets
+          <Plus className="h-3.5 w-3.5" /> Options & arrets
         </button>
 
         {showOptions && (
-          <div className="mt-3 ml-8 space-y-2 bg-blue-50/50 p-3 rounded-2xl border border-blue-100">
+          <div className="ml-8 mt-3 space-y-2 rounded-2xl border border-black/5 bg-slate-50/70 p-3">
             <button
               onClick={() => setScheduled(!scheduled)}
-              className={`w-full flex items-center gap-2.5 rounded-xl px-3 py-2.5 transition ${scheduled ? "bg-orange-50 border border-orange-200" : "bg-white"}`}
+              className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 transition ${scheduled ? "border" : "bg-white"}`}
+              style={scheduled ? { background: "var(--m3-container)", borderColor: "var(--m3-primary)", color: "var(--m3-on-container)" } : undefined}
             >
-              <Calendar className={`w-4 h-4 ${scheduled ? "text-orange-500" : "text-slate-400"}`} />
-              <span className={`text-sm ${scheduled ? "text-orange-600" : "text-slate-400"}`}>
+              <Calendar className={`h-4 w-4 ${scheduled ? "text-[var(--m3-primary)]" : "text-slate-400"}`} />
+              <span className={`text-sm ${scheduled ? "text-[var(--m3-on-container)]" : "text-slate-400"}`}>
                 {scheduled ? "Course programmee" : "Programmer (date & heure)"}
               </span>
             </button>
             {scheduled && (
               <div className="flex gap-2">
-                <input type="date" value={scheduleDate} onChange={(e) => setScheduleDate(e.target.value)} className="flex-1 bg-white text-sm rounded-xl px-3 py-2.5 border border-slate-200 outline-none focus:border-orange-400" />
-                <input type="time" value={scheduleTime} onChange={(e) => setScheduleTime(e.target.value)} className="flex-1 bg-white text-sm rounded-xl px-3 py-2.5 border border-slate-200 outline-none focus:border-orange-400" />
+                <input type="date" value={scheduleDate} onChange={(e) => setScheduleDate(e.target.value)} className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-[var(--m3-primary)]" />
+                <input type="time" value={scheduleTime} onChange={(e) => setScheduleTime(e.target.value)} className="flex-1 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-[var(--m3-primary)]" />
               </div>
             )}
-            <div className="flex items-center gap-2.5 bg-white rounded-xl px-3 py-2.5">
-              <MessageSquare className="w-4 h-4 text-violet-500" />
-              <input placeholder="Note au chauffeur" value={note} onChange={(e) => setNote(e.target.value)} className="text-sm bg-transparent outline-none flex-1" />
+            <div className="flex items-center gap-2.5 rounded-xl bg-white px-3 py-2.5">
+              <MessageSquare className="h-4 w-4 text-[var(--m3-primary)]" />
+              <input placeholder="Note au chauffeur" value={note} onChange={(e) => setNote(e.target.value)} className="flex-1 bg-transparent text-sm outline-none" />
             </div>
           </div>
         )}
-      </div>
+      </M3Card>
 
-      {/* Vehicle selection */}
-      <div className="px-5 mt-5">
-        <h3 className="mb-3 title-gradient">Choisir le vehicule</h3>
-        <div className="space-y-2.5">
-          {vehicles.map((v) => {
-            const isSelected = selected === v.id;
-            return (
-              <button
-                key={v.id}
-                onClick={() => setSelected(v.id)}
-                className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all ${
-                  isSelected
-                    ? `bg-white border-2 ${v.accent} shadow-sm shadow-blue-100/60`
-                    : "bg-white border-2 border-transparent hover:border-blue-100 hover:bg-blue-50/30"
-                }`}
+      {/* Sélection de véhicule */}
+      <SectionHeader title="Choisir le vehicule" icon={Car} />
+      <div className="space-y-2.5">
+        {vehicles.map((v, i) => {
+          const isSelected = selected === v.id;
+          return (
+            <M3Card
+              key={v.id}
+              delay={0.04 * i}
+              onClick={() => setSelected(v.id)}
+              className="flex items-center gap-4"
+              style={isSelected ? { borderColor: "var(--m3-primary)", borderWidth: 2 } : undefined}
+            >
+              <div
+                className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl"
+                style={isSelected ? { background: "var(--m3-primary)", color: "var(--m3-on-primary)" } : { background: "#f1f5f9", color: "#94a3b8" }}
               >
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${isSelected ? `bg-gradient-to-br ${v.gradient} shadow-sm ${v.shadow}` : "bg-slate-100"}`}>
-                  <v.Icon className={isSelected ? "text-white" : "text-slate-400"} size={26} />
+                <v.Icon size={26} />
+              </div>
+              <div className="flex-1 text-left">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-semibold text-slate-800">{v.label}</p>
+                  {v.id === "moto" && (
+                    <span className="flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ background: "var(--m3-container)", color: "var(--m3-primary)" }}>
+                      <Zap className="h-2.5 w-2.5" /> RAPIDE
+                    </span>
+                  )}
                 </div>
-                <div className="flex-1 text-left">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm text-gray-800">{v.label}</p>
-                    {v.id === "moto" && (
-                      <span className="flex items-center gap-0.5 bg-orange-50 text-orange-600 text-[10px] px-2 py-0.5 rounded-full">
-                        <Zap className="w-2.5 h-2.5" /> RAPIDE
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-xs text-gray-400">Arrivee ~{v.time}</p>
-                </div>
-                <div className="text-right">
-                  <p className={`text-sm ${isSelected ? v.lightColor : "text-gray-800"}`} style={{ fontFamily: "'Space Grotesk', monospace" }}>{v.basePrice.toLocaleString()}-{v.maxPrice.toLocaleString()} F</p>
-                  <p className="text-[10px] text-gray-400">estimation</p>
-                </div>
-              </button>
-            );
-          })}
-        </div>
+                <p className="text-xs text-slate-400">Arrivee ~{v.time}</p>
+              </div>
+              <div className="text-right">
+                <p className={`text-sm ${isSelected ? "text-[var(--m3-primary)]" : "text-slate-800"}`} style={{ fontFamily: "'Space Grotesk', monospace" }}>{v.basePrice.toLocaleString()}-{v.maxPrice.toLocaleString()} F</p>
+                <p className="text-[10px] text-slate-400">estimation</p>
+              </div>
+            </M3Card>
+          );
+        })}
       </div>
 
-      {/* Estimation & CTA */}
-      <div className="px-5 mt-5 mb-6">
-        <div className={`bg-white rounded-2xl p-4 shadow-sm mb-4 border transition ${hasRoute ? "border-blue-100 shadow-blue-100/40" : "border-slate-100"}`}>
-          <div className="flex items-center gap-2 mb-3">
-            <Info className="w-4 h-4 text-blue-500" />
-            <span className="text-xs text-gray-400">Estimation du trajet</span>
-          </div>
-          <div className="grid grid-cols-3 gap-3">
-            <div className="text-center">
-              <p className="text-xs text-gray-400">Distance</p>
-              <p className="text-blue-600" style={{ fontFamily: "'Space Grotesk', monospace" }}>{estimatedDist} km</p>
-            </div>
-            <div className="text-center border-x border-gray-100">
-              <p className="text-xs text-gray-400">Duree</p>
-              <p className="text-cyan-600" style={{ fontFamily: "'Space Grotesk', monospace" }}>{estimatedTime}</p>
-            </div>
-            <div className="text-center">
-              <p className="text-xs text-gray-400">Prix</p>
-              <p className="text-emerald-600" style={{ fontFamily: "'Space Grotesk', monospace" }}>{hasRoute ? `${estimatedPrice.toLocaleString()} F` : ""}</p>
-            </div>
-          </div>
-        </div>
-
-        <button
-          onClick={handleOrder}
-          disabled={ordering}
-          className={`w-full bg-gradient-to-r ${selectedVehicle.gradient} text-white py-4 rounded-2xl flex items-center justify-center gap-2 shadow-sm ${selectedVehicle.shadow} transition-transform ${ordering ? "opacity-70 scale-[0.98]" : "active:scale-[0.98]"}`}
-        >
-          {ordering ? (
-            <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Recherche en cours...</>
-          ) : (
-            <>Commander maintenant <ChevronRight className="w-4 h-4" /></>
-          )}
-        </button>
+      {/* Estimation */}
+      <SectionHeader title="Estimation du trajet" icon={Info} />
+      <div className="grid grid-cols-3 gap-2.5">
+        <StatTile label="Distance" value={hasRoute ? `${estimatedDist} km` : "—"} />
+        <StatTile label="Duree" value={hasRoute ? estimatedTime : "—"} />
+        <StatTile label="Prix" value={hasRoute ? `${estimatedPrice.toLocaleString()} F` : "—"} />
       </div>
-    </div>
+
+      <div className="mt-5">
+        <M3Button onClick={handleOrder} disabled={ordering} icon={ordering ? undefined : ChevronRight}>
+          {ordering ? "Recherche en cours..." : "Commander maintenant"}
+        </M3Button>
+      </div>
+    </M3Page>
   );
 }

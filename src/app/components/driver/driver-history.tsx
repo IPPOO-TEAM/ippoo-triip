@@ -1,17 +1,30 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import {
   ChevronLeft, Bike, Package, Truck, Users, Route, Filter, Search,
-  Star, MapPin, Clock, Download, Calendar, ChevronRight, Eye, X,
-  Phone, MessageSquare, Flag, Copy, Check, Navigation, ArrowRight
+  Clock, Download, X, Copy, Flag
 } from "lucide-react";
 import { toast } from "sonner";
-import { ProfileAvatar } from "../profile-avatar";
 import { downloadBlob } from "../utils";
+import { api } from "../../api/client";
 import logoImg from "../../../imports/IPPOO_Transport_&_Logistique-1.png";
 
-/* ─── Types ─── */
+/* --- Types --- */
 type Category = "all" | "courses" | "livraisons" | "groupees" | "transport" | "covoiturage";
+
+interface Ride {
+  id: string;
+  serviceType: string;
+  status: string;
+  origin: { label?: string };
+  destination: { label?: string };
+  priceXOF: number;
+  distanceKm: number;
+  durationMin: number;
+  createdAt: string;
+  completedAt: string | null;
+  vehicle?: string;
+}
 
 interface HistoryItem {
   id: string;
@@ -24,36 +37,17 @@ interface HistoryItem {
   earning: number;
   commission: number;
   net: number;
-  status: "completed" | "cancelled" | "dispute";
+  status: "completed" | "cancelled" | "other";
   statusLabel: string;
   statusColor: string;
   Icon: React.ElementType;
   color: string;
-  clientName: string;
-  clientInitials: string;
-  clientRating: number;
-  myRatingOfClient: number | null;
   vehicle: string;
   distance: string;
   duration: string;
-  paymentMethod: string;
-  otp?: string;
-  tip?: number;
 }
 
-/* ─── Mock ─── */
-const historyItems: HistoryItem[] = [
-  { id: "IPP-D-20260411-004", cat: "courses", type: "Course moto", from: "Cadjehoun", to: "CNHU", date: "11 Avr 2026", time: "12:05", earning: 950, commission: 143, net: 807, status: "completed", statusLabel: "Terminee", statusColor: "bg-emerald-50 text-emerald-600", Icon: Bike, color: "#1E6091", clientName: "Gbètoho Bokossa", clientInitials: "GB", clientRating: 4.8, myRatingOfClient: 5, vehicle: "Honda CB125", distance: "3.1 km", duration: "10 min", paymentMethod: "IPPOO Cash" },
-  { id: "IPP-D-20260411-003", cat: "courses", type: "Course moto", from: "Akpakpa", to: "Gbègamey", date: "11 Avr 2026", time: "10:48", earning: 800, commission: 120, net: 680, status: "completed", statusLabel: "Terminee", statusColor: "bg-emerald-50 text-emerald-600", Icon: Bike, color: "#1E6091", clientName: "Aidatou Bokossa", clientInitials: "AB", clientRating: 4.6, myRatingOfClient: 4, vehicle: "Honda CB125", distance: "4.8 km", duration: "14 min", paymentMethod: "IPPOO Cash" },
-  { id: "IPP-D-20260411-002", cat: "livraisons", type: "Livraison colis", from: "St-Michel", to: "Godomey", date: "11 Avr 2026", time: "09:15", earning: 1800, commission: 270, net: 1530, status: "completed", statusLabel: "Livree", statusColor: "bg-emerald-50 text-emerald-600", Icon: Package, color: "#F77F00", clientName: "Aidatou Tokpanou", clientInitials: "AT", clientRating: 4.7, myRatingOfClient: 5, vehicle: "Moto cargo", distance: "6.8 km", duration: "25 min", paymentMethod: "IPPOO Cash", otp: "847291" },
-  { id: "IPP-D-20260411-001", cat: "courses", type: "Course moto", from: "UAC", to: "Dantokpa", date: "11 Avr 2026", time: "07:32", earning: 1200, commission: 180, net: 1020, status: "completed", statusLabel: "Terminee", statusColor: "bg-emerald-50 text-emerald-600", Icon: Bike, color: "#1E6091", clientName: "Fifamè Dossou", clientInitials: "FD", clientRating: 4.9, myRatingOfClient: 5, vehicle: "Honda CB125", distance: "5.2 km", duration: "15 min", paymentMethod: "IPPOO Cash", tip: 200 },
-  { id: "IPP-D-20260410-005", cat: "courses", type: "Course voiture", from: "Aeroport", to: "Hotel du Lac", date: "10 Avr 2026", time: "16:45", earning: 3500, commission: 525, net: 2975, status: "completed", statusLabel: "Terminee", statusColor: "bg-emerald-50 text-emerald-600", Icon: Bike, color: "#1E6091", clientName: "Sessinou Adechian", clientInitials: "SA", clientRating: 4.5, myRatingOfClient: null, vehicle: "Toyota Yaris", distance: "8.1 km", duration: "18 min", paymentMethod: "IPPOO Cash" },
-  { id: "IPP-D-20260410-004", cat: "covoiturage", type: "Covoiturage", from: "Cotonou", to: "Porto-Novo", date: "10 Avr 2026", time: "14:00", earning: 2000, commission: 300, net: 1700, status: "completed", statusLabel: "Terminee", statusColor: "bg-emerald-50 text-emerald-600", Icon: Route, color: "#06B6D4", clientName: "Fifamè Dossou", clientInitials: "FD", clientRating: 4.9, myRatingOfClient: 5, vehicle: "Toyota Yaris", distance: "35 km", duration: "45 min", paymentMethod: "IPPOO Cash" },
-  { id: "IPP-D-20260410-003", cat: "courses", type: "Course moto", from: "Zongo", to: "CNHU", date: "10 Avr 2026", time: "11:20", earning: 600, commission: 0, net: 0, status: "cancelled", statusLabel: "Annulee", statusColor: "bg-red-50 text-red-500", Icon: Bike, color: "#1E6091", clientName: "", clientInitials: "XX", clientRating: 0, myRatingOfClient: null, vehicle: "Honda CB125", distance: "", duration: "", paymentMethod: "Annulee" },
-  { id: "IPP-D-20260409-002", cat: "transport", type: "Demenagement", from: "Cotonou Centre", to: "Abomey-Calavi", date: "09 Avr 2026", time: "10:00", earning: 7500, commission: 1125, net: 6375, status: "completed", statusLabel: "Terminee", statusColor: "bg-emerald-50 text-emerald-600", Icon: Truck, color: "#D62828", clientName: "Aidatou Bokossa", clientInitials: "AB", clientRating: 4.6, myRatingOfClient: 4, vehicle: "Camionnette", distance: "12.4 km", duration: "35 min", paymentMethod: "IPPOO Cash" },
-  { id: "IPP-D-20260409-001", cat: "groupees", type: "Commande campus", from: "Dantokpa", to: "Campus UAC", date: "09 Avr 2026", time: "08:15", earning: 2400, commission: 360, net: 2040, status: "completed", statusLabel: "Livree", statusColor: "bg-emerald-50 text-emerald-600", Icon: Users, color: "#8B5CF6", clientName: "Gbètoho Bokossa", clientInitials: "GB", clientRating: 4.8, myRatingOfClient: 5, vehicle: "Tricycle", distance: "7.5 km", duration: "30 min", paymentMethod: "IPPOO Cash" },
-];
-
+/* --- Config --- */
 const filters: { id: Category; label: string; icon: React.ElementType }[] = [
   { id: "all", label: "Tout", icon: Filter },
   { id: "courses", label: "Courses", icon: Bike },
@@ -63,22 +57,77 @@ const filters: { id: Category; label: string; icon: React.ElementType }[] = [
   { id: "covoiturage", label: "Covoiturage", icon: Route },
 ];
 
+const TYPE_MAP: Record<string, { cat: Category; label: string; Icon: React.ElementType; color: string }> = {
+  taxi_moto: { cat: "courses", label: "Course moto", Icon: Bike, color: "#1E6091" },
+  delivery: { cat: "livraisons", label: "Livraison", Icon: Package, color: "#F77F00" },
+  heavy_transport: { cat: "transport", label: "Transport", Icon: Truck, color: "#D62828" },
+  carpool: { cat: "covoiturage", label: "Covoiturage", Icon: Route, color: "#06B6D4" },
+};
+
+function mapRideToHistory(r: Ride): HistoryItem {
+  const info = TYPE_MAP[r.serviceType] ?? { cat: "courses" as Category, label: "Course", Icon: Bike, color: "#1E6091" };
+  const months = ["Jan", "Fev", "Mar", "Avr", "Mai", "Jun", "Jul", "Aou", "Sep", "Oct", "Nov", "Dec"];
+  const d = new Date(r.completedAt ?? r.createdAt);
+  const isCompleted = r.status === "completed";
+  const earning = r.priceXOF ?? 0;
+  const commission = isCompleted ? Math.round(earning * 0.15) : 0;
+  const net = isCompleted ? earning - commission : 0;
+  const status: HistoryItem["status"] = r.status === "completed" ? "completed" : r.status === "cancelled" ? "cancelled" : "other";
+  return {
+    id: r.id,
+    cat: info.cat,
+    type: info.label,
+    from: r.origin?.label ?? "—",
+    to: r.destination?.label ?? "—",
+    date: `${d.getDate().toString().padStart(2, "0")} ${months[d.getMonth()]} ${d.getFullYear()}`,
+    time: `${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`,
+    earning,
+    commission,
+    net,
+    status,
+    statusLabel: status === "completed" ? "Terminee" : status === "cancelled" ? "Annulee" : r.status,
+    statusColor: status === "completed" ? "bg-emerald-50 text-emerald-600" : status === "cancelled" ? "bg-red-50 text-red-500" : "bg-slate-100 text-slate-500",
+    Icon: info.Icon,
+    color: info.color,
+    vehicle: r.vehicle || "—",
+    distance: r.distanceKm ? `${r.distanceKm} km` : "—",
+    duration: r.durationMin ? `${r.durationMin} min` : "—",
+  };
+}
+
 export function DriverHistoryPage() {
   const navigate = useNavigate();
   const [active, setActive] = useState<Category>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedItem, setSelectedItem] = useState<HistoryItem | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [historyItems, setHistoryItems] = useState<HistoryItem[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      try {
+        const res = await api.get<{ items: Ride[] }>("/rides?page=1&pageSize=50");
+        if (!cancelled) setHistoryItems(Array.isArray(res?.items) ? res.items.map(mapRideToHistory) : []);
+      } catch {
+        if (!cancelled) setHistoryItems([]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   const filtered = historyItems
     .filter(i => active === "all" || i.cat === active)
-    .filter(i => !searchQuery || i.type.toLowerCase().includes(searchQuery.toLowerCase()) || i.from.toLowerCase().includes(searchQuery.toLowerCase()) || i.to.toLowerCase().includes(searchQuery.toLowerCase()) || i.clientName.toLowerCase().includes(searchQuery.toLowerCase()));
+    .filter(i => !searchQuery || i.type.toLowerCase().includes(searchQuery.toLowerCase()) || i.from.toLowerCase().includes(searchQuery.toLowerCase()) || i.to.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const totalNet = historyItems.filter(i => i.status === "completed").reduce((s, i) => s + i.net, 0);
-  const totalCommission = historyItems.filter(i => i.status === "completed").reduce((s, i) => s + i.commission, 0);
 
   const exportHistory = () => {
-    const csv = "ID;Type;Date;Heure;Client;De;Vers;Brut;Commission;Net;Statut\n" +
-      historyItems.map(i => `${i.id};${i.type};${i.date};${i.time};${i.clientName};${i.from};${i.to};${i.earning};${i.commission};${i.net};${i.statusLabel}`).join("\n");
+    const csv = "ID;Type;Date;Heure;De;Vers;Brut;Commission;Net;Statut\n" +
+      historyItems.map(i => `${i.id};${i.type};${i.date};${i.time};${i.from};${i.to};${i.earning};${i.commission};${i.net};${i.statusLabel}`).join("\n");
     downloadBlob(csv, "ippoo_driver_historique.csv", "text/csv;charset=utf-8");
     toast.success("Historique exporte");
   };
@@ -129,13 +178,16 @@ export function DriverHistoryPage() {
 
       {/* List */}
       <div className="px-5 space-y-2">
-        {filtered.length === 0 && (
+        {loading ? (
+          <div className="flex justify-center py-16">
+            <div className="w-6 h-6 border-2 border-slate-200 border-t-[#1E6091] rounded-full animate-spin" />
+          </div>
+        ) : filtered.length === 0 ? (
           <div className="text-center py-16">
             <Clock className="w-12 h-12 text-slate-300 mx-auto mb-3" />
             <p className="text-slate-400 text-sm">Aucune mission trouvee</p>
           </div>
-        )}
-        {filtered.map(item => (
+        ) : filtered.map(item => (
           <button
             key={item.id}
             onClick={() => setSelectedItem(item)}
@@ -156,17 +208,12 @@ export function DriverHistoryPage() {
               <p className={`text-xs ${item.status === "completed" ? "text-emerald-500" : "text-slate-400"}`} style={{ fontFamily: "'Space Grotesk', monospace" }}>
                 {item.status === "completed" ? `+${item.net} F` : "0 F"}
               </p>
-              {item.tip && item.tip > 0 && <p className="text-[#F77F00] text-[8px]">+{item.tip} F pourboire</p>}
-              <div className="flex items-center gap-0.5 justify-end mt-0.5">
-                <ProfileAvatar initials={item.clientInitials} size={14} />
-                <span className="text-slate-400 text-[8px]">{item.clientName.split(" ")[0]}</span>
-              </div>
             </div>
           </button>
         ))}
       </div>
 
-      {/* ═══ DETAIL MODAL ═══ */}
+      {/* --- DETAIL MODAL --- */}
       {selectedItem && (
         <div className="fixed inset-0 z-50">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setSelectedItem(null)} />
@@ -180,28 +227,6 @@ export function DriverHistoryPage() {
 
             <div className="text-center mb-5">
               <span className={`px-3 py-1 rounded-full text-[10px] ${selectedItem.statusColor}`}>{selectedItem.statusLabel}</span>
-            </div>
-
-            {/* Client */}
-            <div className="flex items-center gap-3 bg-slate-50 rounded-xl p-3 mb-4">
-              <ProfileAvatar initials={selectedItem.clientInitials} size={40} />
-              <div className="flex-1">
-                <p className="text-slate-700 text-xs">{selectedItem.clientName}</p>
-                <div className="flex items-center gap-1">
-                  <Star className="w-3 h-3 text-[#E9C46A] fill-[#E9C46A]" />
-                  <span className="text-slate-500 text-[10px]">{selectedItem.clientRating}</span>
-                </div>
-              </div>
-              {selectedItem.myRatingOfClient && (
-                <div className="text-right">
-                  <p className="text-slate-400 text-[8px]">Ma note client</p>
-                  <div className="flex items-center gap-0.5">
-                    {Array.from({ length: selectedItem.myRatingOfClient }).map((_, j) => (
-                      <Star key={j} className="w-3 h-3 text-[#2A9D8F] fill-[#2A9D8F]" />
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Route */}
@@ -229,7 +254,7 @@ export function DriverHistoryPage() {
                 { label: "Distance", value: selectedItem.distance },
                 { label: "Duree", value: selectedItem.duration },
                 { label: "Vehicule", value: selectedItem.vehicle },
-                { label: "Paiement", value: selectedItem.paymentMethod },
+                { label: "Date", value: `${selectedItem.date} - ${selectedItem.time}` },
               ].map((d, i) => (
                 <div key={i} className="bg-slate-50 rounded-xl p-3">
                   <p className="text-slate-400 text-[9px]">{d.label}</p>
@@ -251,16 +276,10 @@ export function DriverHistoryPage() {
                     <span className="text-slate-600">Commission IPPOO (15%)</span>
                     <span className="text-red-500" style={{ fontFamily: "'Space Grotesk', monospace" }}>-{selectedItem.commission.toLocaleString()} F</span>
                   </div>
-                  {selectedItem.tip && selectedItem.tip > 0 && (
-                    <div className="flex justify-between text-[11px]">
-                      <span className="text-slate-600">Pourboire</span>
-                      <span className="text-[#F77F00]" style={{ fontFamily: "'Space Grotesk', monospace" }}>+{selectedItem.tip.toLocaleString()} F</span>
-                    </div>
-                  )}
                   <div className="border-t border-emerald-200 pt-1.5 flex justify-between text-xs">
                     <span className="text-emerald-700">Gain net</span>
                     <span className="text-emerald-700" style={{ fontFamily: "'Space Grotesk', monospace" }}>
-                      {(selectedItem.net + (selectedItem.tip || 0)).toLocaleString()} F
+                      {selectedItem.net.toLocaleString()} F
                     </span>
                   </div>
                 </div>

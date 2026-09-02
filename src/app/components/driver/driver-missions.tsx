@@ -1,96 +1,31 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import {
-  ChevronLeft, ChevronRight, Filter, Bike, Package, Truck, Users,
-  Clock, MapPin, Calendar, Star, Navigation, Phone, MessageSquare,
-  Check, X, Plus, Route, Target, Zap, AlertTriangle, Eye,
-  ArrowRight, ArrowUpRight, Layers, CircleDot, Timer, Map
+  ChevronLeft, Filter, Bike, Package, Truck, Users,
+  Calendar, Navigation, Route, Map
 } from "lucide-react";
 import { toast } from "sonner";
-import { ProfileAvatar } from "../profile-avatar";
-import { getGPSPosition } from "../utils";
+import { api } from "../../api/client";
 import logoImg from "../../../imports/IPPOO_Transport_&_Logistique-1.png";
 
-/* ─── Types ─── */
-type MissionTab = "disponibles" | "actives" | "planifiees" | "historique";
+/* --- Types --- */
+type MissionTab = "disponibles" | "actives" | "planifiees";
 type MissionType = "course" | "livraison" | "transport" | "groupee" | "covoiturage";
 
-interface AvailableMission {
-  id: number;
-  type: MissionType;
-  clientName: string;
-  clientInitials: string;
-  clientRating: number;
-  from: string;
-  to: string;
-  distance: string;
-  duration: string;
-  earning: number;
-  bonus: number;
-  vehicle: string;
-  scheduledTime?: string;
-  urgent: boolean;
-  surge: boolean;
-  stops?: number;
-  weight?: string;
-  passengers?: number;
-}
-
-interface ActiveMission {
+interface Ride {
   id: string;
-  type: MissionType;
-  clientName: string;
-  clientInitials: string;
-  clientPhone: string;
-  from: string;
-  to: string;
-  status: "en_route_pickup" | "at_pickup" | "in_progress" | "near_dest";
-  statusLabel: string;
-  earning: number;
-  startTime: string;
-  otp?: string;
-  parcels?: { desc: string; weight: string }[];
-  stops?: { address: string; status: "pending" | "done" }[];
+  serviceType: string;
+  status: string;
+  origin: { label?: string };
+  destination: { label?: string };
+  priceXOF: number;
+  distanceKm: number;
+  durationMin: number;
+  scheduledAt: string | null;
+  createdAt: string;
 }
 
-interface ScheduledMission {
-  id: number;
-  type: MissionType;
-  date: string;
-  timeSlot: string;
-  from: string;
-  to: string;
-  clientName: string;
-  clientInitials: string;
-  earning: number;
-  status: "confirmed" | "pending";
-}
-
-/* ─── Mock Data ─── */
-const availableMissions: AvailableMission[] = [
-  { id: 1, type: "course", clientName: "Fifame Dossou", clientInitials: "FD", clientRating: 4.9, from: "Marche Dantokpa", to: "Campus UAC", distance: "5.2 km", duration: "15 min", earning: 1200, bonus: 200, vehicle: "Moto", urgent: false, surge: false },
-  { id: 2, type: "livraison", clientName: "Aidatou Tokpanou", clientInitials: "AT", clientRating: 4.7, from: "Boulevard St-Michel", to: "Godomey, rue 312", distance: "6.8 km", duration: "22 min", earning: 1800, bonus: 0, vehicle: "Moto cargo", urgent: true, surge: false, weight: "3.5 kg" },
-  { id: 3, type: "course", clientName: "Sessinou Adechian", clientInitials: "SA", clientRating: 4.5, from: "Aeroport Cadjehoun", to: "Hotel du Lac", distance: "8.1 km", duration: "20 min", earning: 3500, bonus: 500, vehicle: "Voiture", urgent: false, surge: true },
-  { id: 4, type: "groupee", clientName: "Gbètoho Bokossa", clientInitials: "GB", clientRating: 4.8, from: "Marche Dantokpa", to: "Campus UAC (3 arrêts)", distance: "7.5 km", duration: "35 min", earning: 2400, bonus: 300, vehicle: "Tricycle", urgent: false, surge: false, stops: 3 },
-  { id: 5, type: "transport", clientName: "Aidatou Bokossa", clientInitials: "AB", clientRating: 4.6, from: "Cotonou Centre", to: "Abomey-Calavi", distance: "14 km", duration: "40 min", earning: 7500, bonus: 0, vehicle: "Camionnette", urgent: false, surge: false, weight: "120 kg" },
-  { id: 6, type: "covoiturage", clientName: "Fifame Dossou", clientInitials: "FD", clientRating: 4.9, from: "Cotonou", to: "Porto-Novo", distance: "35 km", duration: "45 min", earning: 2000, bonus: 0, vehicle: "Voiture", urgent: false, surge: false, passengers: 3 },
-];
-
-const activeMissions: ActiveMission[] = [
-  {
-    id: "IPP-M-20260411-001", type: "course", clientName: "Gbètoho Bokossa", clientInitials: "GB",
-    clientPhone: "+229 97 12 34 56", from: "Carrefour Cadjehoun", to: "Hopital CNHU",
-    status: "in_progress", statusLabel: "En cours", earning: 950, startTime: "12:05",
-  },
-];
-
-const scheduledMissions: ScheduledMission[] = [
-  { id: 1, type: "course", date: "12 Avr 2026", timeSlot: "08:00 - 09:00", from: "Hotel du Lac", to: "Aeroport Cadjehoun", clientName: "Sessinou Adechian", clientInitials: "SA", earning: 3000, status: "confirmed" },
-  { id: 2, type: "livraison", date: "12 Avr 2026", timeSlot: "14:00 - 16:00", from: "Zone Industrielle", to: "3 adresses (multi-stop)", clientName: "Aidatou Tokpanou", clientInitials: "AT", earning: 4500, status: "confirmed" },
-  { id: 3, type: "covoiturage", date: "13 Avr 2026", timeSlot: "06:30 - 08:00", from: "Cotonou", to: "Parakou", clientName: "Fifame Dossou", clientInitials: "FD", earning: 8000, status: "pending" },
-  { id: 4, type: "transport", date: "14 Avr 2026", timeSlot: "09:00 - 12:00", from: "Port de Cotonou", to: "Entrepôt Calavi", clientName: "Gbètoho Bokossa", clientInitials: "GB", earning: 15000, status: "pending" },
-];
-
+/* --- Config (constantes uniquement) --- */
 const typeInfo: Record<MissionType, { icon: React.ElementType; color: string; label: string }> = {
   course: { icon: Bike, color: "#1E6091", label: "Course" },
   livraison: { icon: Package, color: "#F77F00", label: "Livraison" },
@@ -99,38 +34,70 @@ const typeInfo: Record<MissionType, { icon: React.ElementType; color: string; la
   covoiturage: { icon: Route, color: "#06B6D4", label: "Covoiturage" },
 };
 
+const RIDE_STATUS_UI: Record<string, { label: string; color: string }> = {
+  accepted: { label: "Acceptee", color: "bg-blue-50 text-blue-600" },
+  arriving: { label: "En approche", color: "bg-amber-50 text-amber-600" },
+  in_progress: { label: "Course en cours", color: "bg-emerald-50 text-emerald-600" },
+};
+
+const ACTIVE_STATUSES = ["accepted", "arriving", "in_progress"];
+
+function serviceToType(t: string): MissionType {
+  if (t === "delivery") return "livraison";
+  if (t === "heavy_transport") return "transport";
+  if (t === "carpool") return "covoiturage";
+  return "course";
+}
+
+function fmtDate(iso: string) {
+  const months = ["Jan", "Fev", "Mar", "Avr", "Mai", "Jun", "Jul", "Aou", "Sep", "Oct", "Nov", "Dec"];
+  const d = new Date(iso);
+  return `${d.getDate().toString().padStart(2, "0")} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+function fmtTime(iso: string) {
+  const d = new Date(iso);
+  return `${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`;
+}
+
 export function DriverMissionsPage() {
   const navigate = useNavigate();
   const [tab, setTab] = useState<MissionTab>("disponibles");
   const [typeFilter, setTypeFilter] = useState<MissionType | "all">("all");
-  const [available, setAvailable] = useState(availableMissions);
-  const [active, setActive] = useState(activeMissions);
-  const [scheduled, setScheduled] = useState(scheduledMissions);
   const [expandedActive, setExpandedActive] = useState<string | null>(null);
-  const [missionDetail, setMissionDetail] = useState<AvailableMission | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [rides, setRides] = useState<Ride[]>([]);
 
-  const filteredAvailable = typeFilter === "all" ? available : available.filter(m => m.type === typeFilter);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      try {
+        const data = await api.get<Ride[]>("/driver/missions");
+        if (!cancelled) setRides(Array.isArray(data) ? data : []);
+      } catch {
+        if (!cancelled) setRides([]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
-  const acceptMission = (id: number) => {
-    const mission = available.find(m => m.id === id);
+  // Partition par statut
+  const available = rides.filter((r) => r.status === "requested" && !r.scheduledAt);
+  const active = rides.filter((r) => ACTIVE_STATUSES.includes(r.status));
+  const scheduled = rides.filter((r) => r.scheduledAt && !["completed", "cancelled"].includes(r.status));
+
+  const filteredAvailable = typeFilter === "all"
+    ? available
+    : available.filter((m) => serviceToType(m.serviceType) === typeFilter);
+
+  const acceptMission = (id: string) => {
+    const mission = rides.find((m) => m.id === id);
     if (mission) {
-      setAvailable(prev => prev.filter(m => m.id !== id));
-      toast.success(`Mission ${typeInfo[mission.type].label} acceptee !`);
+      toast.success(`Mission ${typeInfo[serviceToType(mission.serviceType)].label} acceptee !`);
       navigate("/driver/tracking");
     }
-  };
-
-  const statusColors: Record<string, string> = {
-    en_route_pickup: "bg-blue-50 text-blue-600",
-    at_pickup: "bg-amber-50 text-amber-600",
-    in_progress: "bg-emerald-50 text-emerald-600",
-    near_dest: "bg-orange-50 text-orange-600",
-  };
-  const statusLabels: Record<string, string> = {
-    en_route_pickup: "En route vers client",
-    at_pickup: "Au point de prise",
-    in_progress: "Course en cours",
-    near_dest: "Proche destination",
   };
 
   const tabs: { id: MissionTab; label: string; count: number }[] = [
@@ -138,6 +105,12 @@ export function DriverMissionsPage() {
     { id: "actives", label: "Actives", count: active.length },
     { id: "planifiees", label: "Planifiees", count: scheduled.length },
   ];
+
+  const Spinner = () => (
+    <div className="flex justify-center py-16">
+      <div className="w-6 h-6 border-2 border-slate-200 border-t-[#2A9D8F] rounded-full animate-spin" />
+    </div>
+  );
 
   return (
     <div className="min-h-full bg-slate-50 pb-4">
@@ -189,33 +162,138 @@ export function DriverMissionsPage() {
       )}
 
       <div className="px-5 mt-2">
-        {/* ═══ DISPONIBLES ═══ */}
+        {/* --- DISPONIBLES --- */}
         {tab === "disponibles" && (
-          <div className="space-y-3">
-            {filteredAvailable.length === 0 && (
-              <div className="text-center py-16">
-                <Map className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                <p className="text-slate-400 text-sm">Aucune mission disponible</p>
-                <p className="text-slate-300 text-[10px]">Restez en ligne, les demandes arrivent</p>
-              </div>
-            )}
-            {filteredAvailable.map(m => {
-              const info = typeInfo[m.type];
-              return (
-                <div key={m.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-                  {m.surge && (
-                    <div className="bg-[#F77F00] px-3 py-1 flex items-center gap-1.5">
-                      <Zap className="w-3 h-3 text-white" />
-                      <span className="text-white text-[9px]">Tarif majore (+{m.bonus} F bonus)</span>
+          loading ? <Spinner /> : (
+            <div className="space-y-3">
+              {filteredAvailable.length === 0 && (
+                <div className="text-center py-16">
+                  <Map className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                  <p className="text-slate-400 text-sm">Aucune mission disponible</p>
+                  <p className="text-slate-300 text-[10px]">Restez en ligne, les demandes arrivent</p>
+                </div>
+              )}
+              {filteredAvailable.map(m => {
+                const type = serviceToType(m.serviceType);
+                const info = typeInfo[type];
+                return (
+                  <div key={m.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                    <div className="p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: `${info.color}15` }}>
+                            <info.icon className="w-4 h-4" style={{ color: info.color }} />
+                          </div>
+                          <div>
+                            <p className="text-slate-800 text-xs">{info.label}</p>
+                            <p className="text-slate-400 text-[9px]">{m.distanceKm ? `${m.distanceKm} km` : "—"} - {m.durationMin ? `${m.durationMin} min` : "—"}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-[#2A9D8F] text-sm" style={{ fontFamily: "'Space Grotesk', monospace" }}>+{m.priceXOF} F</p>
+                        </div>
+                      </div>
+
+                      {/* Route */}
+                      <div className="flex items-start gap-2 mb-3">
+                        <div className="flex flex-col items-center mt-1">
+                          <div className="w-2 h-2 rounded-full bg-[#2A9D8F]" />
+                          <div className="w-px h-4 bg-slate-200" />
+                          <div className="w-2 h-2 rounded-full bg-[#F77F00]" />
+                        </div>
+                        <div className="flex-1 space-y-2">
+                          <p className="text-slate-600 text-[10px]">{m.origin?.label ?? "—"}</p>
+                          <p className="text-slate-600 text-[10px]">{m.destination?.label ?? "—"}</p>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        <button onClick={() => toast.info("Mission ignorée")} className="py-2.5 rounded-xl border border-slate-200 text-slate-500 text-[11px]">Ignorer</button>
+                        <button onClick={() => acceptMission(m.id)} className="py-2.5 rounded-xl bg-[#2A9D8F] text-white text-[11px] shadow-md shadow-emerald-500/15">Accepter</button>
+                      </div>
                     </div>
-                  )}
-                  {m.urgent && !m.surge && (
-                    <div className="bg-[#D62828] px-3 py-1 flex items-center gap-1.5">
-                      <AlertTriangle className="w-3 h-3 text-white" />
-                      <span className="text-white text-[9px]">Urgent</span>
-                    </div>
-                  )}
-                  <div className="p-4">
+                  </div>
+                );
+              })}
+            </div>
+          )
+        )}
+
+        {/* --- ACTIVES --- */}
+        {tab === "actives" && (
+          loading ? <Spinner /> : (
+            <div className="space-y-3">
+              {active.length === 0 && (
+                <div className="text-center py-16">
+                  <Navigation className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                  <p className="text-slate-400 text-sm">Aucune mission active</p>
+                </div>
+              )}
+              {active.map(m => {
+                const type = serviceToType(m.serviceType);
+                const info = typeInfo[type];
+                const expanded = expandedActive === m.id;
+                const st = RIDE_STATUS_UI[m.status] ?? { label: m.status, color: "bg-slate-50 text-slate-600" };
+                return (
+                  <div key={m.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+                    <button onClick={() => setExpandedActive(expanded ? null : m.id)} className="w-full">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                          <span className="text-slate-800 text-xs">{info.label} - {m.id}</span>
+                        </div>
+                        <span className={`px-2 py-0.5 rounded-full text-[9px] ${st.color}`}>
+                          {st.label}
+                        </span>
+                      </div>
+
+                      <div className="flex items-start gap-2">
+                        <div className="flex flex-col items-center mt-1">
+                          <div className="w-2 h-2 rounded-full bg-[#2A9D8F]" />
+                          <div className="w-px h-4 bg-slate-200" />
+                          <div className="w-2 h-2 rounded-full bg-[#F77F00]" />
+                        </div>
+                        <div className="flex-1 space-y-2 text-left">
+                          <p className="text-slate-600 text-[10px]">{m.origin?.label ?? "—"}</p>
+                          <p className="text-slate-600 text-[10px]">{m.destination?.label ?? "—"}</p>
+                        </div>
+                        <span className="text-[#2A9D8F] text-xs" style={{ fontFamily: "'Space Grotesk', monospace" }}>+{m.priceXOF} F</span>
+                      </div>
+                    </button>
+
+                    {expanded && (
+                      <div className="mt-4 pt-4 border-t border-slate-100 space-y-3">
+                        <button
+                          onClick={() => navigate("/driver/tracking")}
+                          className="w-full py-3 rounded-xl bg-[#2A9D8F] text-white text-xs shadow-md shadow-emerald-500/15 flex items-center justify-center gap-2"
+                        >
+                          <Navigation className="w-4 h-4" /> Ouvrir navigation
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )
+        )}
+
+        {/* --- PLANIFIEES --- */}
+        {tab === "planifiees" && (
+          loading ? <Spinner /> : (
+            <div className="space-y-3">
+              {scheduled.length === 0 && (
+                <div className="text-center py-16">
+                  <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                  <p className="text-slate-400 text-sm">Aucune mission planifiee</p>
+                </div>
+              )}
+              {scheduled.map(m => {
+                const type = serviceToType(m.serviceType);
+                const info = typeInfo[type];
+                const when = m.scheduledAt ?? m.createdAt;
+                return (
+                  <div key={m.id} className="bg-white rounded-2xl border border-slate-100 p-4">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: `${info.color}15` }}>
@@ -223,29 +301,14 @@ export function DriverMissionsPage() {
                         </div>
                         <div>
                           <p className="text-slate-800 text-xs">{info.label}</p>
-                          <p className="text-slate-400 text-[9px]">{m.vehicle} - {m.distance} - {m.duration}</p>
+                          <p className="text-slate-400 text-[9px]">{fmtDate(when)} - {fmtTime(when)}</p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-[#2A9D8F] text-sm" style={{ fontFamily: "'Space Grotesk', monospace" }}>+{m.earning} F</p>
-                        {m.bonus > 0 && <p className="text-[#F77F00] text-[9px]">+{m.bonus} F bonus</p>}
-                      </div>
+                      <span className="px-2 py-0.5 rounded-full text-[9px] bg-amber-50 text-amber-600">
+                        Planifiee
+                      </span>
                     </div>
 
-                    {/* Client */}
-                    <div className="flex items-center gap-2 mb-3">
-                      <ProfileAvatar initials={m.clientInitials} size={28} />
-                      <span className="text-slate-600 text-[11px]">{m.clientName}</span>
-                      <div className="flex items-center gap-0.5">
-                        <Star className="w-3 h-3 text-[#E9C46A] fill-[#E9C46A]" />
-                        <span className="text-slate-500 text-[9px]">{m.clientRating}</span>
-                      </div>
-                      {m.stops && <span className="text-slate-400 text-[9px]">- {m.stops} arrêts</span>}
-                      {m.weight && <span className="text-slate-400 text-[9px]">- {m.weight}</span>}
-                      {m.passengers && <span className="text-slate-400 text-[9px]">- {m.passengers} passagers</span>}
-                    </div>
-
-                    {/* Route */}
                     <div className="flex items-start gap-2 mb-3">
                       <div className="flex flex-col items-center mt-1">
                         <div className="w-2 h-2 rounded-full bg-[#2A9D8F]" />
@@ -253,169 +316,35 @@ export function DriverMissionsPage() {
                         <div className="w-2 h-2 rounded-full bg-[#F77F00]" />
                       </div>
                       <div className="flex-1 space-y-2">
-                        <p className="text-slate-600 text-[10px]">{m.from}</p>
-                        <p className="text-slate-600 text-[10px]">{m.to}</p>
+                        <p className="text-slate-500 text-[10px]">{m.origin?.label ?? "—"}</p>
+                        <p className="text-slate-500 text-[10px]">{m.destination?.label ?? "—"}</p>
                       </div>
+                      <span className="text-[#2A9D8F] text-xs" style={{ fontFamily: "'Space Grotesk', monospace" }}>+{m.priceXOF} F</span>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2">
-                      <button onClick={() => toast.info("Mission ignorée")} className="py-2.5 rounded-xl border border-slate-200 text-slate-500 text-[11px]">Ignorer</button>
-                      <button onClick={() => acceptMission(m.id)} className="py-2.5 rounded-xl bg-[#2A9D8F] text-white text-[11px] shadow-md shadow-emerald-500/15">Accepter</button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {/* ═══ ACTIVES ═══ */}
-        {tab === "actives" && (
-          <div className="space-y-3">
-            {active.length === 0 && (
-              <div className="text-center py-16">
-                <Navigation className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                <p className="text-slate-400 text-sm">Aucune mission active</p>
-              </div>
-            )}
-            {active.map(m => {
-              const info = typeInfo[m.type];
-              const expanded = expandedActive === m.id;
-              return (
-                <div key={m.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
-                  <button onClick={() => setExpandedActive(expanded ? null : m.id)} className="w-full">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                        <span className="text-slate-800 text-xs">{info.label} - {m.id}</span>
-                      </div>
-                      <span className={`px-2 py-0.5 rounded-full text-[9px] ${statusColors[m.status]}`}>
-                        {statusLabels[m.status]}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2 mb-2">
-                      <ProfileAvatar initials={m.clientInitials} size={28} />
-                      <span className="text-slate-600 text-[11px]">{m.clientName}</span>
-                    </div>
-
-                    <div className="flex items-start gap-2">
-                      <div className="flex flex-col items-center mt-1">
-                        <div className="w-2 h-2 rounded-full bg-[#2A9D8F]" />
-                        <div className="w-px h-4 bg-slate-200" />
-                        <div className="w-2 h-2 rounded-full bg-[#F77F00]" />
-                      </div>
-                      <div className="flex-1 space-y-2 text-left">
-                        <p className="text-slate-600 text-[10px]">{m.from}</p>
-                        <p className="text-slate-600 text-[10px]">{m.to}</p>
-                      </div>
-                      <span className="text-[#2A9D8F] text-xs" style={{ fontFamily: "'Space Grotesk', monospace" }}>+{m.earning} F</span>
-                    </div>
-                  </button>
-
-                  {expanded && (
-                    <div className="mt-4 pt-4 border-t border-slate-100 space-y-3">
-                      <div className="grid grid-cols-2 gap-2">
-                        <button
-                          onClick={() => window.open(`tel:${m.clientPhone}`)}
-                          className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#1E6091]/10 text-[#1E6091] text-[11px]"
-                        >
-                          <Phone className="w-3.5 h-3.5" /> Appeler
-                        </button>
-                        <button
-                          onClick={() => toast.success("Chat ouvert")}
-                          className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#2A9D8F]/10 text-[#2A9D8F] text-[11px]"
-                        >
-                          <MessageSquare className="w-3.5 h-3.5" /> Message
-                        </button>
-                      </div>
+                      <button
+                        onClick={async () => {
+                          try { await api.post(`/rides/${m.id}/cancel`); } catch { /* ignore */ }
+                          setRides(prev => prev.filter(s => s.id !== m.id));
+                          toast.success("Mission annulee");
+                        }}
+                        className="py-2 rounded-xl border border-slate-200 text-slate-500 text-[10px]"
+                      >
+                        Annuler
+                      </button>
                       <button
                         onClick={() => navigate("/driver/tracking")}
-                        className="w-full py-3 rounded-xl bg-[#2A9D8F] text-white text-xs shadow-md shadow-emerald-500/15 flex items-center justify-center gap-2"
+                        className="py-2 rounded-xl bg-[#1E6091] text-white text-[10px]"
                       >
-                        <Navigation className="w-4 h-4" /> Ouvrir navigation
+                        Voir details
                       </button>
-                      {m.otp && (
-                        <div className="bg-amber-50 rounded-xl p-3 flex items-center justify-between">
-                          <span className="text-amber-700 text-[10px]">Code OTP client :</span>
-                          <span className="text-amber-800 text-sm" style={{ fontFamily: "'Space Grotesk', monospace" }}>{m.otp}</span>
-                        </div>
-                      )}
                     </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {/* ═══ PLANIFIEES ═══ */}
-        {tab === "planifiees" && (
-          <div className="space-y-3">
-            {scheduled.length === 0 && (
-              <div className="text-center py-16">
-                <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                <p className="text-slate-400 text-sm">Aucune mission planifiee</p>
-              </div>
-            )}
-            {scheduled.map(m => {
-              const info = typeInfo[m.type];
-              return (
-                <div key={m.id} className="bg-white rounded-2xl border border-slate-100 p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: `${info.color}15` }}>
-                        <info.icon className="w-4 h-4" style={{ color: info.color }} />
-                      </div>
-                      <div>
-                        <p className="text-slate-800 text-xs">{info.label}</p>
-                        <p className="text-slate-400 text-[9px]">{m.date} - {m.timeSlot}</p>
-                      </div>
-                    </div>
-                    <span className={`px-2 py-0.5 rounded-full text-[9px] ${m.status === "confirmed" ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600"}`}>
-                      {m.status === "confirmed" ? "Confirme" : "En attente"}
-                    </span>
                   </div>
-
-                  <div className="flex items-center gap-2 mb-2">
-                    <ProfileAvatar initials={m.clientInitials} size={24} />
-                    <span className="text-slate-600 text-[10px]">{m.clientName}</span>
-                  </div>
-
-                  <div className="flex items-start gap-2 mb-3">
-                    <div className="flex flex-col items-center mt-1">
-                      <div className="w-2 h-2 rounded-full bg-[#2A9D8F]" />
-                      <div className="w-px h-4 bg-slate-200" />
-                      <div className="w-2 h-2 rounded-full bg-[#F77F00]" />
-                    </div>
-                    <div className="flex-1 space-y-2">
-                      <p className="text-slate-500 text-[10px]">{m.from}</p>
-                      <p className="text-slate-500 text-[10px]">{m.to}</p>
-                    </div>
-                    <span className="text-[#2A9D8F] text-xs" style={{ fontFamily: "'Space Grotesk', monospace" }}>+{m.earning} F</span>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      onClick={() => {
-                        setScheduled(prev => prev.filter(s => s.id !== m.id));
-                        toast.success("Mission annulee");
-                      }}
-                      className="py-2 rounded-xl border border-slate-200 text-slate-500 text-[10px]"
-                    >
-                      Annuler
-                    </button>
-                    <button
-                      onClick={() => toast.info("Navigation demarree")}
-                      className="py-2 rounded-xl bg-[#1E6091] text-white text-[10px]"
-                    >
-                      Voir details
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )
         )}
       </div>
     </div>

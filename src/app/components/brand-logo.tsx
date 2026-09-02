@@ -1,5 +1,5 @@
 /**
- * <BrandLogo/> — Logo officiel IPPOO TRIIP présenté dans une pastille blanche.
+ * <BrandLogo/> - Logo officiel IPPOO TRIIP présenté dans une pastille blanche.
  *
  * Le fichier source est sur fond blanc : on l'encapsule donc dans un conteneur
  * blanc arrondi afin qu'il ressorte proprement, y compris au-dessus des fonds
@@ -15,7 +15,7 @@ export function BrandLogo({
 }: {
   height?: number;
   className?: string;
-  /** Affiche le logo seul (sans pastille blanche) — idéal sur un fond déjà blanc */
+  /** Affiche le logo seul (sans pastille blanche) - idéal sur un fond déjà blanc */
   plain?: boolean;
 }) {
   if (plain) {

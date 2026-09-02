@@ -12,14 +12,14 @@ import { LANGUAGE_OPTIONS } from "../i18n/translations";
 import { useT } from "../i18n/use-t";
 import { Moon, Sun, Wifi, WifiOff, Zap, ZapOff } from "lucide-react";
 
-/* ── Haptic feedback ── */
+/* -- Haptic feedback -- */
 export function haptic(pattern: number | number[] = 15) {
   if (typeof navigator !== "undefined" && "vibrate" in navigator) {
     try { navigator.vibrate(pattern); } catch {}
   }
 }
 
-/* ── Skeleton ── */
+/* -- Skeleton -- */
 export function Skeleton({ className = "" }: { className?: string }) {
   return (
     <div
@@ -31,7 +31,7 @@ export function Skeleton({ className = "" }: { className?: string }) {
   );
 }
 
-/* ── Offline banner ── */
+/* -- Offline banner -- */
 export function OfflineBanner() {
   const { state } = useAppStore();
   const t = useT();
@@ -43,7 +43,7 @@ export function OfflineBanner() {
   );
 }
 
-/* ── Online pill (debug) ── */
+/* -- Online pill (debug) -- */
 export function NetworkPill() {
   const { state } = useAppStore();
   const Icon = state.online ? Wifi : WifiOff;
@@ -59,7 +59,7 @@ export function NetworkPill() {
   );
 }
 
-/* ── Language picker ── */
+/* -- Language picker -- */
 export function LanguagePicker() {
   const { state, dispatch } = useAppStore();
   return (
@@ -82,7 +82,7 @@ export function LanguagePicker() {
   );
 }
 
-/* ── Theme toggle ── */
+/* -- Theme toggle -- */
 export function ThemeToggle() {
   const { state, dispatch } = useAppStore();
   const isDark = state.theme === "dark";
@@ -104,7 +104,7 @@ export function ThemeToggle() {
   );
 }
 
-/* ── Low data toggle ── */
+/* -- Low data toggle -- */
 export function LowDataToggle() {
   const { state, dispatch } = useAppStore();
   const on = state.lowDataMode;
@@ -126,7 +126,7 @@ export function LowDataToggle() {
   );
 }
 
-/* ── Skip link a11y ── */
+/* -- Skip link a11y -- */
 export function SkipToContent() {
   return (
     <a href="#main" className="skip-link">

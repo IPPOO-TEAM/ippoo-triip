@@ -5,10 +5,21 @@ import {
   LayoutDashboard, Users, Car, Route, Wallet, Headphones, Settings, Bell,
   ChevronLeft, ChevronRight, LogOut, Search, Menu, X, Shield, Tag
 } from "lucide-react";
-import { getAvatar } from "../avatars";
 import { PWAInstallPrompt } from "../pwa-install-prompt";
 import { PushNotificationHost } from "../push-host";
-import logoImg from "../../../imports/IPPOO_Transport_&_Logistique-1.png";
+import { RequireAuth } from "../require-auth";
+import { useAppStore } from "../../store/app-store";
+
+/** Avatar admin : vraie photo du compte si disponible, sinon cercle d'initiales. */
+function AdminAvatar({ photoUrl, initials, size }: { photoUrl?: string | null; initials: string; size: number }) {
+  return (
+    <div className="rounded-full overflow-hidden flex items-center justify-center shrink-0 bg-gradient-to-br from-[#F77F00] to-amber-400" style={{ width: size, height: size }}>
+      {photoUrl
+        ? <img src={photoUrl} alt="" className="w-full h-full object-cover" />
+        : <span className="text-white text-xs font-bold">{initials}</span>}
+    </div>
+  );
+}
 
 const NAV_ITEMS = [
   { path: "/admin", icon: LayoutDashboard, label: "Tableau de bord", exact: true },
@@ -25,6 +36,14 @@ const NAV_ITEMS = [
 export function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout, state } = useAppStore();
+  const adminName = state.user?.fullName ?? "Administrateur";
+  const adminInitials = (state.user?.fullName ?? "")
+    .split(" ").filter(Boolean).slice(0, 2).map((p) => p[0]?.toUpperCase() ?? "").join("") || "AD";
+  const handleLogout = async () => {
+    await logout();
+    navigate("/admin/login", { replace: true });
+  };
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const mainRef = useRef<HTMLElement>(null);
@@ -39,10 +58,17 @@ export function AdminLayout() {
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
-      {/* Logo */}
+      {/* Wordmark */}
       <div className="flex items-center gap-3 px-4 h-16 border-b border-slate-700/50 shrink-0">
-        <img src={logoImg} alt="IPPOO" className="h-8 object-contain brightness-0 invert" />
-        {!collapsed && <span className="text-white/90 text-xs whitespace-nowrap">Administration</span>}
+        <div className="w-8 h-8 rounded-xl bg-[#F77F00] flex items-center justify-center shrink-0">
+          <span className="text-white font-black text-sm leading-none" style={{ fontFamily: "Plus Jakarta Sans, sans-serif" }}>I</span>
+        </div>
+        {!collapsed && (
+          <div className="flex flex-col leading-none">
+            <span className="text-white font-extrabold text-sm tracking-tight" style={{ fontFamily: "Plus Jakarta Sans, sans-serif" }}>IPPOO</span>
+            <span className="text-white/45 text-[10px] tracking-widest uppercase" style={{ fontFamily: "Space Grotesk, sans-serif" }}>Admin</span>
+          </div>
+        )}
       </div>
 
       {/* Nav */}
@@ -70,15 +96,15 @@ export function AdminLayout() {
       {/* Admin profile */}
       <div className="border-t border-slate-700/50 p-3 shrink-0">
         <div className="flex items-center gap-3">
-          <img src={getAvatar("SA") || ""} alt="" className="w-9 h-9 rounded-full object-cover shrink-0" />
+          <AdminAvatar photoUrl={state.user?.avatarUrl} initials={adminInitials} size={36} />
           {!collapsed && (
             <div className="flex-1 min-w-0">
-              <p className="text-white text-xs truncate">Sessinou Akotègnon</p>
-              <p className="text-slate-500 text-[10px]">Super Admin</p>
+              <p className="text-white text-xs truncate">{adminName}</p>
+              <p className="text-slate-500 text-[10px]">{state.user?.email ?? "Administrateur"}</p>
             </div>
           )}
           {!collapsed && (
-            <button onClick={() => navigate("/login")} className="text-slate-500 hover:text-red-400 transition">
+            <button onClick={handleLogout} className="text-slate-500 hover:text-red-400 transition">
               <LogOut className="w-4 h-4" />
             </button>
           )}
@@ -96,6 +122,7 @@ export function AdminLayout() {
   );
 
   return (
+    <RequireAuth role="admin">
     <div className="flex h-screen bg-slate-100 overflow-hidden">
       <PWAInstallPrompt />
       <PushNotificationHost audience="admin" />
@@ -151,7 +178,9 @@ export function AdminLayout() {
             </button>
 
             {/* Admin avatar */}
-            <img src={getAvatar("SA") || ""} alt="" className="w-8 h-8 rounded-full object-cover hidden sm:block" />
+            <div className="hidden sm:block">
+              <AdminAvatar photoUrl={state.user?.avatarUrl} initials={adminInitials} size={32} />
+            </div>
           </div>
         </header>
 
@@ -161,5 +190,6 @@ export function AdminLayout() {
         </main>
       </div>
     </div>
+    </RequireAuth>
   );
 }

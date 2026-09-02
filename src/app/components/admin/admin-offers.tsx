@@ -1,5 +1,5 @@
 /**
- * Back office — Édition des offres, tarifs, fiches et localisation.
+ * Back office - Édition des offres, tarifs, fiches et localisation.
  * Toutes les modifications sont enregistrées en temps réel dans la config
  * centrale et reflétées immédiatement sur l'ensemble de la plateforme.
  */
@@ -53,7 +53,7 @@ export function AdminOffersPage() {
         </button>
       </div>
 
-      {/* ─── OFFRES & FICHES ─── */}
+      {/* --- OFFRES & FICHES --- */}
       <section className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
         <header className="flex items-center gap-2 px-5 py-4 border-b border-slate-100">
           <div className="w-8 h-8 rounded-lg bg-[#1E6091]/10 flex items-center justify-center">
@@ -123,7 +123,7 @@ export function AdminOffersPage() {
         </div>
       </section>
 
-      {/* ─── VÉHICULES DE COURSE ─── */}
+      {/* --- VÉHICULES DE COURSE --- */}
       <section className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
         <header className="flex items-center gap-2 px-5 py-4 border-b border-slate-100">
           <div className="w-8 h-8 rounded-lg bg-[#F77F00]/10 flex items-center justify-center">
@@ -182,7 +182,7 @@ export function AdminOffersPage() {
         </div>
       </section>
 
-      {/* ─── LOCALISATION & CONTACT ─── */}
+      {/* --- LOCALISATION & CONTACT --- */}
       <section className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
         <header className="flex items-center gap-2 px-5 py-4 border-b border-slate-100">
           <div className="w-8 h-8 rounded-lg bg-[#2A9D8F]/10 flex items-center justify-center">

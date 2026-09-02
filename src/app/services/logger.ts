@@ -1,5 +1,5 @@
 /**
- * Logger applicatif IPPOO — front uniquement, prêt à brancher Sentry/LogRocket.
+ * Logger applicatif IPPOO - front uniquement, prêt à brancher Sentry/LogRocket.
  * Buffer les 100 derniers événements pour exfiltration via "Signaler un bug".
  */
 type Level = "debug" | "info" | "warn" | "error";

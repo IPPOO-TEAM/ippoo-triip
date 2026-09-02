@@ -1,6 +1,6 @@
-/* ─── IPPOO : Dark mode + Mode basse data ─── */
+/* --- IPPOO : Dark mode + Mode basse data --- */
 
-/* Dark mode — appliqué via [data-theme="dark"] sur <html> */
+/* Dark mode - appliqué via [data-theme="dark"] sur <html> */
 html[data-theme="dark"] {
   color-scheme: dark;
   --ippoo-bg: #0F1419;
@@ -38,7 +38,7 @@ html[data-theme="dark"] .border-gray-200 {
   border-color: var(--ippoo-border) !important;
 }
 
-/* Mode basse data — désactive animations, gradients, ombres, images de fond */
+/* Mode basse data - désactive animations, gradients, ombres, images de fond */
 html[data-low-data="1"] *,
 html[data-low-data="1"] *::before,
 html[data-low-data="1"] *::after {

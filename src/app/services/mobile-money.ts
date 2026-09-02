@@ -1,5 +1,5 @@
 /**
- * Service Mobile Money IPPOO — Bénin.
+ * Service Mobile Money IPPOO - Bénin.
  * Détecte automatiquement l'opérateur depuis le préfixe et lance le flow USSD/STK.
  *
  * Préfixes Bénin (8 chiffres, sans 229) :

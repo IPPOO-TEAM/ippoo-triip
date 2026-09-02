@@ -1,5 +1,5 @@
 /**
- * Wrapper Sentry IPPOO — no-op par défaut, branchable en ajoutant @sentry/react.
+ * Wrapper Sentry IPPOO - no-op par défaut, branchable en ajoutant @sentry/react.
  *
  * Activation : remplacer le contenu de init() par :
  *   import * as Sentry from "@sentry/react";

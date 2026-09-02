@@ -1,5 +1,5 @@
 /**
- * Hook d'authentification IPPOO — encapsule le flux OTP.
+ * Hook d'authentification IPPOO - encapsule le flux OTP.
  * Usage :
  *   const { sendOtp, verify, logout, loading, error } = useAuth();
  */
@@ -10,6 +10,7 @@ import { requestOtp, verifyOtp } from "../services/auth";
 import { useAppStore } from "../store/app-store";
 import { logger } from "../services/logger";
 import { ApiError } from "../api/client";
+import { setSupabaseAuth } from "../lib/supabase";
 
 export function useAuth() {
   const navigate = useNavigate();
@@ -36,6 +37,8 @@ export function useAuth() {
     try {
       const session = await verifyOtp(phone, otp);
       dispatch({ type: "SET_USER", user: session.user });
+      // Active les souscriptions Realtime authentifiees (RLS)
+      setSupabaseAuth(session.accessToken ?? null);
       toast.success("Connexion réussie", { description: `Bienvenue ${session.user.fullName}` });
       navigate(redirect);
       return session.user;

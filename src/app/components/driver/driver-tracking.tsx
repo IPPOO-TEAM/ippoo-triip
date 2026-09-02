@@ -1,16 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 import {
-  ChevronLeft, Phone, MessageSquare, Share2, Star, Navigation, MapPin,
-  X, Send, Shield, AlertTriangle, Clock, Check, ChevronRight,
-  Wallet, Camera, Flag, Copy, CheckCircle2, Route, Bike,
-  PhoneOff, CornerDownRight, Package, ChevronDown
+  ChevronLeft, Phone, MessageSquare, Star, Navigation, MapPin,
+  X, Send, Shield, AlertTriangle, Clock, Check, CheckCircle2, Route, Camera
 } from "lucide-react";
 import { toast } from "sonner";
 import { ProfileAvatar } from "../profile-avatar";
-import { getAvatar } from "../avatars";
 import { TrackingMap } from "../tracking-map";
-import { generateOTP } from "../utils";
+import { api } from "../../api/client";
 
 type RideState = "en_route_pickup" | "at_pickup" | "waiting_otp" | "in_progress" | "near_dest" | "completed";
 
@@ -21,14 +18,42 @@ interface ChatMsg {
   time: string;
 }
 
-const clientReplies = [
-  "D'accord, je suis devant l'entree",
-  "OK je descends tout de suite",
-  "Merci, a quelle distance etes-vous ?",
-  "Je suis en chemise bleue",
-  "C'est bien note, merci !",
-  "Parfait j'arrive",
-];
+interface LatLng { lat: number; lng: number }
+
+interface Ride {
+  id: string;
+  serviceType: string;
+  status: string;
+  origin: { lat: number; lng: number; label?: string };
+  destination: { lat: number; lng: number; label?: string };
+  priceXOF: number;
+  distanceKm: number;
+  durationMin: number;
+  otp?: string;
+  driverName?: string;
+  driverPlate?: string;
+  driverRating?: number;
+}
+
+const ACTIVE_STATUSES = ["requested", "accepted", "arriving", "in_progress"];
+
+function serviceLabel(t: string) {
+  if (t === "delivery") return "Livraison";
+  if (t === "heavy_transport") return "Transport";
+  if (t === "carpool") return "Covoiturage";
+  return "Course moto";
+}
+
+function statusToState(s: string): RideState {
+  switch (s) {
+    case "requested":
+    case "accepted": return "en_route_pickup";
+    case "arriving": return "at_pickup";
+    case "in_progress": return "in_progress";
+    case "completed": return "completed";
+    default: return "en_route_pickup";
+  }
+}
 
 function StatusBadge({ color, text, pulse = false }: { color: string; text: string; pulse?: boolean }) {
   const styles: Record<string, string> = {
@@ -37,6 +62,7 @@ function StatusBadge({ color, text, pulse = false }: { color: string; text: stri
     green: "bg-emerald-50 text-emerald-600 border-emerald-200",
     orange: "bg-orange-50 text-orange-600 border-orange-200",
     cyan: "bg-cyan-50 text-cyan-600 border-cyan-200",
+    slate: "bg-slate-50 text-slate-500 border-slate-200",
   };
   return (
     <div className={`px-3 py-1.5 rounded-full text-[10px] tracking-wide border shadow-sm flex items-center gap-1.5 ${styles[color]}`}>
@@ -48,48 +74,58 @@ function StatusBadge({ color, text, pulse = false }: { color: string; text: stri
 
 export function DriverTrackingPage() {
   const navigate = useNavigate();
-  const [rideState, setRideState] = useState<RideState>("en_route_pickup");
+  const [loading, setLoading] = useState(true);
+  const [ride, setRide] = useState<Ride | null>(null);
   const [showChat, setShowChat] = useState(false);
-  const [chatMessages, setChatMessages] = useState<ChatMsg[]>([
-    { id: 1, from: "client", text: "Bonjour, je suis devant la pharmacie", time: "12:06" },
-  ]);
+  const [chatMessages, setChatMessages] = useState<ChatMsg[]>([]);
   const [msgInput, setMsgInput] = useState("");
-  const [eta, setEta] = useState(4);
-  const [earning, setEarning] = useState(950);
-  const [otp] = useState(generateOTP());
   const [otpInput, setOtpInput] = useState("");
   const [showEmergency, setShowEmergency] = useState(false);
-  const [clientRating, setClientRating] = useState(4);
+  const [clientRating, setClientRating] = useState(0);
   const [showComplete, setShowComplete] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  const client = {
-    name: "Gbètoho Bokossa",
-    initials: "GB",
-    rating: 4.8,
-    phone: "+229 97 65 43 21",
-    ridesWithYou: 3,
-  };
-
-  const rideInfo = {
-    id: "IPP-M-20260411-001",
-    type: "Course moto",
-    from: "Carrefour Cadjehoun",
-    to: "Hopital CNHU",
-    distance: "3.1 km",
-  };
-
+  // Récupère la course active réelle du chauffeur, puis suit sa progression.
   useEffect(() => {
-    if (rideState === "completed") return;
-    const timer = setInterval(() => {
-      setEta(prev => (prev > 0 ? prev - 1 : 0));
-    }, 15000);
-    return () => clearInterval(timer);
-  }, [rideState]);
+    let cancelled = false;
+    let interval: ReturnType<typeof setInterval> | null = null;
+
+    const loadRide = async (id: string) => {
+      try {
+        const r = await api.get<Ride>(`/rides/${id}`);
+        if (!cancelled && r) {
+          setRide(r);
+          if (r.status === "completed") setShowComplete(true);
+        }
+      } catch { /* ignore */ }
+    };
+
+    (async () => {
+      setLoading(true);
+      try {
+        const missions = await api.get<Ride[]>("/driver/missions");
+        const active = (Array.isArray(missions) ? missions : []).find((m) => ACTIVE_STATUSES.includes(m.status));
+        if (!cancelled && active) {
+          await loadRide(active.id);
+          interval = setInterval(() => loadRide(active.id), 8000);
+        }
+      } catch { /* ignore */ }
+      if (!cancelled) setLoading(false);
+    })();
+
+    return () => { cancelled = true; if (interval) clearInterval(interval); };
+  }, []);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages]);
+
+  const rideState: RideState = ride ? statusToState(ride.status) : "en_route_pickup";
+  const earning = ride?.priceXOF ?? 0;
+  const eta = ride?.durationMin ?? null;
+
+  const origin: LatLng | null = ride && ride.origin?.lat ? { lat: ride.origin.lat, lng: ride.origin.lng } : null;
+  const destination: LatLng | null = ride && ride.destination?.lat ? { lat: ride.destination.lat, lng: ride.destination.lng } : null;
 
   const sendMessage = () => {
     if (!msgInput.trim()) return;
@@ -97,51 +133,64 @@ export function DriverTrackingPage() {
     const time = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
     setChatMessages(prev => [...prev, { id: prev.length + 1, from: "driver", text: msgInput, time }]);
     setMsgInput("");
-    setTimeout(() => {
-      const reply = clientReplies[Math.floor(Math.random() * clientReplies.length)];
-      const t = new Date();
-      setChatMessages(prev => [...prev, { id: prev.length + 1, from: "client", text: reply, time: `${t.getHours().toString().padStart(2, "0")}:${t.getMinutes().toString().padStart(2, "0")}` }]);
-    }, 2000 + Math.random() * 3000);
-  };
-
-  const advanceState = () => {
-    const flow: RideState[] = ["en_route_pickup", "at_pickup", "waiting_otp", "in_progress", "near_dest", "completed"];
-    const idx = flow.indexOf(rideState);
-    if (idx < flow.length - 1) {
-      const next = flow[idx + 1];
-      if (next === "waiting_otp") {
-        // skip if no OTP needed
-      }
-      setRideState(next);
-      if (next === "completed") setShowComplete(true);
-    }
   };
 
   const validateOtp = () => {
-    if (otpInput === otp || otpInput.length === 6) {
-      toast.success("Code OTP valide !");
-      setRideState("in_progress");
+    if (ride?.otp) {
+      if (otpInput === ride.otp) toast.success("Code OTP valide !");
+      else { toast.error("Code incorrect"); return; }
+    } else if (otpInput.length === 6) {
+      toast.success("Code OTP transmis !");
     } else {
-      toast.error("Code incorrect");
+      toast.error("Code incomplet");
+      return;
     }
   };
 
   const stateConfig: Record<RideState, { color: string; label: string; action: string; actionColor: string }> = {
-    en_route_pickup: { color: "blue", label: "En route vers le client", action: "Je suis arrive", actionColor: "bg-[#1E6091]" },
-    at_pickup: { color: "amber", label: "Au point de prise en charge", action: "Verifier OTP", actionColor: "bg-[#F77F00]" },
+    en_route_pickup: { color: "blue", label: "En route vers le client", action: "Actualiser", actionColor: "bg-[#1E6091]" },
+    at_pickup: { color: "amber", label: "Au point de prise en charge", action: "Actualiser", actionColor: "bg-[#F77F00]" },
     waiting_otp: { color: "amber", label: "En attente du code OTP", action: "Valider OTP", actionColor: "bg-[#F77F00]" },
-    in_progress: { color: "green", label: "Course en cours", action: "Proche destination", actionColor: "bg-[#2A9D8F]" },
+    in_progress: { color: "green", label: "Course en cours", action: "Actualiser", actionColor: "bg-[#2A9D8F]" },
     near_dest: { color: "orange", label: "Proche de la destination", action: "Terminer la course", actionColor: "bg-[#2A9D8F]" },
     completed: { color: "green", label: "Course terminee", action: "", actionColor: "" },
   };
 
   const config = stateConfig[rideState];
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center" style={{ height: "100dvh" }}>
+        <div className="w-8 h-8 border-2 border-slate-200 border-t-[#2A9D8F] rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!ride) {
+    return (
+      <div className="relative flex flex-col" style={{ height: "100dvh" }}>
+        <div className="absolute top-0 left-0 right-0 pt-12 px-5 z-10">
+          <button onClick={() => navigate("/driver")} className="w-10 h-10 rounded-2xl bg-white shadow-sm flex items-center justify-center">
+            <ChevronLeft className="w-5 h-5 text-slate-600" />
+          </button>
+        </div>
+        <div className="flex-1 flex flex-col items-center justify-center px-8 text-center">
+          <Navigation className="w-14 h-14 text-slate-300 mb-4" />
+          <p className="text-slate-500 text-sm">Aucune course active</p>
+          <p className="text-slate-400 text-[11px] mt-1">Acceptez une mission pour demarrer la navigation</p>
+          <button onClick={() => navigate("/driver/missions")} className="mt-6 px-6 py-3 rounded-2xl bg-[#2A9D8F] text-white text-xs">
+            Voir les missions
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative flex flex-col" style={{ height: "100dvh" }}>
       {/* Map */}
       <div className="flex-1 relative">
-        <TrackingMap />
+        <TrackingMap origin={origin} destination={destination} active={rideState !== "completed"} />
 
         {/* Top bar */}
         <div className="absolute top-0 left-0 right-0 pt-12 px-5 z-10">
@@ -160,7 +209,7 @@ export function DriverTrackingPage() {
         {rideState !== "completed" && (
           <div className="absolute top-28 left-1/2 -translate-x-1/2 z-10 bg-white rounded-full px-4 py-2 shadow-sm flex items-center gap-2">
             <Clock className="w-4 h-4 text-[#1E6091]" />
-            <span className="text-slate-700 text-xs" style={{ fontFamily: "'Space Grotesk', monospace" }}>~{eta} min</span>
+            <span className="text-slate-700 text-xs" style={{ fontFamily: "'Space Grotesk', monospace" }}>{eta != null ? `~${eta} min` : "—"}</span>
           </div>
         )}
       </div>
@@ -170,8 +219,8 @@ export function DriverTrackingPage() {
         {/* Ride info */}
         <div className="flex items-center justify-between mb-4">
           <div>
-            <p className="text-slate-800 text-xs">{rideInfo.type}</p>
-            <p className="text-slate-400 text-[9px]">{rideInfo.id}</p>
+            <p className="text-slate-800 text-xs">{serviceLabel(ride.serviceType)}</p>
+            <p className="text-slate-400 text-[9px]">{ride.id}</p>
           </div>
           <span className="text-[#2A9D8F] text-sm" style={{ fontFamily: "'Space Grotesk', monospace" }}>+{earning} F</span>
         </div>
@@ -186,33 +235,29 @@ export function DriverTrackingPage() {
           <div className="flex-1 space-y-3">
             <div>
               <p className="text-slate-400 text-[8px]">PRISE EN CHARGE</p>
-              <p className="text-slate-700 text-[11px]">{rideInfo.from}</p>
+              <p className="text-slate-700 text-[11px]">{ride.origin?.label ?? "—"}</p>
             </div>
             <div>
               <p className="text-slate-400 text-[8px]">DESTINATION</p>
-              <p className="text-slate-700 text-[11px]">{rideInfo.to}</p>
+              <p className="text-slate-700 text-[11px]">{ride.destination?.label ?? "—"}</p>
             </div>
           </div>
-          <span className="text-slate-400 text-[10px]">{rideInfo.distance}</span>
+          <span className="text-slate-400 text-[10px]">{ride.distanceKm ? `${ride.distanceKm} km` : "—"}</span>
         </div>
 
         {/* Client card */}
         <div className="bg-slate-50 rounded-xl p-3 flex items-center gap-3 mb-4">
-          <ProfileAvatar initials={client.initials} size={44} />
+          <ProfileAvatar initials="?" size={44} />
           <div className="flex-1">
-            <p className="text-slate-700 text-xs">{client.name}</p>
+            <p className="text-slate-700 text-xs">Client</p>
             <div className="flex items-center gap-2 text-[10px]">
-              <div className="flex items-center gap-0.5">
-                <Star className="w-3 h-3 text-[#E9C46A] fill-[#E9C46A]" />
-                <span className="text-slate-500">{client.rating}</span>
-              </div>
-              <span className="text-slate-300">-</span>
-              <span className="text-slate-400">{client.ridesWithYou} courses ensemble</span>
+              <Route className="w-3 h-3 text-slate-400" />
+              <span className="text-slate-400">{serviceLabel(ride.serviceType)}</span>
             </div>
           </div>
           <div className="flex gap-2">
             <button
-              onClick={() => window.open(`tel:${client.phone}`)}
+              onClick={() => toast.info("Coordonnees client indisponibles")}
               className="w-10 h-10 rounded-xl bg-[#1E6091]/10 flex items-center justify-center"
             >
               <Phone className="w-4 h-4 text-[#1E6091]" />
@@ -227,7 +272,7 @@ export function DriverTrackingPage() {
         </div>
 
         {/* OTP Section */}
-        {(rideState === "at_pickup" || rideState === "waiting_otp") && (
+        {rideState === "at_pickup" && (
           <div className="bg-amber-50 rounded-xl p-4 mb-4">
             <p className="text-amber-700 text-xs mb-2">Demandez le code OTP au client</p>
             <div className="flex gap-2">
@@ -252,11 +297,13 @@ export function DriverTrackingPage() {
         )}
 
         {/* Action button */}
-        {rideState !== "completed" && rideState !== "waiting_otp" && (
+        {rideState !== "completed" && (
           <button
-            onClick={() => {
-              if (rideState === "at_pickup") setRideState("waiting_otp");
-              else advanceState();
+            onClick={async () => {
+              try {
+                const r = await api.get<Ride>(`/rides/${ride.id}`);
+                if (r) { setRide(r); if (r.status === "completed") setShowComplete(true); }
+              } catch { /* ignore */ }
             }}
             className={`w-full py-4 rounded-2xl text-white text-sm shadow-sm flex items-center justify-center gap-2 ${config.actionColor}`}
           >
@@ -265,8 +312,8 @@ export function DriverTrackingPage() {
           </button>
         )}
 
-        {/* Photo proof for delivery */}
-        {rideState === "near_dest" && (
+        {/* Photo proof */}
+        {rideState === "in_progress" && ride.serviceType === "delivery" && (
           <button
             onClick={() => toast.success("Photo de preuve capturee")}
             className="w-full mt-3 py-3 rounded-xl border border-slate-200 text-slate-600 text-xs flex items-center justify-center gap-2"
@@ -276,16 +323,16 @@ export function DriverTrackingPage() {
         )}
       </div>
 
-      {/* ═══ CHAT SHEET ═══ */}
+      {/* --- CHAT SHEET --- */}
       {showChat && (
         <div className="fixed inset-0 z-50 flex flex-col">
           <div className="absolute inset-0 bg-black/40" onClick={() => setShowChat(false)} />
           <div className="mt-auto relative bg-white rounded-t-3xl shadow-sm flex flex-col" style={{ maxHeight: "75vh" }}>
             <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100 shrink-0">
-              <ProfileAvatar initials={client.initials} size={36} />
+              <ProfileAvatar initials="?" size={36} />
               <div className="flex-1">
-                <p className="text-slate-700 text-xs">{client.name}</p>
-                <p className="text-slate-400 text-[9px]">Client</p>
+                <p className="text-slate-700 text-xs">Client</p>
+                <p className="text-slate-400 text-[9px]">Messagerie course</p>
               </div>
               <button onClick={() => setShowChat(false)} className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
                 <X className="w-4 h-4 text-slate-500" />
@@ -293,6 +340,12 @@ export function DriverTrackingPage() {
             </div>
 
             <div className="flex-1 overflow-y-auto p-5 space-y-3">
+              {chatMessages.length === 0 && (
+                <div className="text-center py-10">
+                  <MessageSquare className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+                  <p className="text-slate-400 text-xs">Aucun message</p>
+                </div>
+              )}
               {chatMessages.map(msg => (
                 <div key={msg.id} className={`flex ${msg.from === "driver" ? "justify-end" : "justify-start"}`}>
                   <div className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl ${msg.from === "driver" ? "bg-[#2A9D8F] text-white rounded-br-md" : "bg-slate-100 text-slate-700 rounded-bl-md"}`}>
@@ -320,7 +373,7 @@ export function DriverTrackingPage() {
         </div>
       )}
 
-      {/* ═══ EMERGENCY ═══ */}
+      {/* --- EMERGENCY --- */}
       {showEmergency && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-5">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowEmergency(false)} />
@@ -345,7 +398,7 @@ export function DriverTrackingPage() {
         </div>
       )}
 
-      {/* ═══ COMPLETION ═══ */}
+      {/* --- COMPLETION --- */}
       {showComplete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-5">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />

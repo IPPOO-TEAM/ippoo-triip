@@ -1,22 +1,20 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
-import { ChevronLeft, X, Navigation, MapPin, Calendar, Search, Star, Clock, Users, Check, Car, Plus } from "lucide-react";
+import { X, Navigation, MapPin, Calendar, Search, Star, Clock, Users, Check, Car, Plus, Route } from "lucide-react";
 import { ProfileAvatar } from "./profile-avatar";
 import { toast } from "sonner";
-import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { api } from "../api/client";
 import { usePlatformConfig, findOffer } from "../store/platform-config";
+import { M3Page, SectionHeader, M3Card, M3Button, EmptyState } from "./m3";
 
 const CARPOOL_IMG = "https://images.unsplash.com/photo-1766330301316-9db45ccf9bb5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhZnJpY2FuJTIwY2l0eSUyMGNhcnBvb2wlMjByaWRlJTIwc2hhcmluZ3xlbnwxfHx8fDE3NzU5MTYyNjl8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
 
 const TRIP_GRADIENTS = ["from-cyan-500 to-teal-600", "from-emerald-400 to-green-500", "from-blue-500 to-blue-600", "from-violet-400 to-purple-500"];
 
-const DEFAULT_TRIPS = [
-  { id: 1, backendId: "", driver: "Sessinou A.", from: "Campus Abomey-Calavi", to: "Cotonou Centre", time: "07:30", date: "Aujourd'hui", seats: 2, price: 500, rating: 4.8, vehicle: "Toyota Yaris", initials: "SA", gradient: "from-cyan-500 to-teal-600" },
-  { id: 2, backendId: "", driver: "Fifamè D.", from: "Akpakpa", to: "Godomey", time: "08:00", date: "Aujourd'hui", seats: 3, price: 400, rating: 4.6, vehicle: "Kia Picanto", initials: "FD", gradient: "from-emerald-400 to-green-500" },
-  { id: 3, backendId: "", driver: "Togbédji M.", from: "Fidjrosse", to: "Campus Abomey-Calavi", time: "17:00", date: "Aujourd'hui", seats: 1, price: 600, rating: 4.9, vehicle: "Honda Fit", initials: "TM", gradient: "from-blue-500 to-blue-600" },
-  { id: 4, backendId: "", driver: "Aїdatou B.", from: "Cotonou Centre", to: "Porto-Novo", time: "09:00", date: "Demain", seats: 2, price: 1200, rating: 4.7, vehicle: "Renault Kwid", initials: "AB", gradient: "from-violet-400 to-purple-500" },
-];
+interface Trip {
+  id: number; backendId: string; driver: string; from: string; to: string;
+  time: string; date: string; seats: number; price: number; rating: number;
+  vehicle: string; initials: string; gradient: string;
+}
 
 const initialsOf = (name: string) => {
   const p = name.trim().split(" ").filter(Boolean);
@@ -24,7 +22,6 @@ const initialsOf = (name: string) => {
 };
 
 export function CarpoolPage() {
-  const navigate = useNavigate();
   const config = usePlatformConfig();
   const carpoolPriceHint = String(findOffer(config, "carpool")?.priceFrom ?? 500);
   const [tab, setTab] = useState<"find" | "offer">("find");
@@ -32,7 +29,7 @@ export function CarpoolPage() {
   const [searchTo, setSearchTo] = useState("");
   const [dateFilter, setDateFilter] = useState("Aujourd'hui");
   const [bookedTrips, setBookedTrips] = useState<number[]>([]);
-  const [trips, setTrips] = useState(DEFAULT_TRIPS);
+  const [trips, setTrips] = useState<Trip[]>([]);
 
   // Offer ride state
   const [offerFrom, setOfferFrom] = useState("");
@@ -43,23 +40,16 @@ export function CarpoolPage() {
   const [offerPrice, setOfferPrice] = useState("");
   const [offerVehicle, setOfferVehicle] = useState("");
   const [isRecurrent, setIsRecurrent] = useState(false);
-  const [parallaxY, setParallaxY] = useState(0);
 
-  useEffect(() => {
-    const handleScroll = () => setParallaxY(window.scrollY * 0.4);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // Charge les trajets depuis le backend mock (repli sur les données locales)
+  // Charge les trajets réellement publiés depuis le backend (aucun jeu de démo)
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
         const list = await api.get<any[]>("/carpools");
-        if (cancelled || !list?.length) return;
+        if (cancelled) return;
         const today = new Date().toDateString();
-        setTrips(list.map((c, i) => {
+        setTrips((list ?? []).map((c, i) => {
           const dep = new Date(c.departAt);
           return {
             id: i + 1,
@@ -71,14 +61,14 @@ export function CarpoolPage() {
             date: dep.toDateString() === today ? "Aujourd'hui" : "Demain",
             seats: c.seatsLeft,
             price: c.pricePerSeatXOF,
-            rating: 4.8,
+            rating: Number(c.rating ?? 0),
             vehicle: c.vehicle,
             initials: initialsOf(c.driverName),
             gradient: TRIP_GRADIENTS[i % TRIP_GRADIENTS.length],
           };
         }));
       } catch {
-        /* repli silencieux */
+        if (!cancelled) setTrips([]);
       }
     })();
     return () => { cancelled = true; };
@@ -91,7 +81,7 @@ export function CarpoolPage() {
     return matchFrom && matchTo && matchDate;
   });
 
-  const handleBook = (trip: typeof DEFAULT_TRIPS[0]) => {
+  const handleBook = (trip: Trip) => {
     if (bookedTrips.includes(trip.id)) {
       setBookedTrips(prev => prev.filter(id => id !== trip.id));
       toast("Reservation annulee", { description: `${trip.from} → ${trip.to}` });
@@ -117,250 +107,235 @@ export function CarpoolPage() {
     setTab("find");
   };
 
-  return (
-    <div className="min-h-screen bg-white">
-      <div className="relative overflow-hidden rounded-b-[2rem] shadow-sm">
-        <ImageWithFallback src={CARPOOL_IMG} alt="" className="absolute inset-0 w-full h-[130%] object-cover will-change-transform" style={{ transform: `translateY(-${parallaxY}px) scale(${1 + parallaxY * 0.001})` }} />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#2A9D8F]/85 via-[#2A9D8F]/70 to-[#1E6091]/80" />
-        <div className="absolute -right-10 -top-10 w-48 h-48 bg-[#E9C46A]/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-36 h-36 bg-[#2A9D8F]/20 rounded-full -ml-16 -mb-10 blur-3xl" />
-        <div className="relative z-10 px-5 pt-14 pb-8">
-          <div className="flex items-center gap-3 mb-5">
-            <button onClick={() => navigate(-1)} className="w-10 h-10 bg-white/15 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/15">
-              <ChevronLeft className="w-5 h-5 text-white" />
-            </button>
-            <div>
-              <h2 className="text-white">Covoiturage</h2>
-              <p className="text-cyan-100 text-xs">Partagez vos trajets, economisez</p>
+  const Hero = (
+    <div className="space-y-4">
+      <div className="flex gap-1.5 rounded-full bg-white/15 p-1.5 backdrop-blur-md border border-white/15">
+        {([["find", "Trouver un trajet"], ["offer", "Proposer un trajet"]] as const).map(([id, label]) => (
+          <button
+            key={id}
+            onClick={() => setTab(id)}
+            className={`flex-1 rounded-full py-2.5 text-[13px] font-semibold transition ${tab === id ? "bg-white text-[var(--m3-primary)] shadow-sm" : "text-[var(--m3-on-primary)]/90"}`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {tab === "find" && (
+        <>
+          <div className="rounded-3xl bg-white p-4 shadow-sm">
+            <div className="relative pl-8">
+              <div className="absolute bottom-3 left-3 top-3 w-[2px] rounded-full bg-[var(--m3-primary)]/40" />
+              <div className="absolute left-[6px] top-2 h-3 w-3 rounded-full border-2 border-white shadow-md" style={{ background: "var(--m3-primary)" }} />
+              <div className="absolute bottom-2 left-[6px] h-3 w-3 rounded-full border-2 border-white shadow-md" style={{ background: "var(--m3-accent)" }} />
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2.5 transition focus-within:ring-2 focus-within:ring-[var(--m3-primary)]/30">
+                  <input placeholder="Depart (ex: Campus)" value={searchFrom} onChange={(e) => setSearchFrom(e.target.value)} className="flex-1 bg-transparent text-sm text-slate-800 outline-none" />
+                  {searchFrom ? <button onClick={() => setSearchFrom("")}><X className="h-4 w-4 text-slate-300" /></button> : <Navigation className="h-4 w-4 text-[var(--m3-primary)]" />}
+                </div>
+                <div className="flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2.5 transition focus-within:ring-2 focus-within:ring-[var(--m3-primary)]/30">
+                  <input placeholder="Arrivee (ex: Maison)" value={searchTo} onChange={(e) => setSearchTo(e.target.value)} className="flex-1 bg-transparent text-sm text-slate-800 outline-none" />
+                  {searchTo ? <button onClick={() => setSearchTo("")}><X className="h-4 w-4 text-slate-300" /></button> : <MapPin className="h-4 w-4 text-[var(--m3-accent)]" />}
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Tab switcher */}
-          <div className="flex gap-2 bg-white/10 p-1.5 rounded-2xl backdrop-blur-sm border border-white/10 mb-4">
-            <button onClick={() => setTab("find")} className={`flex-1 py-2.5 rounded-xl text-sm transition-all ${tab === "find" ? "bg-white text-cyan-600 shadow-sm" : "text-white"}`}>
-              Trouver un trajet
-            </button>
-            <button onClick={() => setTab("offer")} className={`flex-1 py-2.5 rounded-xl text-sm transition-all ${tab === "offer" ? "bg-white text-cyan-600 shadow-sm" : "text-white"}`}>
-              Proposer un trajet
-            </button>
+          <div className="flex gap-2">
+            {["Aujourd'hui", "Demain", "Tous"].map(d => (
+              <button
+                key={d}
+                onClick={() => setDateFilter(d)}
+                className={`flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-xs font-medium transition ${dateFilter === d ? "border-white bg-white text-[var(--m3-primary)] shadow-sm" : "border-white/15 bg-white/15 text-[var(--m3-on-primary)] backdrop-blur-md"}`}
+              >
+                <Calendar className="h-3 w-3" /> {d}
+              </button>
+            ))}
           </div>
+        </>
+      )}
+    </div>
+  );
 
-          {tab === "find" && (
-            <>
-              <div className="bg-white rounded-2xl p-4 shadow-sm">
-                <div className="relative pl-8">
-                  <div className="absolute left-3 top-3 bottom-3 w-[2px] bg-emerald-400 rounded-full" />
-                  <div className="absolute left-[6px] top-2 w-3 h-3 rounded-full bg-emerald-400 border-2 border-white shadow-md" />
-                  <div className="absolute left-[6px] bottom-2 w-3 h-3 rounded-full bg-cyan-500 border-2 border-white shadow-md" />
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 bg-slate-50 rounded-xl px-3 py-2.5 border border-slate-100 focus-within:border-emerald-300 transition">
-                      <input placeholder="Depart (ex: Campus)" value={searchFrom} onChange={(e) => setSearchFrom(e.target.value)} className="flex-1 bg-transparent outline-none text-sm text-foreground" />
-                      {searchFrom ? <button onClick={() => setSearchFrom("")}><X className="w-4 h-4 text-slate-300" /></button> : <Navigation className="w-4 h-4 text-emerald-500" />}
-                    </div>
-                    <div className="flex items-center gap-2 bg-slate-50 rounded-xl px-3 py-2.5 border border-slate-100 focus-within:border-cyan-300 transition">
-                      <input placeholder="Arrivee (ex: Maison)" value={searchTo} onChange={(e) => setSearchTo(e.target.value)} className="flex-1 bg-transparent outline-none text-sm text-foreground" />
-                      {searchTo ? <button onClick={() => setSearchTo("")}><X className="w-4 h-4 text-slate-300" /></button> : <MapPin className="w-4 h-4 text-cyan-500" />}
+  return (
+    <M3Page
+      title="Covoiturage"
+      subtitle="Partagez vos trajets, economisez"
+      icon={Car}
+      hero={Hero}
+    >
+      {/* --- FIND TRIPS --- */}
+      {tab === "find" && (
+        <div className="mx-auto max-w-md">
+          <SectionHeader
+            title="Trajets disponibles"
+            icon={Route}
+            action={<span className="rounded-full px-2.5 py-1 text-[10px] font-semibold" style={{ background: "var(--m3-container)", color: "var(--m3-primary)" }}>{filteredTrips.length} trajets</span>}
+          />
+
+          {filteredTrips.length === 0 && (
+            <EmptyState
+              icon={Search}
+              title="Aucun trajet trouve"
+              description="Modifiez vos criteres de recherche ou proposez votre propre trajet."
+              action={<M3Button icon={Plus} onClick={() => setTab("offer")}>Proposer un trajet</M3Button>}
+            />
+          )}
+
+          <div className="space-y-3">
+            {filteredTrips.map((t, i) => {
+              const isBooked = bookedTrips.includes(t.id);
+              return (
+                <M3Card key={t.id} delay={i * 0.05} className={isBooked ? "ring-2 ring-[var(--m3-primary)]/40" : ""}>
+                  <div className="mb-4 flex items-center gap-3">
+                    <ProfileAvatar initials={t.initials} size={44} className="rounded-2xl shadow-sm" gradient={t.gradient} />
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-semibold text-slate-800">{t.driver}</p>
+                        {t.rating > 0 && (
+                          <div className="flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5">
+                            <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
+                            <span className="text-[10px] text-amber-700">{t.rating}</span>
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-xs text-slate-400">{t.vehicle} · {t.date}</p>
                     </div>
                   </div>
+
+                  <div className="relative mb-4 pl-6">
+                    <div className="absolute bottom-1 left-1.5 top-1 w-[2px] rounded-full bg-[var(--m3-primary)]/40" />
+                    <div className="absolute left-0 top-0.5 h-3 w-3 rounded-full border-2 border-white" style={{ background: "var(--m3-primary)" }} />
+                    <div className="absolute bottom-0.5 left-0 h-3 w-3 rounded-full border-2 border-white" style={{ background: "var(--m3-accent)" }} />
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-[10px] uppercase tracking-wide text-slate-400">Depart</p>
+                        <p className="text-sm text-slate-700">{t.from}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] uppercase tracking-wide text-slate-400">Arrivee</p>
+                        <p className="text-sm text-slate-700">{t.to}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mb-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="flex items-center gap-1 rounded-full bg-slate-50 px-2.5 py-1 text-xs text-slate-400">
+                        <Clock className="h-3 w-3" /> {t.time}
+                      </span>
+                      <span className="flex items-center gap-1 rounded-full bg-slate-50 px-2.5 py-1 text-xs text-slate-400">
+                        <Users className="h-3 w-3" /> {t.seats} places
+                      </span>
+                    </div>
+                    <span className="font-semibold text-[var(--m3-primary)]" style={{ fontFamily: "'Space Grotesk', monospace" }}>{t.price} F</span>
+                  </div>
+
+                  {isBooked ? (
+                    <M3Button variant="tonal" icon={Check} onClick={() => handleBook(t)}>Reserve · Annuler ?</M3Button>
+                  ) : (
+                    <M3Button onClick={() => handleBook(t)}>Reserver un siege</M3Button>
+                  )}
+                </M3Card>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* --- OFFER RIDE --- */}
+      {tab === "offer" && (
+        <div className="mx-auto max-w-md space-y-4">
+          <M3Card>
+            <SectionHeader title="Itineraire" icon={Route} />
+            <div className="relative pl-8">
+              <div className="absolute bottom-5 left-3 top-5 w-[2px] rounded-full bg-[var(--m3-primary)]/40" />
+              <div className="absolute left-[6px] top-3.5 h-3 w-3 rounded-full border-2 border-white shadow-md" style={{ background: "var(--m3-primary)" }} />
+              <div className="absolute bottom-3.5 left-[6px] h-3 w-3 rounded-full border-2 border-white shadow-md" style={{ background: "var(--m3-accent)" }} />
+              <div className="space-y-2.5">
+                <div className="flex items-center gap-2 rounded-2xl bg-slate-50 px-4 py-3 transition focus-within:ring-2 focus-within:ring-[var(--m3-primary)]/30">
+                  <input placeholder="Point de depart" value={offerFrom} onChange={(e) => setOfferFrom(e.target.value)} className="flex-1 bg-transparent text-sm outline-none" />
+                  <Navigation className="h-4 w-4 text-[var(--m3-primary)]" />
+                </div>
+                <div className="flex items-center gap-2 rounded-2xl bg-slate-50 px-4 py-3 transition focus-within:ring-2 focus-within:ring-[var(--m3-primary)]/30">
+                  <input placeholder="Destination" value={offerTo} onChange={(e) => setOfferTo(e.target.value)} className="flex-1 bg-transparent text-sm outline-none" />
+                  <MapPin className="h-4 w-4 text-[var(--m3-accent)]" />
                 </div>
               </div>
+            </div>
+          </M3Card>
 
-              <div className="flex gap-2 mt-3">
-                {["Aujourd'hui", "Demain", "Tous"].map(d => (
+          <M3Card delay={0.05}>
+            <SectionHeader title="Date & heure" icon={Calendar} />
+            <div className="flex gap-2.5">
+              <input type="date" value={offerDate} onChange={(e) => setOfferDate(e.target.value)} className="flex-1 rounded-2xl bg-slate-50 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[var(--m3-primary)]/30" />
+              <input type="time" value={offerTime} onChange={(e) => setOfferTime(e.target.value)} className="flex-1 rounded-2xl bg-slate-50 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-[var(--m3-primary)]/30" />
+            </div>
+            <button
+              onClick={() => setIsRecurrent(!isRecurrent)}
+              className={`mt-3 flex w-full items-center justify-between rounded-2xl border-2 px-4 py-3 transition ${isRecurrent ? "border-[var(--m3-primary)]" : "border-transparent bg-slate-50"}`}
+              style={isRecurrent ? { background: "var(--m3-container)" } : undefined}
+            >
+              <div className="flex items-center gap-2">
+                <Calendar className={`h-4 w-4 ${isRecurrent ? "text-[var(--m3-primary)]" : "text-slate-400"}`} />
+                <span className="text-sm text-slate-700">Trajet recurrent</span>
+              </div>
+              <div className="grid h-5 w-5 place-items-center rounded-full border-2 transition" style={isRecurrent ? { background: "var(--m3-primary)", borderColor: "var(--m3-primary)" } : { borderColor: "#cbd5e1" }}>
+                {isRecurrent && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
+              </div>
+            </button>
+          </M3Card>
+
+          <M3Card delay={0.1}>
+            <SectionHeader title="Vehicule & places" icon={Car} />
+            <div className="flex items-center gap-2 rounded-2xl bg-slate-50 px-4 py-3 transition focus-within:ring-2 focus-within:ring-[var(--m3-primary)]/30">
+              <Car className="h-4 w-4 text-[var(--m3-primary)]" />
+              <input placeholder="Vehicule (ex: Toyota Yaris blanche)" value={offerVehicle} onChange={(e) => setOfferVehicle(e.target.value)} className="flex-1 bg-transparent text-sm outline-none" />
+            </div>
+            <div className="mt-3">
+              <p className="mb-2 text-xs text-slate-400">Places disponibles: {offerSeats}</p>
+              <div className="flex gap-2">
+                {[1, 2, 3, 4].map(n => (
                   <button
-                    key={d}
-                    onClick={() => setDateFilter(d)}
-                    className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs border transition ${dateFilter === d ? "bg-white text-cyan-600 border-white shadow-sm" : "bg-white/15 text-white border-white/10 backdrop-blur-sm"}`}
+                    key={n}
+                    onClick={() => setOfferSeats(n)}
+                    className="flex-1 rounded-xl border-2 py-3 text-sm font-semibold transition"
+                    style={offerSeats === n
+                      ? { background: "var(--m3-primary)", color: "var(--m3-on-primary)", borderColor: "var(--m3-primary)" }
+                      : { background: "#f8fafc", color: "#475569", borderColor: "transparent" }}
                   >
-                    <Calendar className="w-3 h-3" /> {d}
+                    {n}
                   </button>
                 ))}
               </div>
-            </>
-          )}
-        </div>
-      </div>
-
-      <div className="px-5 py-5">
-        {/* ═══ FIND TRIPS ═══ */}
-        {tab === "find" && (
-          <>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="title-gradient">Trajets disponibles</h3>
-              <span className="text-[10px] bg-cyan-50 text-cyan-600 px-2.5 py-1 rounded-full">{filteredTrips.length} trajets</span>
             </div>
+          </M3Card>
 
-            {filteredTrips.length === 0 && (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 bg-cyan-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Search className="w-7 h-7 text-cyan-400" />
-                </div>
-                <p className="text-slate-500 text-sm mb-1">Aucun trajet trouve</p>
-                <p className="text-slate-400 text-xs">Modifiez vos criteres de recherche</p>
-              </div>
+          <M3Card delay={0.15}>
+            <SectionHeader title="Prix par siege (FCFA)" />
+            <div className="flex items-center gap-2 rounded-2xl bg-slate-50 px-4 py-3 transition focus-within:ring-2 focus-within:ring-[var(--m3-primary)]/30">
+              <span className="text-sm text-slate-400">F</span>
+              <input
+                type="number"
+                placeholder={carpoolPriceHint}
+                value={offerPrice}
+                onChange={(e) => setOfferPrice(e.target.value)}
+                className="flex-1 bg-transparent text-sm outline-none"
+                style={{ fontFamily: "'Space Grotesk', monospace" }}
+              />
+            </div>
+            {offerPrice && offerSeats > 0 && (
+              <p className="mt-2 text-xs font-semibold text-[var(--m3-primary)]" style={{ fontFamily: "'Space Grotesk', monospace" }}>
+                Revenu potentiel: {(Number(offerPrice) * offerSeats).toLocaleString()} FCFA
+              </p>
             )}
+          </M3Card>
 
-            <div className="space-y-3">
-              {filteredTrips.map((t) => {
-                const isBooked = bookedTrips.includes(t.id);
-                return (
-                  <div key={t.id} className={`bg-white rounded-2xl p-4 border shadow-sm transition ${isBooked ? "border-cyan-200 shadow-cyan-100/50" : "border-slate-100"}`}>
-                    <div className="flex items-center gap-3 mb-4">
-                      <ProfileAvatar initials={t.initials} size={44} className="rounded-2xl shadow-sm shadow-cyan-500/20" gradient={t.gradient} />
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm text-slate-800">{t.driver}</p>
-                          <div className="flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-full">
-                            <Star className="w-3 h-3 text-amber-500 fill-amber-500" />
-                            <span className="text-[10px] text-amber-700">{t.rating}</span>
-                          </div>
-                        </div>
-                        <p className="text-xs text-slate-400">{t.vehicle} · {t.date}</p>
-                      </div>
-                    </div>
-
-                    <div className="relative pl-6 mb-4">
-                      <div className="absolute left-1.5 top-1 bottom-1 w-[2px] bg-emerald-400 rounded-full" />
-                      <div className="absolute left-0 top-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-white" />
-                      <div className="absolute left-0 bottom-0.5 w-3 h-3 rounded-full bg-cyan-500 border-2 border-white" />
-                      <div className="space-y-3">
-                        <div>
-                          <p className="text-[10px] text-slate-400 uppercase tracking-wide">Depart</p>
-                          <p className="text-sm text-slate-700">{t.from}</p>
-                        </div>
-                        <div>
-                          <p className="text-[10px] text-slate-400 uppercase tracking-wide">Arrivee</p>
-                          <p className="text-sm text-slate-700">{t.to}</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <span className="flex items-center gap-1 text-xs text-slate-400 bg-slate-50 px-2.5 py-1 rounded-full">
-                          <Clock className="w-3 h-3" /> {t.time}
-                        </span>
-                        <span className="flex items-center gap-1 text-xs text-slate-400 bg-slate-50 px-2.5 py-1 rounded-full">
-                          <Users className="w-3 h-3" /> {t.seats} places
-                        </span>
-                      </div>
-                      <span className="text-emerald-500" style={{ fontFamily: "'Space Grotesk', monospace" }}>{t.price} F</span>
-                    </div>
-
-                    <button
-                      onClick={() => handleBook(t)}
-                      className={`w-full py-3 rounded-2xl text-sm transition-all ${
-                        isBooked
-                          ? "bg-cyan-50 text-cyan-600 border-2 border-cyan-200"
-                          : "bg-cyan-500 text-white shadow-sm shadow-cyan-500/20"
-                      }`}
-                    >
-                      {isBooked ? (
-                        <span className="flex items-center justify-center gap-1.5"><Check className="w-4 h-4" /> Reserve · Annuler ?</span>
-                      ) : (
-                        "Reserver un siege"
-                      )}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          </>
-        )}
-
-        {/* ═══ OFFER RIDE ═══ */}
-        {tab === "offer" && (
-          <div className="space-y-4">
-            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
-              <label className="text-sm text-slate-500 mb-3 block">Itineraire</label>
-              <div className="relative pl-8">
-                <div className="absolute left-3 top-5 bottom-5 w-[2px] bg-emerald-400 rounded-full" />
-                <div className="absolute left-[6px] top-3.5 w-3 h-3 rounded-full bg-emerald-400 shadow-md shadow-emerald-400/40 border-2 border-white" />
-                <div className="absolute left-[6px] bottom-3.5 w-3 h-3 rounded-full bg-cyan-500 shadow-md shadow-cyan-500/40 border-2 border-white" />
-                <div className="space-y-2.5">
-                  <div className="flex items-center gap-2 bg-slate-50 rounded-2xl px-4 py-3 border border-slate-100 focus-within:border-emerald-300 transition">
-                    <input placeholder="Point de depart" value={offerFrom} onChange={(e) => setOfferFrom(e.target.value)} className="flex-1 bg-transparent outline-none text-sm" />
-                    <Navigation className="w-4 h-4 text-emerald-500" />
-                  </div>
-                  <div className="flex items-center gap-2 bg-slate-50 rounded-2xl px-4 py-3 border border-slate-100 focus-within:border-cyan-300 transition">
-                    <input placeholder="Destination" value={offerTo} onChange={(e) => setOfferTo(e.target.value)} className="flex-1 bg-transparent outline-none text-sm" />
-                    <MapPin className="w-4 h-4 text-cyan-500" />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm space-y-3">
-              <label className="text-sm text-slate-500">Date & heure</label>
-              <div className="flex gap-2.5">
-                <input type="date" value={offerDate} onChange={(e) => setOfferDate(e.target.value)} className="flex-1 bg-slate-50 text-sm rounded-2xl px-4 py-3 border border-slate-100 outline-none focus:border-cyan-300" />
-                <input type="time" value={offerTime} onChange={(e) => setOfferTime(e.target.value)} className="flex-1 bg-slate-50 text-sm rounded-2xl px-4 py-3 border border-slate-100 outline-none focus:border-cyan-300" />
-              </div>
-              <button
-                onClick={() => setIsRecurrent(!isRecurrent)}
-                className={`w-full flex items-center justify-between py-3 px-4 rounded-2xl border-2 transition ${isRecurrent ? "border-cyan-400 bg-cyan-50" : "border-transparent bg-slate-50"}`}
-              >
-                <div className="flex items-center gap-2">
-                  <Calendar className={`w-4 h-4 ${isRecurrent ? "text-cyan-600" : "text-slate-400"}`} />
-                  <span className="text-sm text-slate-700">Trajet recurrent</span>
-                </div>
-                <div className={`w-5 h-5 rounded-full border-2 transition ${isRecurrent ? "bg-cyan-500 border-cyan-500" : "border-slate-300"}`}>
-                  {isRecurrent && <svg width="20" height="20" viewBox="0 0 20 20"><path d="M5 10L9 14L15 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>}
-                </div>
-              </button>
-            </div>
-
-            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm space-y-3">
-              <label className="text-sm text-slate-500">Vehicule & places</label>
-              <div className="flex items-center gap-2 bg-slate-50 rounded-2xl px-4 py-3 border border-slate-100 focus-within:border-cyan-300 transition">
-                <Car className="w-4 h-4 text-cyan-500" />
-                <input placeholder="Vehicule (ex: Toyota Yaris blanche)" value={offerVehicle} onChange={(e) => setOfferVehicle(e.target.value)} className="flex-1 bg-transparent outline-none text-sm" />
-              </div>
-              <div>
-                <p className="text-xs text-slate-400 mb-2">Places disponibles: {offerSeats}</p>
-                <div className="flex gap-2">
-                  {[1, 2, 3, 4].map(n => (
-                    <button
-                      key={n}
-                      onClick={() => setOfferSeats(n)}
-                      className={`flex-1 py-3 rounded-xl text-sm transition border-2 ${offerSeats === n ? "bg-cyan-500 text-white border-cyan-500 shadow-sm shadow-cyan-500/20" : "bg-slate-50 text-slate-600 border-transparent"}`}
-                    >
-                      {n}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
-              <label className="text-sm text-slate-500 mb-2 block">Prix par siege (FCFA)</label>
-              <div className="flex items-center gap-2 bg-slate-50 rounded-2xl px-4 py-3 border border-slate-100 focus-within:border-cyan-300 transition">
-                <span className="text-sm text-slate-400">F</span>
-                <input
-                  type="number"
-                  placeholder={carpoolPriceHint}
-                  value={offerPrice}
-                  onChange={(e) => setOfferPrice(e.target.value)}
-                  className="flex-1 bg-transparent outline-none text-sm"
-                  style={{ fontFamily: "'Space Grotesk', monospace" }}
-                />
-              </div>
-              {offerPrice && offerSeats > 0 && (
-                <p className="text-xs text-emerald-500 mt-2" style={{ fontFamily: "'Space Grotesk', monospace" }}>
-                  Revenu potentiel: {(Number(offerPrice) * offerSeats).toLocaleString()} FCFA
-                </p>
-              )}
-            </div>
-
-            <button
-              onClick={handleOfferRide}
-              className="w-full bg-cyan-500 text-white py-4 rounded-2xl flex items-center justify-center gap-2 shadow-sm shadow-cyan-500/25 active:scale-[0.98] transition-transform"
-            >
-              <Plus className="w-4 h-4" /> Publier le trajet
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
+          <M3Button icon={Plus} onClick={handleOfferRide}>Publier le trajet</M3Button>
+        </div>
+      )}
+    </M3Page>
   );
 }
+
+export default CarpoolPage;

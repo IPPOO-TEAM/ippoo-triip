@@ -1,5 +1,5 @@
 /**
- * Service SOS IPPOO — bouton d'urgence géolocalisé.
+ * Service SOS IPPOO - bouton d'urgence géolocalisé.
  * Envoie position + alerte à : contacts d'urgence, support IPPOO, police locale.
  */
 import { api } from "../api/client";

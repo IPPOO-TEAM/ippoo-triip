@@ -1,18 +1,17 @@
 import { useNavigate } from "react-router";
-import { Search, MapPin, Bell, ChevronRight, Star, Ticket, Home, Briefcase, Store, GraduationCap, Megaphone, Wallet, Sun, Moon, CloudSun, Zap, ArrowRight, CreditCard, Car, Users, Route, Gift } from "lucide-react";
+import { Search, MapPin, Bell, ChevronRight, Star, Ticket, Home, Briefcase, Store, GraduationCap, Megaphone, Wallet, Sun, Moon, CloudSun, Zap, CreditCard, Car, Users, Gift, Package, ShoppingBag, Truck, Plane, Clock, LifeBuoy } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { ProfileAvatar } from "./profile-avatar";
 import { BrandLogo } from "./brand-logo";
 import { usePlatformConfig } from "../store/platform-config";
 import { useAppStore } from "../store/app-store";
-import {
-  IconCourse, IconLivraison, IconGroupOrder, IconCovoiturage,
-  IconGrosColis, IconFretAerien, IconWallet, IconHistorique, IconSupport,
-  AfricanPattern, Badge
-} from "./icons";
+import { useUnread } from "../store/unread";
 import { activeCouponsForHome } from "./coupons-data";
 import { CouponTicket } from "./coupon-ticket";
 import { LiveMap } from "./live-map";
+import { api } from "../api/client";
+import { Car as CarIcon } from "lucide-react";
 import { useState, useEffect, useCallback, useRef } from "react";
 import canalImg from "figma:asset/14935739fa73b965aaede2f60eb0bbdbd1c7e863.png";
 import mtnImg from "figma:asset/620d19867cc6907921f09e7413841397c1739486.png";
@@ -43,17 +42,35 @@ export interface PromoSlide {
   profileTarget: string | null;
 }
 
+/* Services — icônes lucide épurées, une couleur vive par service (cohérente
+   avec les schémas M3 de chaque page). Aucune icône 3D, aucun emoji. */
 const services = [
-  { Icon: IconCourse, label: "Course", path: "/book-ride", offerId: "taxi", gradient: "from-blue-500 to-blue-600", shadow: "shadow-blue-500/30", bg: "bg-blue-50" },
-  { Icon: IconLivraison, label: "Livraison", path: "/delivery", offerId: "delivery", gradient: "from-orange-400 to-orange-500", shadow: "shadow-orange-400/30", bg: "bg-orange-50" },
-  { Icon: IconGroupOrder, label: "Groupee", path: "/group-orders", offerId: "group", gradient: "from-violet-500 to-purple-500", shadow: "shadow-violet-500/30", bg: "bg-violet-50" },
-  { Icon: IconCovoiturage, label: "Covoiturage", path: "/carpool", offerId: "carpool", gradient: "from-cyan-400 to-cyan-500", shadow: "shadow-cyan-400/30", bg: "bg-cyan-50" },
-  { Icon: IconGrosColis, label: "Gros colis", path: "/heavy-transport", offerId: "heavy", gradient: "from-rose-400 to-rose-500", shadow: "shadow-rose-400/30", bg: "bg-rose-50" },
-  { Icon: IconFretAerien, label: "IPPOO AIR", path: "/air-freight", offerId: "air", gradient: "from-sky-400 to-blue-600", shadow: "shadow-sky-400/30", bg: "bg-sky-50" },
-  { Icon: IconWallet, label: "IPPOO Cash", path: "/wallet", gradient: "from-emerald-400 to-emerald-500", shadow: "shadow-emerald-400/30", bg: "bg-emerald-50" },
-  { Icon: IconHistorique, label: "Historique", path: "/history", gradient: "from-gray-400 to-gray-500", shadow: "shadow-gray-400/20", bg: "bg-gray-50" },
-  { Icon: IconSupport, label: "Support", path: "/support", gradient: "from-amber-400 to-amber-500", shadow: "shadow-amber-400/30", bg: "bg-amber-50" },
+  { Icon: Car, label: "Course", path: "/book-ride", offerId: "taxi", color: "#2563eb" },
+  { Icon: Package, label: "Livraison", path: "/delivery", offerId: "delivery", color: "#f77f00" },
+  { Icon: ShoppingBag, label: "Groupée", path: "/group-orders", offerId: "group", color: "#8b5cf6" },
+  { Icon: Users, label: "Covoiturage", path: "/carpool", offerId: "carpool", color: "#06b6d4" },
+  { Icon: Truck, label: "Gros colis", path: "/heavy-transport", offerId: "heavy", color: "#e11d64" },
+  { Icon: Plane, label: "IPPOO AIR", path: "/air-freight", offerId: "air", color: "#0284f0" },
+  { Icon: Wallet, label: "IPPOO Cash", path: "/wallet", color: "#059669" },
+  { Icon: Clock, label: "Historique", path: "/history", color: "#0f766e" },
+  { Icon: LifeBuoy, label: "Support", path: "/support", color: "#0d9488" },
 ];
+
+/* Courbe expressive partagée + petit wrapper d'apparition au scroll. */
+const EASE = [0.22, 1, 0.36, 1] as const;
+function Reveal({ children, delay = 0, className }: { children: React.ReactNode; delay?: number; className?: string }) {
+  return (
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y: 18 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.55, delay, ease: EASE }}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
 const promoSlides: PromoSlide[] = [
   {
@@ -220,19 +237,36 @@ const promoSlides: PromoSlide[] = [
 
 export { promoSlides };
 
-const nearbyDrivers = [
-  { name: "Hounkpatin A.", vehicle: "Moto", rating: 4.8, distance: "2 min", initials: "HA", gradient: "from-blue-500 to-blue-600" },
-  { name: "Aїdatou D.", vehicle: "Voiture", rating: 4.9, distance: "5 min", initials: "AD", gradient: "from-emerald-400 to-emerald-500" },
-  { name: "Gbètoho B.", vehicle: "Tricycle", rating: 4.7, distance: "3 min", initials: "GB", gradient: "from-cyan-400 to-cyan-500" },
+const VEHICLE_LABEL: Record<string, string> = { moto: "Moto", car: "Voiture", truck: "Camion" };
+const AVATAR_GRADIENTS = [
+  "from-blue-500 to-blue-600",
+  "from-emerald-400 to-emerald-500",
+  "from-cyan-400 to-cyan-500",
+  "from-violet-500 to-purple-500",
+  "from-amber-400 to-orange-500",
 ];
+
+interface HomeDriver {
+  id: string;
+  name: string;
+  vehicle: string;
+  rating: number;
+  eta: string;
+  initials: string;
+  gradient: string;
+}
 
 export function HomePage() {
   const navigate = useNavigate();
+  // Toutes les routes clientes vivent sous /app : on préfixe les chemins relatifs.
+  const go = (p: string) => navigate(p === "/" || p.startsWith("/app") ? p : `/app${p}`);
   const { state } = useAppStore();
   const userName = state.user?.fullName ?? "Bienvenue";
   const firstName = userName.split(" ")[0];
+  const initials = (state.user?.fullName ?? "")
+    .split(" ").filter(Boolean).slice(0, 2).map((p) => p[0]?.toUpperCase() ?? "").join("") || "?";
   const walletBalance = state.wallet?.balanceXOF ?? 0;
-  const unreadNotifs = state.notifications.filter((n) => !n.read).length;
+  const unreadNotifs = useUnread();
   // Masque les services dont l'offre a été désactivée depuis le back office admin
   const config = usePlatformConfig();
   const visibleServices = services.filter(
@@ -240,10 +274,49 @@ export function HomePage() {
   );
   const [activeSlide, setActiveSlide] = useState(0);
   const [searchDest, setSearchDest] = useState("");
+  const [nearbyDrivers, setNearbyDrivers] = useState<HomeDriver[]>([]);
+  const [driversLoading, setDriversLoading] = useState(true);
   const slideRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
   const swiping = useRef(false);
+
+  // Chauffeurs réellement en ligne autour de la position de l'utilisateur
+  useEffect(() => {
+    let cancelled = false;
+    const load = async (lat: number, lng: number) => {
+      try {
+        const res = await api.get<any[]>(`/drivers/nearby?lat=${lat}&lng=${lng}`);
+        if (cancelled) return;
+        setNearbyDrivers((res ?? []).slice(0, 5).map((d, i) => {
+          const name = d.fullName ?? d.name ?? "Chauffeur";
+          return {
+            id: String(d.id ?? i),
+            name,
+            vehicle: VEHICLE_LABEL[d.vehicleType] ?? "Véhicule",
+            rating: Number(d.rating ?? 0),
+            eta: d.etaMin != null ? `${d.etaMin} min` : "",
+            initials: name.split(" ").filter(Boolean).slice(0, 2).map((p: string) => p[0]?.toUpperCase() ?? "").join("") || "?",
+            gradient: AVATAR_GRADIENTS[i % AVATAR_GRADIENTS.length],
+          };
+        }));
+      } catch {
+        if (!cancelled) setNearbyDrivers([]);
+      } finally {
+        if (!cancelled) setDriversLoading(false);
+      }
+    };
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (p) => load(p.coords.latitude, p.coords.longitude),
+        () => load(6.3654, 2.4183),
+        { timeout: 6000, maximumAge: 30000 },
+      );
+    } else {
+      load(6.3654, 2.4183);
+    }
+    return () => { cancelled = true; };
+  }, []);
 
   const nextSlide = useCallback(() => {
     setActiveSlide((prev) => (prev + 1) % promoSlides.length);
@@ -288,164 +361,200 @@ export function HomePage() {
   const greeting = hour < 12 ? "Bonjour" : hour < 18 ? "Bon après-midi" : "Bonsoir";
   const GreetingIcon = hour < 12 ? Sun : hour < 18 ? CloudSun : Moon;
 
+  const quickDests = [
+    { label: "Domicile", Icon: Home },
+    { label: "Bureau", Icon: Briefcase },
+    { label: "Marché", Icon: Store },
+    { label: "Campus", Icon: GraduationCap },
+  ];
+
   return (
-    <div className="pb-4 bg-gray-50">
-      {/* ═══════════════ REDESIGNED HEADER ═══════════════ */}
-      <div className="relative overflow-hidden">
-        {/* Background image + gradient overlay */}
-        <img src={headerHeroImg} alt="" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0047AB]/85 via-[#0047AB]/70 to-[#0047AB]/95" />
+    <div className="min-h-full overflow-x-hidden bg-[#f5f6fb] pb-6">
+      {/* --------------- EN-TÊTE — hero immersif, arrondi M3 --------------- */}
+      <div className="relative overflow-hidden rounded-b-[32px]">
+        <img src={headerHeroImg} alt="" className="absolute inset-0 h-full w-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#3a2fd6]/85 via-[#3746d6]/78 to-[#1e2a8f]/96" />
+        {/* Halos décoratifs subtils */}
+        <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-white/10 blur-2xl" />
+        <div className="pointer-events-none absolute -left-10 top-16 h-32 w-32 rounded-full bg-white/10 blur-xl" />
 
-        <div className="relative z-10 px-5 pt-12 pb-6">
-          {/* Brand bar — logo officiel sur pastille blanche, compact mobile */}
-          <div className="flex items-center mb-4">
+        <div className="relative z-10 px-5 pt-12 pb-7">
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: EASE }}
+            className="mb-5 flex items-center"
+          >
             <BrandLogo height={20} />
-          </div>
+          </motion.div>
 
-          {/* Top bar — Avatar + Greeting + Notifications */}
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-3">
-              <button onClick={() => navigate("/app/profile")} className="relative">
-                <ProfileAvatar initials="DA" size={52} className="rounded-2xl border-2 border-white/40 shadow-sm shadow-black/20" />
-                <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-[#2A9D8F] rounded-full border-2 border-white flex items-center justify-center">
-                  <div className="w-1.5 h-1.5 bg-white rounded-full" />
-                </div>
+          {/* Salutation + wallet + notifs */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.06, ease: EASE }}
+            className="mb-5 flex items-center justify-between gap-3"
+          >
+            <div className="flex min-w-0 items-center gap-3">
+              <button onClick={() => navigate("/app/profile")} className="relative shrink-0 active:scale-95 transition">
+                <ProfileAvatar initials={initials} photoUrl={state.user?.avatarUrl} size={52} className="rounded-2xl border-2 border-white/40 shadow-sm shadow-black/20" />
+                <span className="absolute -bottom-0.5 -right-0.5 grid h-4 w-4 place-items-center rounded-full border-2 border-white bg-emerald-400">
+                  <span className="h-1.5 w-1.5 rounded-full bg-white" />
+                </span>
               </button>
-              <div>
+              <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <GreetingIcon className="w-3.5 h-3.5 text-[#E9C46A]" strokeWidth={2} />
-                  <p className="text-white/70 text-xs">{greeting}</p>
+                  <GreetingIcon className="h-3.5 w-3.5 text-amber-300" strokeWidth={2} />
+                  <p className="text-xs text-white/70">{greeting}</p>
                 </div>
-                <p className="text-white">{firstName}</p>
+                <p className="truncate text-[17px] font-bold text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{firstName}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2.5">
-              {/* Wallet quick view */}
-              <button
-                onClick={() => navigate("/app/wallet")}
-                className="flex items-center gap-2 bg-white/15 backdrop-blur-md px-3.5 py-2.5 rounded-2xl border border-white/20 hover:bg-white/20 transition"
-              >
-                <Wallet className="w-4 h-4 text-[#E9C46A]" strokeWidth={1.8} />
-                <div className="text-left">
-                  <p className="text-[9px] text-white/50 leading-none">IPPOO Cash</p>
-                  <p className="text-white text-xs" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{walletBalance.toLocaleString("fr-FR")} F</p>
-                </div>
-              </button>
-              {/* Notifications */}
-              <button
-                onClick={() => navigate("/app/notifications")}
-                className="relative w-11 h-11 bg-white/15 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20 hover:bg-white/20 transition"
-              >
-                <Bell className="w-5 h-5 text-white" strokeWidth={1.8} />
-                {unreadNotifs > 0 && (
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#F77F00] rounded-full text-[10px] text-black flex items-center justify-center border-2 border-white/30">{unreadNotifs > 9 ? "9+" : unreadNotifs}</span>
-                )}
-              </button>
-            </div>
-          </div>
+            <button
+              onClick={() => navigate("/app/notifications")}
+              className="relative grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-white/20 bg-white/15 backdrop-blur-md transition active:scale-90"
+            >
+              <Bell className="h-5 w-5 text-white" strokeWidth={1.8} />
+              {unreadNotifs > 0 && (
+                <span className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full border-2 border-[#2c3bd0] bg-amber-400 text-[10px] font-bold text-black">{unreadNotifs > 9 ? "9+" : unreadNotifs}</span>
+              )}
+            </button>
+          </motion.div>
 
-          {/* Search bar — glassmorphism */}
-          <div className="relative mb-4">
-            <div className="flex items-center gap-3 bg-white/95 backdrop-blur-xl rounded-2xl px-4 py-4 shadow-sm shadow-black/10 border border-white/80">
-              <div className="w-10 h-10 bg-[#F77F00] rounded-xl flex items-center justify-center shadow-md shadow-orange-400/30 flex-shrink-0">
-                <Search className="w-5 h-5 text-white" strokeWidth={2} />
+          {/* Carte solde — bloc moderne pleine largeur */}
+          <motion.button
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.12, ease: EASE }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => navigate("/app/wallet")}
+            className="mb-4 flex w-full items-center justify-between rounded-3xl border border-white/20 bg-white/15 px-4 py-3.5 text-left backdrop-blur-md"
+          >
+            <div className="flex items-center gap-3">
+              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-white/20">
+                <Wallet className="h-5 w-5 text-amber-300" strokeWidth={1.9} />
+              </span>
+              <div>
+                <p className="text-[10px] uppercase tracking-wide text-white/55">Solde IPPOO Cash</p>
+                <p className="text-white" style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 20, fontWeight: 700 }}>
+                  {walletBalance.toLocaleString("fr-FR")} <span className="text-sm font-medium text-white/70">FCFA</span>
+                </p>
               </div>
-              <div className="flex-1">
-                <p className="text-[10px] text-gray-400 leading-none mb-0.5">Destination</p>
+            </div>
+            <span className="grid h-8 w-8 place-items-center rounded-full bg-white/20">
+              <ChevronRight className="h-4 w-4 text-white" />
+            </span>
+          </motion.button>
+
+          {/* Barre de recherche */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.18, ease: EASE }}
+            className="mb-4"
+          >
+            <div className="flex items-center gap-3 rounded-2xl border border-white/70 bg-white/95 px-3 py-3 shadow-lg shadow-black/10 backdrop-blur-xl">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#F77F00] shadow-md shadow-orange-400/30">
+                <Search className="h-5 w-5 text-white" strokeWidth={2} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="mb-0.5 text-[10px] leading-none text-gray-400">Destination</p>
                 <input
                   placeholder="Où allez-vous aujourd'hui ?"
-                  className="w-full bg-transparent outline-none text-gray-800 placeholder:text-gray-400 text-sm"
+                  className="w-full bg-transparent text-sm text-gray-800 outline-none placeholder:text-gray-400"
                   value={searchDest}
                   onChange={(e) => setSearchDest(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter" && searchDest.trim()) navigate(`/book-ride?dest=${encodeURIComponent(searchDest.trim())}`); }}
+                  onKeyDown={(e) => { if (e.key === "Enter" && searchDest.trim()) go(`/book-ride?dest=${encodeURIComponent(searchDest.trim())}`); }}
                 />
               </div>
               <button
-                onClick={() => { if (searchDest.trim()) navigate(`/book-ride?dest=${encodeURIComponent(searchDest.trim())}`); }}
-                className="w-10 h-10 bg-[#1E6091] rounded-xl flex items-center justify-center shadow-md shadow-blue-500/30 flex-shrink-0 active:scale-90 transition-transform"
+                onClick={() => { if (searchDest.trim()) go(`/book-ride?dest=${encodeURIComponent(searchDest.trim())}`); }}
+                className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[#1E6091] shadow-md shadow-blue-500/30 transition active:scale-90"
               >
-                <MapPin className="w-[18px] h-[18px] text-white" strokeWidth={2} />
+                <MapPin className="h-[18px] w-[18px] text-white" strokeWidth={2} />
               </button>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Quick destinations — horizontal scroll */}
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-            {[
-              { label: "Domicile", Icon: Home },
-              { label: "Bureau", Icon: Briefcase },
-              { label: "Marché", Icon: Store },
-              { label: "Campus", Icon: GraduationCap },
-            ].map((loc) => (
-              <button
+          {/* Destinations rapides */}
+          <div className="scrollbar-hide flex gap-2 overflow-x-auto pb-1">
+            {quickDests.map((loc, i) => (
+              <motion.button
                 key={loc.label}
-                onClick={() => navigate(`/book-ride?dest=${encodeURIComponent(loc.label)}`)}
-                className="flex-shrink-0 bg-white/15 backdrop-blur-md text-white text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 border border-white/20 hover:border-white/40 transition-all active:scale-95"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.24 + i * 0.05, ease: EASE }}
+                onClick={() => go(`/book-ride?dest=${encodeURIComponent(loc.label)}`)}
+                className="flex shrink-0 items-center gap-2 rounded-xl border border-white/20 bg-white/15 px-4 py-2.5 text-xs text-white backdrop-blur-md transition active:scale-95"
               >
-                <loc.Icon className="w-3.5 h-3.5" strokeWidth={2} />
+                <loc.Icon className="h-3.5 w-3.5" strokeWidth={2} />
                 <span>{loc.label}</span>
-              </button>
+              </motion.button>
             ))}
           </div>
         </div>
       </div>
 
-      {/* ═══════════════ SERVICES GRID — Premium floating card ═══════════════ */}
-      <div className="px-4 -mt-1 relative z-20">
-        <div className="bg-white rounded-2xl shadow-sm shadow-gray-200/80 p-4 pt-5 border border-gray-100">
-          {/* Section header */}
-          <div className="flex items-center justify-between mb-4 px-1">
+      {/* --------------- GRILLE SERVICES — carte flottante --------------- */}
+      <div className="relative z-20 -mt-5 px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, delay: 0.1, ease: EASE }}
+          className="rounded-[28px] border border-black/[0.05] bg-white p-4 pt-5 shadow-[0_10px_40px_-12px_rgba(30,41,120,0.25)]"
+        >
+          <div className="mb-4 flex items-center justify-between px-1">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 bg-[#F77F00] rounded-lg flex items-center justify-center">
-                <Zap className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
-              </div>
+              <span className="grid h-7 w-7 place-items-center rounded-lg bg-[#F77F00]">
+                <Zap className="h-3.5 w-3.5 text-white" strokeWidth={2.5} />
+              </span>
               <h3 className="title-gradient">Services</h3>
             </div>
-            <button onClick={() => navigate("/")} className="text-[#1E6091] text-xs flex items-center gap-0.5 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100 hover:bg-blue-100 transition">
-              Voir tout <ArrowRight className="w-3 h-3 ml-0.5" />
-            </button>
           </div>
 
-          {/* 2 rows × 4 cols grid */}
-          <div className="grid grid-cols-4 gap-y-4 gap-x-2">
-            {visibleServices.map((s) => (
-              <button
+          <div className="grid grid-cols-4 gap-x-2 gap-y-4">
+            {visibleServices.map((s, i) => (
+              <motion.button
                 key={s.label}
-                onClick={() => navigate(s.path)}
-                className="flex flex-col items-center gap-2 group"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4, delay: 0.16 + i * 0.045, ease: EASE }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => go(s.path)}
+                className="flex flex-col items-center gap-2"
               >
-                <div className="relative">
-                  <div className={`w-[52px] h-[52px] rounded-2xl flex items-center justify-center bg-gradient-to-br ${s.gradient} shadow-sm ${s.shadow} transition-all group-active:scale-90 group-hover:shadow-sm group-hover:-translate-y-0.5`}>
-                    <s.Icon className="text-white" size={22} />
-                  </div>
-                  {/* Subtle glow behind icon */}
-                  <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${s.gradient} opacity-20 blur-lg -z-10 scale-110`} />
-                </div>
-                <span className="text-[11px] text-gray-600 text-center leading-tight">{s.label}</span>
-              </button>
+                <span
+                  className="grid h-14 w-14 place-items-center rounded-[20px] transition"
+                  style={{ background: `${s.color}16`, color: s.color }}
+                >
+                  <s.Icon className="h-6 w-6" strokeWidth={2} />
+                </span>
+                <span className="text-center text-[11px] font-medium leading-tight text-slate-600">{s.label}</span>
+              </motion.button>
             ))}
           </div>
-        </div>
+        </motion.div>
       </div>
 
-      {/* Promo banner slider */}
-      <div className="px-5 mt-5">
-        <div className="flex items-center justify-between mb-3">
+      {/* Annonces — slider avec transition fondue */}
+      <Reveal className="mt-6 px-5">
+        <div className="mb-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Megaphone className="w-4 h-4 text-[#F77F00]" />
+            <Megaphone className="h-4 w-4 text-[#F77F00]" />
             <h3 className="title-gradient">Annonces</h3>
-            <span className="text-[10px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{activeSlide + 1}/{promoSlides.length}</span>
+            <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] text-gray-400">{activeSlide + 1}/{promoSlides.length}</span>
           </div>
           <div className="flex items-center gap-2">
             {currentSlide.profileTarget && (
-              <span className="text-[10px] text-[#1E6091] bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
+              <span className="rounded-full border border-blue-100 bg-blue-50 px-2 py-0.5 text-[10px] text-[#1E6091]">
                 {currentSlide.profileTarget}
               </span>
             )}
-            <div className="w-16 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-[#F77F00] rounded-full transition-all duration-300"
-                style={{ width: `${((activeSlide + 1) / promoSlides.length) * 100}%` }}
+            <div className="h-1.5 w-16 overflow-hidden rounded-full bg-gray-100">
+              <motion.div
+                className="h-full rounded-full bg-[#F77F00]"
+                animate={{ width: `${((activeSlide + 1) / promoSlides.length) * 100}%` }}
+                transition={{ duration: 0.3 }}
               />
             </div>
           </div>
@@ -458,134 +567,164 @@ export function HomePage() {
           onClick={() => {
             if (swiping.current) return;
             const slide = promoSlides[activeSlide];
-            if (slide.path) navigate(slide.path);
+            if (slide.path) go(slide.path);
           }}
-          className="relative w-full h-40 rounded-2xl overflow-hidden shadow-sm active:scale-[0.98] transition-transform cursor-pointer"
+          className="relative h-40 w-full cursor-pointer overflow-hidden rounded-3xl shadow-sm transition-transform active:scale-[0.98]"
         >
-          {promoSlides[activeSlide].type === "partner" ? (
-            <>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentSlide.id}
+              initial={{ opacity: 0, scale: 1.04 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.45, ease: EASE }}
+              className="absolute inset-0"
+            >
               <ImageWithFallback
-                src={promoSlides[activeSlide].image}
-                alt={promoSlides[activeSlide].label ?? ""}
-                className="w-full h-full object-cover"
+                src={currentSlide.image}
+                alt={currentSlide.title ?? currentSlide.label ?? ""}
+                className="h-full w-full object-cover"
               />
-              <div className="absolute top-2.5 left-2.5">
-                <span className="bg-black/40 backdrop-blur-sm text-white text-[10px] px-2.5 py-1 rounded-full border border-white/15">
-                  Sponsorisé
-                </span>
-              </div>
-            </>
-          ) : (
-            <>
-              <ImageWithFallback
-                src={promoSlides[activeSlide].image}
-                alt={promoSlides[activeSlide].title ?? ""}
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-              {/* Dégradé neutre bas uniquement (lisibilité) — pas de teinte de couleur sur l'image */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
-              <div className="absolute inset-0 flex flex-col justify-end p-4">
-                <p className="text-white text-xs opacity-80 mb-0.5">{promoSlides[activeSlide].subtitle}</p>
-                <div className="flex items-center justify-between">
-                  <h3 className="text-white drop-shadow-md">{promoSlides[activeSlide].title}</h3>
-                  <span className="bg-white/25 backdrop-blur-sm text-white text-xs px-3.5 py-1.5 rounded-full border border-white/30">
-                    {promoSlides[activeSlide].cta} <ChevronRight className="w-3 h-3 inline" />
-                  </span>
+              {currentSlide.type === "partner" ? (
+                <div className="absolute left-2.5 top-2.5">
+                  <span className="rounded-full border border-white/15 bg-black/40 px-2.5 py-1 text-[10px] text-white backdrop-blur-sm">Sponsorisé</span>
                 </div>
-              </div>
-            </>
-          )}
+              ) : (
+                <>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                  <div className="absolute inset-0 flex flex-col justify-end p-4">
+                    <p className="mb-0.5 text-xs text-white/80">{currentSlide.subtitle}</p>
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="text-white drop-shadow-md">{currentSlide.title}</h3>
+                      <span className="shrink-0 rounded-full border border-white/30 bg-white/25 px-3.5 py-1.5 text-xs text-white backdrop-blur-sm">
+                        {currentSlide.cta} <ChevronRight className="inline h-3 w-3" />
+                      </span>
+                    </div>
+                  </div>
+                </>
+              )}
+            </motion.div>
+          </AnimatePresence>
           {currentSlide.badge && (
-            <div className="absolute top-2.5 right-2.5">
-              <span
-                className={`${badgeConfig[currentSlide.badge].bg} ${badgeConfig[currentSlide.badge].text} text-[10px] px-2.5 py-1 rounded-full shadow-sm`}
-              >
+            <div className="absolute right-2.5 top-2.5 z-10">
+              <span className={`${badgeConfig[currentSlide.badge].bg} ${badgeConfig[currentSlide.badge].text} rounded-full px-2.5 py-1 text-[10px] shadow-sm`}>
                 {currentSlide.badge}
               </span>
             </div>
           )}
         </div>
-      </div>
+      </Reveal>
 
-      {/* Map preview */}
-      <div className="px-5 mt-5 relative z-0">
+      {/* Carte live */}
+      <Reveal className="relative z-0 mt-6 px-5">
         <LiveMap />
-      </div>
+      </Reveal>
 
-      {/* Promos carousel */}
-      <div className="mt-6">
-        <div className="flex items-center justify-between mb-4 px-5">
+      {/* Promotions */}
+      <Reveal className="mt-7">
+        <div className="mb-4 flex items-center justify-between px-5">
           <h3 className="title-gradient">Promotions</h3>
-          <button onClick={() => navigate("/app/coupons")} className="flex items-center gap-1.5 text-blue-500 text-xs bg-blue-50 px-3 py-1.5 rounded-full">
-            <Ticket className="w-3 h-3" /> Voir tout
+          <button onClick={() => navigate("/app/coupons")} className="flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1.5 text-xs text-blue-500">
+            <Ticket className="h-3 w-3" /> Voir tout
           </button>
         </div>
-        <div className="flex gap-3 overflow-x-auto pb-2 px-5 scrollbar-hide snap-x snap-mandatory">
+        <div className="scrollbar-hide flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2">
           {activeCouponsForHome.map((coupon) => (
             <CouponTicket key={coupon.id} coupon={coupon} compact />
           ))}
         </div>
-      </div>
+      </Reveal>
 
-      {/* ═══════════════ ESPACE MEMBRE — Quick access ═══════════════ */}
-      <div className="px-5 mt-6">
-        <div className="flex items-center justify-between mb-3">
+      {/* Espace Membre */}
+      <Reveal className="mt-7 px-5">
+        <div className="mb-3 flex items-center justify-between">
           <h3 className="title-gradient">Espace Membre</h3>
         </div>
         <div className="grid grid-cols-2 gap-3">
           {[
-            { icon: CreditCard, label: "Abonnements", desc: "Carte & Forfaits", path: "/subscriptions", gradient: "from-[#F77F00] to-[#E9C46A]", bg: "bg-orange-50" },
-            { icon: Car, label: "LOA Véhicules", desc: "Location-Achat", path: "/loa", gradient: "from-[#D62828] to-[#F77F00]", bg: "bg-red-50" },
-            { icon: Star, label: "Évaluations", desc: "Score client", path: "/rating", gradient: "from-[#2A9D8F] to-[#1E6091]", bg: "bg-teal-50" },
-            { icon: Route, label: "Mission", desc: "Multi-arrêts", path: "/mission", gradient: "from-[#1E6091] to-[#2A9D8F]", bg: "bg-blue-50" },
-            { icon: Gift, label: "Parrainage", desc: "Inviter & gagner", path: "/referral", gradient: "from-[#E9C46A] to-[#F77F00]", bg: "bg-amber-50" },
-            { icon: Users, label: "Ma note", desc: "4.3/5", path: "/rating", gradient: "from-[#8B5CF6] to-[#A78BFA]", bg: "bg-violet-50" },
-          ].map((item) => (
-            <button
+            { icon: CreditCard, label: "Abonnements", desc: "Carte & Forfaits", path: "/subscriptions", color: "#ea580c" },
+            { icon: Car, label: "LOA Véhicules", desc: "Location-Achat", path: "/loa", color: "#dc2626" },
+            { icon: Gift, label: "Parrainage", desc: "Inviter & gagner", path: "/referral", color: "#ca8a04" },
+            { icon: Users, label: "Covoiturage", desc: "Trajets partagés", path: "/carpool", color: "#06b6d4" },
+          ].map((item, i) => (
+            <motion.button
               key={item.label}
-              onClick={() => navigate(item.path)}
-              className="bg-white rounded-2xl p-3.5 flex items-center gap-3 shadow-sm border border-gray-50 active:scale-[0.97] transition text-left"
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-30px" }}
+              transition={{ duration: 0.45, delay: i * 0.06, ease: EASE }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => go(item.path)}
+              className="flex items-center gap-3 rounded-3xl border border-black/[0.05] bg-white p-3.5 text-left shadow-[0_4px_16px_rgba(15,23,42,0.05)]"
             >
-              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${item.gradient} flex items-center justify-center shadow-md shrink-0`}>
-                <item.icon className="w-5 h-5 text-white" />
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl" style={{ background: `${item.color}16`, color: item.color }}>
+                <item.icon className="h-5 w-5" strokeWidth={2} />
+              </span>
+              <div className="min-w-0">
+                <p className="truncate text-[13px] font-semibold text-slate-800">{item.label}</p>
+                <p className="truncate text-[10px] text-slate-400">{item.desc}</p>
               </div>
-              <div>
-                <p className="text-gray-800 text-xs">{item.label}</p>
-                <p className="text-gray-400 text-[10px]">{item.desc}</p>
-              </div>
-            </button>
+            </motion.button>
           ))}
         </div>
-      </div>
+      </Reveal>
 
-      {/* Nearby drivers */}
-      <div className="px-5 mt-6">
-        <div className="flex items-center justify-between mb-4">
+      {/* Chauffeurs proches */}
+      <Reveal className="mt-7 px-5">
+        <div className="mb-4 flex items-center justify-between">
           <h3 className="title-gradient">Chauffeurs proches</h3>
-          <div className="flex items-center gap-1.5 bg-emerald-50 px-2.5 py-1 rounded-full text-[10px] text-emerald-600 border border-emerald-100">
-            <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" /> EN LIGNE
+          <div className="flex items-center gap-1.5 rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-[10px] text-emerald-600">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" /> EN LIGNE
           </div>
         </div>
-        <div className="space-y-2.5">
-          {nearbyDrivers.map((d, i) => (
-            <button
-              key={i}
-              onClick={() => navigate("/app/book-ride")}
-              className="w-full bg-white rounded-2xl p-3.5 flex items-center gap-3.5 shadow-sm shadow-blue-100/40 hover:shadow-md hover:shadow-blue-100/60 transition-all active:scale-[0.99] border border-blue-50"
-            >
-              <ProfileAvatar initials={d.initials} size={44} className="rounded-2xl shadow-sm shadow-blue-500/20" gradient={d.gradient} />
-              <div className="flex-1 text-left">
-                <p className="text-sm text-gray-800">{d.name}</p>
-                <p className="text-xs text-gray-400">{d.vehicle} · a {d.distance}</p>
+        {driversLoading ? (
+          <div className="space-y-2.5">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="flex w-full animate-pulse items-center gap-3.5 rounded-3xl border border-blue-50 bg-white p-3.5">
+                <div className="h-11 w-11 rounded-2xl bg-gray-100" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 w-28 rounded-full bg-gray-100" />
+                  <div className="h-2.5 w-20 rounded-full bg-gray-100" />
+                </div>
               </div>
-              <div className="flex items-center gap-1 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-100">
-                <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
-                <span className="text-xs text-amber-600">{d.rating}</span>
-              </div>
-            </button>
-          ))}
-        </div>
-      </div>
+            ))}
+          </div>
+        ) : nearbyDrivers.length === 0 ? (
+          <div className="flex flex-col items-center gap-2 rounded-3xl border border-gray-100 bg-white p-6 text-center">
+            <span className="grid h-12 w-12 place-items-center rounded-2xl bg-gray-50">
+              <CarIcon className="h-6 w-6 text-gray-300" strokeWidth={1.6} />
+            </span>
+            <p className="text-sm text-gray-500">Aucun chauffeur en ligne pour le moment</p>
+            <p className="text-[11px] text-gray-400">Réessayez dans quelques instants</p>
+          </div>
+        ) : (
+          <div className="space-y-2.5">
+            {nearbyDrivers.map((d, i) => (
+              <motion.button
+                key={d.id}
+                initial={{ opacity: 0, x: -12 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4, delay: i * 0.06, ease: EASE }}
+                whileTap={{ scale: 0.99 }}
+                onClick={() => navigate(`/app/book-ride?driver=${d.id}`)}
+                className="flex w-full items-center gap-3.5 rounded-3xl border border-blue-50 bg-white p-3.5 text-left shadow-sm shadow-blue-100/40 transition"
+              >
+                <ProfileAvatar initials={d.initials} size={44} className="rounded-2xl shadow-sm shadow-blue-500/20" gradient={d.gradient} />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm text-gray-800">{d.name}</p>
+                  <p className="truncate text-xs text-gray-400">{d.vehicle}{d.eta ? ` · à ${d.eta}` : ""}</p>
+                </div>
+                {d.rating > 0 && (
+                  <div className="flex shrink-0 items-center gap-1 rounded-full border border-amber-100 bg-amber-50 px-2.5 py-1">
+                    <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                    <span className="text-xs text-amber-600">{d.rating}</span>
+                  </div>
+                )}
+              </motion.button>
+            ))}
+          </div>
+        )}
+      </Reveal>
     </div>
   );
 }

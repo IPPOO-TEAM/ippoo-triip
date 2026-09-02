@@ -3,15 +3,16 @@ import { useNavigate, useSearchParams } from "react-router";
 import { api } from "../api/client";
 import {
   ChevronLeft, Phone, MessageSquare, Share2, Star, Navigation, MapPin,
-  X, Send, Shield, AlertTriangle, Clock, Copy, Check, ChevronRight,
-  PhoneOff, Wallet, Heart, Flag, Ban, Info, ChevronDown, Receipt,
-  Banknote, ThumbsUp, AlertOctagon
+  X, Send, AlertTriangle, Clock, Copy, Check, ChevronRight,
+  PhoneOff, Wallet, Heart, Ban, Receipt,
+  Banknote, AlertOctagon
 } from "lucide-react";
-import { AfricanPattern } from "./icons";
 import { toast } from "sonner";
 import { getAvatar } from "./avatars";
 import { TrackingMap } from "./tracking-map";
 import { SosButton } from "./sos-button";
+import { M3Card, M3Button, StatTile, EmptyState, useScheme } from "./m3";
+import type { CSSProperties } from "react";
 
 type RideState = "searching" | "accepted" | "enroute" | "arrived" | "inprogress" | "completed";
 
@@ -22,7 +23,7 @@ interface ChatMsg {
   time: string;
 }
 
-/* ─── StatusPill ─── */
+/* --- StatusPill --- */
 function StatusPill({ color, text, pulse = false }: { color: string; text: string; pulse?: boolean }) {
   const styles: Record<string, string> = {
     amber: "bg-amber-50 text-amber-600 border-amber-200",
@@ -39,7 +40,7 @@ function StatusPill({ color, text, pulse = false }: { color: string; text: strin
   );
 }
 
-/* ─── Auto-reply messages ─── */
+/* --- Auto-reply messages --- */
 const driverReplies = [
   "D'accord, j'arrive bientot !",
   "Je suis a environ 2 minutes",
@@ -51,15 +52,23 @@ const driverReplies = [
 
 export function RideTrackingPage() {
   const navigate = useNavigate();
+  const scheme = useScheme();
+  const schemeVars = {
+    "--m3-primary": scheme.primary,
+    "--m3-on-primary": scheme.onPrimary,
+    "--m3-container": scheme.container,
+    "--m3-on-container": scheme.onContainer,
+    "--m3-accent": scheme.accent,
+  } as CSSProperties & Record<`--${string}`, string>;
 
-  /* ─── Core state ─── */
+  /* --- Core state --- */
   const [rideState, setRideState] = useState<RideState>("searching");
   const [eta, setEta] = useState(5);
   const [distance, setDistance] = useState(2.4);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [progress, setProgress] = useState(0);
 
-  /* ─── UI state ─── */
+  /* --- UI state --- */
   const [showChat, setShowChat] = useState(false);
   const [showCall, setShowCall] = useState(false);
   const [showCancel, setShowCancel] = useState(false);
@@ -68,26 +77,26 @@ export function RideTrackingPage() {
   const [showReceipt, setShowReceipt] = useState(false);
   const [showTip, setShowTip] = useState(false);
 
-  /* ─── Chat state ─── */
+  /* --- Chat state --- */
   const [chatMessages, setChatMessages] = useState<ChatMsg[]>([
     { id: 1, from: "driver", text: "Bonjour ! Je suis en route vers vous.", time: "14:30" },
   ]);
   const [chatInput, setChatInput] = useState("");
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  /* ─── Rating state ─── */
+  /* --- Rating state --- */
   const [rating, setRating] = useState(0);
   const [ratingComment, setRatingComment] = useState("");
   const [ratingSubmitted, setRatingSubmitted] = useState(false);
 
-  /* ─── Tip state ─── */
+  /* --- Tip state --- */
   const [tipAmount, setTipAmount] = useState(0);
   const [customTip, setCustomTip] = useState("");
 
-  /* ─── Cancel state ─── */
+  /* --- Cancel state --- */
   const [cancelReason, setCancelReason] = useState("");
 
-  /* ─── Call state ─── */
+  /* --- Call state --- */
   const [callDuration, setCallDuration] = useState(0);
   const callTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -95,19 +104,55 @@ export function RideTrackingPage() {
   const rideId = searchParams.get("ride");
 
   const [driver, setDriver] = useState({
-    name: "Hounkpatin Adjovi",
-    vehicle: "Honda CB125 - Noire",
-    plate: "AB 1234 BJ",
-    rating: 4.8,
-    trips: 342,
-    phone: "+229 96 XX XX XX",
-    initials: "HA",
+    name: "",
+    vehicle: "",
+    plate: "",
+    rating: 0,
+    trips: 0,
+    phone: "",
+    initials: "•",
     gradient: "from-blue-500 to-blue-600",
   });
 
-  const [ridePrice, setRidePrice] = useState(1200);
-  const [departure, setDeparture] = useState("Campus Abomey-Calavi");
-  const [destination, setDestination] = useState("Cotonou Centre");
+  const [ridePrice, setRidePrice] = useState(0);
+  const [departure, setDeparture] = useState("");
+  const [destination, setDestination] = useState("");
+
+  /* Coordonnées réelles pour la carte (aucune valeur simulée) */
+  const [originGeo, setOriginGeo] = useState<{ lat: number; lng: number } | null>(null);
+  const [destGeo, setDestGeo] = useState<{ lat: number; lng: number } | null>(null);
+  const [driverGeo, setDriverGeo] = useState<{ lat: number; lng: number } | null>(null);
+  const [userGeo, setUserGeo] = useState<{ lat: number; lng: number } | null>(null);
+
+  /* Position GPS réelle de l'utilisateur — suivi temps réel */
+  useEffect(() => {
+    if (!("geolocation" in navigator)) return;
+    const id = navigator.geolocation.watchPosition(
+      (p) => setUserGeo({ lat: p.coords.latitude, lng: p.coords.longitude }),
+      () => {/* refus : on n'affiche simplement pas le marqueur utilisateur */},
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 },
+    );
+    return () => navigator.geolocation.clearWatch(id);
+  }, []);
+
+  /* Position réelle du chauffeur — interrogée périodiquement pendant la course */
+  useEffect(() => {
+    if (!rideId) return;
+    if (rideState === "completed") return;
+    let cancelled = false;
+    const poll = async () => {
+      try {
+        const r = await api.get<any>(`/rides/${rideId}`);
+        if (cancelled) return;
+        if (r?.driverLocation?.lat != null && r?.driverLocation?.lng != null) {
+          setDriverGeo({ lat: r.driverLocation.lat, lng: r.driverLocation.lng });
+        }
+      } catch { /* repli silencieux */ }
+    };
+    poll();
+    const interval = setInterval(poll, 5000);
+    return () => { cancelled = true; clearInterval(interval); };
+  }, [rideId, rideState]);
 
   // Hydrate le suivi avec la vraie course réservée (repli sur les valeurs par défaut)
   useEffect(() => {
@@ -132,6 +177,8 @@ export function RideTrackingPage() {
         if (typeof r.priceXOF === "number") setRidePrice(r.priceXOF);
         if (r.origin?.label) setDeparture(r.origin.label);
         if (r.destination?.label) setDestination(r.destination.label);
+        if (r.origin?.lat != null && r.origin?.lng != null) setOriginGeo({ lat: r.origin.lat, lng: r.origin.lng });
+        if (r.destination?.lat != null && r.destination?.lng != null) setDestGeo({ lat: r.destination.lat, lng: r.destination.lng });
       } catch {
         /* repli silencieux */
       }
@@ -139,7 +186,7 @@ export function RideTrackingPage() {
     return () => { cancelled = true; };
   }, [rideId]);
 
-  /* ─── Auto-progression timer ─── */
+  /* --- Auto-progression timer --- */
   useEffect(() => {
     if (rideState === "searching") {
       const t = setTimeout(() => {
@@ -158,7 +205,7 @@ export function RideTrackingPage() {
     }
   }, [rideState]);
 
-  /* ─── ETA countdown ─── */
+  /* --- ETA countdown --- */
   useEffect(() => {
     if (rideState !== "enroute" && rideState !== "inprogress") return;
     const interval = setInterval(() => {
@@ -176,7 +223,7 @@ export function RideTrackingPage() {
     return () => clearInterval(interval);
   }, [rideState]);
 
-  /* ─── Auto arrive ─── */
+  /* --- Auto arrive --- */
   useEffect(() => {
     if (rideState === "enroute" && eta <= 0.1) {
       setRideState("arrived");
@@ -187,12 +234,12 @@ export function RideTrackingPage() {
     }
   }, [eta, rideState]);
 
-  /* ─── Chat scroll ─── */
+  /* --- Chat scroll --- */
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages, showChat]);
 
-  /* ─── Helpers ─── */
+  /* --- Helpers --- */
   const formatTime = () => {
     const now = new Date();
     return `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
@@ -263,7 +310,7 @@ export function RideTrackingPage() {
     toast.success("Vous êtes arrive !", { description: destination });
   }, [destination]);
 
-  /* ─── Auto complete in-progress ─── */
+  /* --- Auto complete in-progress --- */
   useEffect(() => {
     if (rideState === "inprogress" && progress >= 99) {
       completeRide();
@@ -286,7 +333,7 @@ export function RideTrackingPage() {
     setShowTip(false);
   };
 
-  /* ─── Status config ─── */
+  /* --- Status config --- */
   const statusMap: Record<RideState, { color: string; text: string }> = {
     searching: { color: "amber", text: "RECHERCHE EN COURS" },
     accepted: { color: "blue", text: "CHAUFFEUR ACCEPTE" },
@@ -300,15 +347,18 @@ export function RideTrackingPage() {
   const showDriverInfo = !["searching"].includes(rideState);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white" style={schemeVars}>
       <SosButton />
-      {/* ═══ MAP AREA ═══ */}
+      {/* --- MAP AREA --- */}
       <div className="relative h-[38vh] overflow-hidden">
         {/* Vraie carte Leaflet / OpenStreetMap */}
         <TrackingMap
-          rideState={rideState}
-          progress={progress}
-          driverName={driver.name}
+          origin={originGeo}
+          destination={destGeo}
+          driverPos={driverGeo}
+          userPos={userGeo}
+          driverName={driver.name || "Chauffeur"}
+          active={["accepted", "enroute", "arrived", "inprogress"].includes(rideState)}
         />
 
         <button onClick={() => navigate(-1)} className="absolute top-14 left-5 w-11 h-11 bg-white rounded-2xl flex items-center justify-center shadow-sm active:scale-90 transition" style={{ zIndex: 500 }}>
@@ -327,7 +377,7 @@ export function RideTrackingPage() {
         )}
       </div>
 
-      {/* ═══ BOTTOM SHEET ═══ */}
+      {/* --- BOTTOM SHEET --- */}
       <div className="bg-white rounded-t-[2rem] -mt-6 relative z-10 min-h-[62vh] shadow-[0_-4px_40px_rgba(0,0,0,0.08)]">
         <div className="flex justify-center pt-3 pb-2">
           <div className="w-10 h-1 bg-slate-200 rounded-full" />
@@ -335,22 +385,22 @@ export function RideTrackingPage() {
 
         <div className="px-5 pb-8">
 
-          {/* ─── SEARCHING ─── */}
+          {/* --- SEARCHING --- */}
           {rideState === "searching" && (
             <div className="text-center py-8">
               <div className="relative w-20 h-20 mx-auto mb-5">
-                <div className="absolute inset-0 bg-blue-100 rounded-full animate-ping opacity-40" />
-                <div className="relative w-20 h-20 bg-blue-500 rounded-full flex items-center justify-center shadow-sm shadow-blue-500/30">
-                  <Navigation className="w-8 h-8 text-white" />
+                <div className="absolute inset-0 rounded-full animate-ping opacity-30" style={{ background: "var(--m3-primary)" }} />
+                <div className="relative w-20 h-20 rounded-full flex items-center justify-center shadow-sm" style={{ background: "var(--m3-primary)", color: "var(--m3-on-primary)" }}>
+                  <Navigation className="w-8 h-8" />
                 </div>
               </div>
-              <h3 className="title-gradient">Recherche d'un chauffeur...</h3>
+              <h3 style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: 16, fontWeight: 700, color: "#1a1a2e" }}>Recherche d'un chauffeur...</h3>
               <p className="text-sm text-slate-400 mt-1 mb-4">Veuillez patienter quelques instants</p>
 
               {/* Animated dots */}
               <div className="flex items-center justify-center gap-2 mb-6">
                 {[0, 1, 2].map(i => (
-                  <div key={i} className="w-2.5 h-2.5 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: `${i * 0.2}s` }} />
+                  <div key={i} className="w-2.5 h-2.5 rounded-full animate-bounce" style={{ background: "var(--m3-primary)", animationDelay: `${i * 0.2}s` }} />
                 ))}
               </div>
 
@@ -363,11 +413,11 @@ export function RideTrackingPage() {
                   <div className="space-y-4">
                     <div>
                       <p className="text-[10px] text-slate-400 uppercase">Depart</p>
-                      <p className="text-sm text-slate-700">{departure}</p>
+                      <p className="text-sm text-slate-700">{departure || "Point de départ"}</p>
                     </div>
                     <div>
                       <p className="text-[10px] text-slate-400 uppercase">Destination</p>
-                      <p className="text-sm text-slate-700">{destination}</p>
+                      <p className="text-sm text-slate-700">{destination || "Destination"}</p>
                     </div>
                   </div>
                 </div>
@@ -377,8 +427,16 @@ export function RideTrackingPage() {
             </div>
           )}
 
-          {/* ─── DRIVER FOUND / EN ROUTE / ARRIVED / IN PROGRESS ─── */}
-          {showDriverInfo && rideState !== "completed" && (
+          {/* --- DRIVER FOUND / EN ROUTE / ARRIVED / IN PROGRESS --- */}
+          {showDriverInfo && rideState !== "completed" && !driver.name && (
+            <EmptyState
+              icon={Navigation}
+              title="En attente des informations"
+              description="Les détails du chauffeur et du trajet s'afficheront dès qu'une course est assignée."
+            />
+          )}
+
+          {showDriverInfo && rideState !== "completed" && !!driver.name && (
             <div>
               {/* Driver card */}
               <div className="flex items-center gap-4 mb-4">
@@ -441,55 +499,46 @@ export function RideTrackingPage() {
 
               {/* Stats */}
               <div className="grid grid-cols-3 gap-3 mb-4">
-                <div className="bg-blue-50 rounded-2xl p-3 text-center">
-                  <p className="text-[10px] text-slate-400 uppercase tracking-wide">ETA</p>
-                  <p className="text-blue-600 mt-1" style={{ fontFamily: "'Space Grotesk', monospace" }}>
-                    {rideState === "arrived" ? "Arrive !" : rideState === "completed" ? "" : `${Math.ceil(eta)} min`}
-                  </p>
-                </div>
-                <div className="bg-cyan-50 rounded-2xl p-3 text-center">
-                  <p className="text-[10px] text-slate-400 uppercase tracking-wide">Distance</p>
-                  <p className="text-cyan-600 mt-1" style={{ fontFamily: "'Space Grotesk', monospace" }}>{distance.toFixed(1)} km</p>
-                </div>
-                <div className="bg-emerald-50 rounded-2xl p-3 text-center">
-                  <p className="text-[10px] text-slate-400 uppercase tracking-wide">Prix</p>
-                  <p className="text-emerald-600 mt-1" style={{ fontFamily: "'Space Grotesk', monospace" }}>{ridePrice.toLocaleString()} F</p>
-                </div>
+                <StatTile label="ETA" icon={Clock} value={rideState === "arrived" ? "Arrivé !" : `${Math.ceil(eta)} min`} />
+                <StatTile label="Distance" icon={MapPin} value={`${distance.toFixed(1)} km`} />
+                <StatTile label="Prix" icon={Wallet} value={`${ridePrice.toLocaleString()} F`} />
               </div>
 
               {/* Action buttons */}
               <div className="flex gap-2 mb-4">
-                <button onClick={startCall} className="flex-1 flex items-center justify-center gap-2 bg-emerald-500 text-white py-3.5 rounded-2xl shadow-sm shadow-green-500/20 active:scale-[0.98] transition">
-                  <Phone className="w-4 h-4" /> Appeler
+                <button onClick={startCall} className="flex-1 flex items-center justify-center gap-2 py-3.5 min-h-[40px] rounded-full text-[15px] font-semibold active:scale-[0.97] transition" style={{ background: "var(--m3-primary)", color: "var(--m3-on-primary)", boxShadow: "0 8px 22px -8px var(--m3-primary)" }}>
+                  <Phone className="w-[18px] h-[18px]" strokeWidth={2.2} /> Appeler
                 </button>
-                <button onClick={() => setShowChat(true)} className="flex-1 flex items-center justify-center gap-2 bg-slate-100 text-slate-700 py-3.5 rounded-2xl active:scale-[0.98] transition relative">
-                  <MessageSquare className="w-4 h-4" /> Message
+                <button onClick={() => setShowChat(true)} className="flex-1 flex items-center justify-center gap-2 py-3.5 min-h-[40px] rounded-full text-[15px] font-semibold active:scale-[0.97] transition relative" style={{ background: "var(--m3-container)", color: "var(--m3-on-container)" }}>
+                  <MessageSquare className="w-[18px] h-[18px]" strokeWidth={2.2} /> Message
                   {chatMessages.length > 1 && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#F77F00] rounded-full text-black text-[10px] flex items-center justify-center">{chatMessages.length}</span>
+                    <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-[10px] flex items-center justify-center" style={{ background: "var(--m3-accent)", color: "#fff" }}>{chatMessages.length}</span>
                   )}
                 </button>
-                <button onClick={() => setShowShare(true)} className="w-14 flex items-center justify-center bg-slate-100 text-slate-700 py-3.5 rounded-2xl active:scale-[0.98] transition">
-                  <Share2 className="w-4 h-4" />
+                <button onClick={() => setShowShare(true)} className="w-14 flex items-center justify-center py-3.5 rounded-full active:scale-[0.97] transition" style={{ background: "var(--m3-container)", color: "var(--m3-on-container)" }}>
+                  <Share2 className="w-[18px] h-[18px]" strokeWidth={2.2} />
                 </button>
               </div>
 
               {/* State-specific CTA */}
               {rideState === "arrived" && (
-                <button onClick={startRide} className="w-full bg-[#F77F00] text-black py-4 rounded-2xl shadow-sm shadow-orange-200/50 flex items-center justify-center gap-2 active:scale-[0.98] transition mb-3">
-                  <Check className="w-4 h-4" /> Je suis monte, demarrer la course
-                </button>
+                <div className="mb-3">
+                  <M3Button onClick={startRide} icon={Check}>Je suis monté, démarrer la course</M3Button>
+                </div>
               )}
 
               {rideState === "inprogress" && (
-                <div className="bg-cyan-50 rounded-2xl p-3 mb-3 flex items-center gap-3 border border-cyan-200">
-                  <div className="w-8 h-8 bg-cyan-500 rounded-xl flex items-center justify-center">
-                    <Navigation className="w-4 h-4 text-white" />
+                <M3Card tonal className="mb-3 p-3">
+                  <div className="flex items-center gap-3">
+                    <div className="grid h-8 w-8 place-items-center rounded-xl" style={{ background: "var(--m3-primary)", color: "var(--m3-on-primary)" }}>
+                      <Navigation className="h-4 w-4" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-xs font-semibold">Course en cours</p>
+                      <p className="text-[10px] opacity-80">Temps écoulé : {formatCallDuration(elapsedSeconds)}</p>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <p className="text-xs text-cyan-700">Course en cours</p>
-                    <p className="text-[10px] text-cyan-500">Temps ecoule: {formatCallDuration(elapsedSeconds)}</p>
-                  </div>
-                </div>
+                </M3Card>
               )}
 
               {/* Cancel button */}
@@ -501,7 +550,7 @@ export function RideTrackingPage() {
             </div>
           )}
 
-          {/* ─── COMPLETED ─── */}
+          {/* --- COMPLETED --- */}
           {rideState === "completed" && (
             <div className="py-4">
               <div className="text-center mb-6">
@@ -572,7 +621,8 @@ export function RideTrackingPage() {
                     ))}
                   </div>
                   <button onClick={submitRating}
-                    className={`w-full py-3.5 rounded-xl text-sm transition ${rating > 0 ? "bg-[#F77F00] text-black shadow-sm shadow-orange-200/50 active:scale-[0.98]" : "bg-slate-100 text-slate-400"}`}>
+                    className="w-full py-3.5 rounded-full text-sm font-semibold transition active:scale-[0.98]"
+                    style={rating > 0 ? { background: "var(--m3-primary)", color: "var(--m3-on-primary)" } : { background: "#f1f5f9", color: "#94a3b8" }}>
                     Envoyer ma note
                   </button>
                 </div>
@@ -623,11 +673,13 @@ export function RideTrackingPage() {
               {/* Final actions */}
               <div className="flex gap-3">
                 <button onClick={() => navigate("/app/book-ride")}
-                  className="flex-1 bg-blue-500 text-white py-3.5 rounded-2xl text-sm shadow-sm shadow-blue-500/25 active:scale-[0.98] transition">
+                  className="flex-1 py-3.5 rounded-full text-sm font-semibold active:scale-[0.98] transition"
+                  style={{ background: "var(--m3-primary)", color: "var(--m3-on-primary)", boxShadow: "0 8px 22px -8px var(--m3-primary)" }}>
                   Reprendre ce trajet
                 </button>
                 <button onClick={() => navigate("/app")}
-                  className="flex-1 bg-slate-100 text-slate-700 py-3.5 rounded-2xl text-sm active:scale-[0.98] transition">
+                  className="flex-1 py-3.5 rounded-full text-sm font-semibold active:scale-[0.98] transition"
+                  style={{ background: "var(--m3-container)", color: "var(--m3-on-container)" }}>
                   Accueil
                 </button>
               </div>
@@ -636,9 +688,9 @@ export function RideTrackingPage() {
         </div>
       </div>
 
-      {/* ═══════════════ OVERLAYS ═══════════════ */}
+      {/* --------------- OVERLAYS --------------- */}
 
-      {/* ─── CALL OVERLAY ─── */}
+      {/* --- CALL OVERLAY --- */}
       {showCall && (
         <div className="fixed inset-0 z-50 bg-slate-900 flex flex-col items-center justify-center">
           <div className="w-24 h-24 rounded-full overflow-hidden shadow-sm mb-6 border-4 border-white/10">
@@ -677,7 +729,7 @@ export function RideTrackingPage() {
         </div>
       )}
 
-      {/* ─── CHAT OVERLAY ─── */}
+      {/* --- CHAT OVERLAY --- */}
       {showChat && (
         <div className="fixed inset-0 z-50 bg-white flex flex-col">
           <div className="flex items-center gap-3 px-5 pt-14 pb-3 border-b border-slate-100 shrink-0">
@@ -739,7 +791,7 @@ export function RideTrackingPage() {
         </div>
       )}
 
-      {/* ─── SHARE MODAL ─── */}
+      {/* --- SHARE MODAL --- */}
       {showShare && (
         <ModalOverlay onClose={() => setShowShare(false)} title="Partager ma course">
           <p className="text-xs text-slate-400 mb-4">Partagez votre position en temps reel avec un proche pour plus de securite.</p>
@@ -762,7 +814,7 @@ export function RideTrackingPage() {
         </ModalOverlay>
       )}
 
-      {/* ─── CANCEL MODAL ─── */}
+      {/* --- CANCEL MODAL --- */}
       {showCancel && (
         <ModalOverlay onClose={() => setShowCancel(false)} title="Annuler la course">
           {rideState !== "searching" && (
@@ -787,7 +839,7 @@ export function RideTrackingPage() {
         </ModalOverlay>
       )}
 
-      {/* ─── SOS MODAL ─── */}
+      {/* --- SOS MODAL --- */}
       {showSOS && (
         <ModalOverlay onClose={() => setShowSOS(false)} title="Alerte securite">
           <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -811,7 +863,7 @@ export function RideTrackingPage() {
         </ModalOverlay>
       )}
 
-      {/* ─── RECEIPT MODAL ─── */}
+      {/* --- RECEIPT MODAL --- */}
       {showReceipt && (
         <ModalOverlay onClose={() => setShowReceipt(false)} title="Recu de course">
           <div className="text-center mb-4">
@@ -848,7 +900,7 @@ export function RideTrackingPage() {
   );
 }
 
-/* ─── Modal overlay wrapper ─── */
+/* --- Modal overlay wrapper --- */
 function ModalOverlay({ onClose, title, children }: { onClose: () => void; title: string; children: React.ReactNode }) {
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">

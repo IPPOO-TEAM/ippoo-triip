@@ -1,15 +1,13 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import {
-  Download, Bike, Package, Users, Truck, Filter, ChevronRight, ChevronLeft,
-  X, Star, MapPin, Clock, Navigation, Copy, RotateCcw, AlertTriangle,
-  Calendar, Search, Trash2
+  Download, Bike, Package, Users, Truck, Filter, X, Star,
+  Copy, RotateCcw, AlertTriangle, Search, Trash2, History as HistoryIcon
 } from "lucide-react";
-import { AfricanPattern } from "./icons";
 import { toast } from "sonner";
 import { downloadBlob } from "./utils";
 import { api } from "../api/client";
-import articleImg from "../../imports/article3.jpg";
+import { M3Page, M3Card, EmptyState } from "./m3";
 
 type Category = "all" | "courses" | "livraisons" | "groupees" | "biens";
 
@@ -45,17 +43,9 @@ interface HistoryItem {
   userRating: number | null;
 }
 
-const historyItems: HistoryItem[] = [
-  { id: "IPP-20260410", cat: "courses", title: "Course moto", from: "Campus Abomey-Calavi", to: "Marche Dantokpa", date: "10 Avr 2026", time: "14:32", price: "1 200 F", priceNum: 1200, status: "completed", statusLabel: "Terminee", statusColor: "bg-emerald-50 text-emerald-600", gradient: "from-blue-500 to-indigo-600", Icon: Bike, driver: "Hounkpatin A.", driverRating: 4.8, vehicle: "Honda CB125", distance: "4.2 km", duration: "12 min", paymentMethod: "IPPOO Cash", userRating: 5 },
-  { id: "IPP-20260409", cat: "livraisons", title: "Livraison colis", from: "Boulevard St-Michel", to: "Godomey, rue 312", date: "09 Avr 2026", time: "11:15", price: "1 500 F", priceNum: 1500, status: "completed", statusLabel: "Livree", statusColor: "bg-emerald-50 text-emerald-600", gradient: "from-orange-400 to-rose-500", Icon: Package, driver: "Togbédji M.", driverRating: 4.6, vehicle: "Moto cargo", distance: "6.8 km", duration: "25 min", paymentMethod: "IPPOO Cash", userRating: 4 },
-  { id: "IPP-20260408", cat: "courses", title: "Course voiture", from: "Aeroport Cadjehoun", to: "Hotel du Lac", date: "08 Avr 2026", time: "16:45", price: "3 500 F", priceNum: 3500, status: "completed", statusLabel: "Terminee", statusColor: "bg-emerald-50 text-emerald-600", gradient: "from-blue-500 to-indigo-600", Icon: Bike, driver: "Fifamè D.", driverRating: 4.9, vehicle: "Toyota Yaris", distance: "8.1 km", duration: "18 min", paymentMethod: "IPPOO Cash", userRating: null },
-  { id: "IPP-20260407", cat: "groupees", title: "Commande campus", from: "Marche Dantokpa", to: "Campus UAC", date: "07 Avr 2026", time: "09:20", price: "800 F", priceNum: 800, status: "completed", statusLabel: "Livree", statusColor: "bg-emerald-50 text-emerald-600", gradient: "from-violet-500 to-purple-600", Icon: Users, driver: "Sessinou K.", driverRating: 4.7, vehicle: "Tricycle", distance: "5.3 km", duration: "20 min", paymentMethod: "IPPOO Cash", userRating: 5 },
-  { id: "IPP-20260406", cat: "courses", title: "Course moto", from: "Quartier Zongo", to: "CNHU", date: "06 Avr 2026", time: "08:00", price: "600 F", priceNum: 600, status: "cancelled", statusLabel: "Annulee", statusColor: "bg-red-50 text-red-500", gradient: "from-slate-400 to-slate-500", Icon: Bike, driver: "", driverRating: 0, vehicle: "", distance: "", duration: "", paymentMethod: "Rembourse", userRating: null },
-  { id: "IPP-20260405", cat: "biens", title: "Demenagement", from: "Cotonou Centre", to: "Abomey-Calavi", date: "05 Avr 2026", time: "10:00", price: "7 500 F", priceNum: 7500, status: "completed", statusLabel: "Terminee", statusColor: "bg-emerald-50 text-emerald-600", gradient: "from-rose-400 to-red-500", Icon: Truck, driver: "Akotègnon B.", driverRating: 4.5, vehicle: "Camionnette", distance: "12.4 km", duration: "35 min", paymentMethod: "IPPOO Cash", userRating: 4 },
-  { id: "IPP-20260404", cat: "livraisons", title: "Document express", from: "Bureau, Bd St-Michel", to: "Tribunal de Cotonou", date: "04 Avr 2026", time: "13:10", price: "1 000 F", priceNum: 1000, status: "completed", statusLabel: "Livree", statusColor: "bg-emerald-50 text-emerald-600", gradient: "from-orange-400 to-rose-500", Icon: Package, driver: "Aїdatou T.", driverRating: 4.8, vehicle: "Moto", distance: "3.1 km", duration: "10 min", paymentMethod: "IPPOO Cash", userRating: 5 },
-];
+const historyItems: HistoryItem[] = [];
 
-/* ─── Présentation par type de service (backend → UI) ─── */
+/* --- Présentation par type de service (backend → UI) --- */
 const SERVICE_PRESENTATION: Record<string, { cat: string; title: string; Icon: React.ElementType; gradient: string }> = {
   taxi_moto:       { cat: "courses",   title: "Course moto",      Icon: Bike,    gradient: "from-blue-500 to-indigo-600" },
   delivery:        { cat: "livraisons", title: "Livraison colis", Icon: Package, gradient: "from-orange-400 to-rose-500" },
@@ -107,17 +97,6 @@ export function HistoryPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedItem, setSelectedItem] = useState<HistoryItem | null>(null);
   const [items, setItems] = useState(historyItems);
-  const [parallaxY, setParallaxY] = useState(0);
-  const headerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const y = window.scrollY;
-      setParallaxY(y * 0.4);
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   // Charge l'historique depuis le backend mock (repli sur les données locales)
   useEffect(() => {
@@ -125,10 +104,10 @@ export function HistoryPage() {
     (async () => {
       try {
         const res = await api.get<{ items: any[] }>("/rides?pageSize=50");
-        if (cancelled || !res.items?.length) return;
-        setItems(res.items.map(rideToHistoryItem));
+        if (cancelled) return;
+        setItems((res?.items ?? []).map(rideToHistoryItem));
       } catch {
-        /* repli silencieux sur historyItems */
+        if (!cancelled) setItems([]);
       }
     })();
     return () => { cancelled = true; };
@@ -156,26 +135,26 @@ export function HistoryPage() {
 
   const handleDownloadReceipt = (item: HistoryItem) => {
     const lines = [
-      "╔════════════════════════════════════════╗",
-      "║            RECU IPPOO TRIIP             ║",
-      "╚════════════════════════════════════════╝",
+      "========================================",
+      "           RECU IPPOO TRIIP              ",
+      "========================================",
       "",
-      `Référence   : ${item.id}`,
-      `Date        : ${item.date} à ${item.time}`,
+      `Reference   : ${item.id}`,
+      `Date        : ${item.date} a ${item.time}`,
       `Statut      : ${item.statusLabel}`,
       "",
-      "─── TRAJET ────────────────────────────",
-      `Départ      : ${item.from}`,
+      "--- TRAJET -----------------------------",
+      `Depart      : ${item.from}`,
       `Destination : ${item.to}`,
       `Distance    : ${item.distance}`,
-      `Durée       : ${item.duration}`,
+      `Duree       : ${item.duration}`,
       "",
-      "─── DÉTAILS ───────────────────────────",
+      "--- DETAILS ----------------------------",
       `Service     : ${item.title}`,
       `Chauffeur   : ${item.driver}`,
-      `Véhicule    : ${item.vehicle}`,
+      `Vehicule    : ${item.vehicle}`,
       "",
-      "─── PAIEMENT ──────────────────────────",
+      "--- PAIEMENT ---------------------------",
       `Mode        : ${item.paymentMethod}`,
       `Montant     : ${item.price} CFA`,
       "",
@@ -190,79 +169,66 @@ export function HistoryPage() {
     toast.success("Reçu téléchargé !", { description: item.id });
   };
 
-  return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <div ref={headerRef} className="relative overflow-hidden rounded-b-[2rem] shadow-sm">
-        {/* Background image with parallax */}
-        <img src={articleImg} alt="" className="absolute inset-0 w-full h-[130%] object-cover will-change-transform" style={{ transform: `translateY(-${parallaxY}px) scale(${1 + parallaxY * 0.001})` }} />
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#1E6091]/85 via-[#1E6091]/70 to-[#2A9D8F]/80" />
-        {/* Luminous halo */}
-        <div className="absolute top-0 right-0 w-48 h-48 bg-[#F77F00]/20 rounded-full -mr-20 -mt-10 blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-36 h-36 bg-[#2A9D8F]/20 rounded-full -ml-16 -mb-10 blur-3xl" />
-
-        <div className="relative z-10 px-5 pt-14 pb-5">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-white mb-1">Historique</h2>
-              <p className="text-xs text-white/60">{items.length} commandes · <span style={{ fontFamily: "'Space Grotesk', monospace" }}>{totalSpent.toLocaleString()} F</span> total</p>
-            </div>
-          </div>
-
-          {/* Search */}
-          <div className="flex items-center gap-2 bg-white/15 backdrop-blur-sm rounded-2xl px-4 py-2.5 border border-white/20 mb-3 focus-within:border-white/40 transition">
-            <Search className="w-4 h-4 text-white/60" />
-            <input placeholder="Rechercher une course, livraison..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-white/40" />
-            {searchQuery && <button onClick={() => setSearchQuery("")}><X className="w-4 h-4 text-white/50" /></button>}
-          </div>
-
-          <div className="flex gap-2 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide">
-            {filters.map((f) => (
-              <button
-                key={f.id}
-                onClick={() => setActive(f.id)}
-                className={`flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs whitespace-nowrap transition-all ${
-                  active === f.id
-                    ? "bg-white text-[#1E6091] shadow-sm shadow-black/15"
-                    : "bg-white/15 text-white/80 border border-white/10 active:bg-white/25"
-                }`}
-              >
-                <f.icon className="w-3.5 h-3.5" /> {f.label}
-              </button>
-            ))}
-          </div>
-        </div>
+  const historyHero = (
+    <div className="space-y-3">
+      {/* Search */}
+      <div className="flex items-center gap-2 bg-white/15 backdrop-blur-sm rounded-2xl px-4 py-2.5 border border-white/20 focus-within:border-white/40 transition">
+        <Search className="w-4 h-4 text-[var(--m3-on-primary)]/60" />
+        <input placeholder="Rechercher une course, livraison..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+          className="flex-1 bg-transparent outline-none text-sm text-[var(--m3-on-primary)] placeholder:text-[var(--m3-on-primary)]/40" />
+        {searchQuery && <button onClick={() => setSearchQuery("")}><X className="w-4 h-4 text-[var(--m3-on-primary)]/50" /></button>}
       </div>
 
-      <div className="px-5 py-4 space-y-3">
-        {filtered.length === 0 && (
-          <div className="text-center py-16">
-            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Filter className="w-7 h-7 text-slate-300" />
-            </div>
-            <p className="text-slate-400 text-sm">
-              {searchQuery ? `Aucun resultat pour "${searchQuery}"` : "Aucun element dans cette categorie"}
-            </p>
-          </div>
-        )}
-        {filtered.map((item) => (
-          <button key={item.id} onClick={() => setSelectedItem(item)}
-            className="w-full bg-white rounded-2xl p-4 border border-slate-100 shadow-sm active:bg-slate-50 transition text-left">
+      <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
+        {filters.map((f) => (
+          <button
+            key={f.id}
+            onClick={() => setActive(f.id)}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs whitespace-nowrap transition"
+            style={active === f.id
+              ? { background: "#ffffff", color: "var(--m3-primary)" }
+              : { background: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.85)" }}
+          >
+            <f.icon className="w-3.5 h-3.5" /> {f.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
+  return (
+    <M3Page
+      title="Historique"
+      subtitle={`${items.length} commandes · ${totalSpent.toLocaleString()} F total`}
+      icon={HistoryIcon}
+      back={false}
+      hero={historyHero}
+    >
+      <div className="mx-auto max-w-md space-y-3">
+        {filtered.length === 0 ? (
+          <EmptyState
+            icon={Filter}
+            title={searchQuery ? "Aucun résultat" : "Aucun élément"}
+            description={searchQuery ? `Rien ne correspond à "${searchQuery}".` : "Vos courses et livraisons apparaîtront ici."}
+          />
+        ) : filtered.map((item, i) => (
+          <M3Card key={item.id} delay={i * 0.05} onClick={() => setSelectedItem(item)}>
             <div className="flex items-center gap-3.5">
-              <div className={`w-11 h-11 bg-gradient-to-br ${item.gradient} rounded-xl flex items-center justify-center shadow-md shrink-0`}>
-                <item.Icon className="w-5 h-5 text-white" />
-              </div>
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl"
+                style={item.status === "cancelled"
+                  ? { background: "#f1f5f9", color: "#94a3b8" }
+                  : { background: "var(--m3-container)", color: "var(--m3-primary)" }}>
+                <item.Icon className="w-5 h-5" strokeWidth={2.2} />
+              </span>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                   <p className="text-sm text-slate-800 truncate">{item.title}</p>
-                  <span className={`text-sm whitespace-nowrap ml-2 ${item.status === "cancelled" ? "text-slate-400 line-through" : "text-emerald-500"}`} style={{ fontFamily: "'Space Grotesk', monospace" }}>{item.price}</span>
+                  <span className="text-sm whitespace-nowrap ml-2" style={{ fontFamily: "'Space Grotesk', monospace", color: item.status === "cancelled" ? "#94a3b8" : "var(--m3-primary)", textDecoration: item.status === "cancelled" ? "line-through" : "none" }}>{item.price}</span>
                 </div>
                 <p className="text-xs text-slate-400 truncate">{item.from} → {item.to}</p>
               </div>
             </div>
-            <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-50">
+            <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
               <div className="flex items-center gap-2">
                 <span className="text-[10px] text-slate-400 bg-slate-50 px-2 py-0.5 rounded" style={{ fontFamily: "'Space Grotesk', monospace" }}>{item.id}</span>
                 <span className={`text-[10px] px-2 py-0.5 rounded-full ${item.statusColor}`}>{item.statusLabel}</span>
@@ -277,11 +243,11 @@ export function HistoryPage() {
                 )}
               </div>
             </div>
-          </button>
+          </M3Card>
         ))}
       </div>
 
-      {/* ═══ DETAIL MODAL ═══ */}
+      {/* --- DETAIL MODAL --- */}
       {selectedItem && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
           <div className="absolute inset-0 bg-black/40" onClick={() => setSelectedItem(null)} />
@@ -325,7 +291,7 @@ export function HistoryPage() {
             <div className="space-y-2.5 mb-5">
               <DetailRow label="Date" value={`${selectedItem.date} a ${selectedItem.time}`} />
               <DetailRow label="Reference" value={selectedItem.id} mono />
-              {selectedItem.driver !== "" && <DetailRow label="Chauffeur" value={`${selectedItem.driver} (${selectedItem.driverRating}★)`} />}
+              {selectedItem.driver !== "" && <DetailRow label="Chauffeur" value={`${selectedItem.driver} (${selectedItem.driverRating}/5)`} />}
               {selectedItem.vehicle !== "" && <DetailRow label="Vehicule" value={selectedItem.vehicle} />}
               {selectedItem.distance !== "" && <DetailRow label="Distance" value={selectedItem.distance} mono />}
               {selectedItem.duration !== "" && <DetailRow label="Duree" value={selectedItem.duration} mono />}
@@ -382,7 +348,7 @@ export function HistoryPage() {
           </div>
         </div>
       )}
-    </div>
+    </M3Page>
   );
 }
 

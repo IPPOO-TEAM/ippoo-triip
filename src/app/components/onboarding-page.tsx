@@ -1,446 +1,412 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router";
-import { ChevronRight, ArrowRight, Bike, Package, Truck, Car, Globe } from "lucide-react";
-import { ImageWithFallback } from "./figma/ImageWithFallback";
-import { boldBrand } from "./brand-text";
+import { ArrowRight, ChevronRight, Bike, Package, Truck, Car, Globe } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 
-import imgTaxi     from "figma:asset/cb856ad9ad2b6d63389cb55398f0022c31a5d3bf.png";
-import imgLivraison from "figma:asset/69629a15d8040af0ae589ad686f2ca30de63226b.png";
-import imgTransport from "figma:asset/c3680b506d82e1e5ee8aa062c6524415e9f21293.png";
-import imgCovoiturage from "figma:asset/e9e60f38f18b288d039778aec014b51cd42bd5dd.png";
-import imgAfrica   from "figma:asset/6cc3d4905bdcc38a53430299260f13a383d87250.png";
-
-/* ─────────────────────────────────────────
-   Slides data
-───────────────────────────────────────── */
+/* ─── Slide data with real Unsplash transport/Africa images ─── */
 interface Slide {
   id: number;
   image: string;
-  objectPosition: string;  // fine-grained crop control
-  badge: string;
-  badgeEmoji: string;
-  badgeIcon: React.ElementType;
-  title: string;
-  titleHighlight: string;
-  description: string;
-  gradientFrom: string;   // bottom color (rgba)
-  gradientMid: string;    // mid stop
-  accentColor: string;    // for badge + dot
-  accentBg: string;       // badge bg
+  accent: string;
+  bg: string;           // gradient bottom stop
+  category: string;
+  Icon: React.ElementType;
+  headline: string;
+  sub: string;
+  caption: string;
 }
 
 const slides: Slide[] = [
   {
     id: 1,
-    image: imgTaxi,
-    objectPosition: "center 30%",
-    badge: "Taxi-Moto",
-    badgeEmoji: "moto",
-    badgeIcon: Bike,
-    title: "Voyagez vite,",
-    titleHighlight: "voyagez IPPOO",
-    description: "Réservez un taxi-moto en quelques secondes et arrivez à destination rapidement, en toute sécurité.",
-    gradientFrom: "rgba(247,127,0,0.96)",
-    gradientMid: "rgba(20,10,0,0.55)",
-    accentColor: "#F77F00",
-    accentBg: "rgba(247,127,0,0.22)",
+    image: "https://images.unsplash.com/flagged/photo-1568200041533-6ce36f2c0761?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+    accent: "#F97316",
+    bg: "rgba(249,115,22,0.88)",
+    category: "TAXI-MOTO",
+    Icon: Bike,
+    headline: "Partez vite,\narrivez sûr",
+    sub: "Votre moto réservée en quelques secondes.",
+    caption: "Confort · Sécurité · Ponctualité",
   },
   {
     id: 2,
-    image: imgLivraison,
-    objectPosition: "center 55%",
-    badge: "Livraison Express",
-    badgeEmoji: "livraison",
-    badgeIcon: Package,
-    title: "Vos colis livrés",
-    titleHighlight: "avec soin",
-    description: "Envoyez et recevez vos colis partout en ville. Suivi en temps réel à chaque étape.",
-    gradientFrom: "rgba(42,157,143,0.96)",
-    gradientMid: "rgba(0,20,15,0.55)",
-    accentColor: "#2A9D8F",
-    accentBg: "rgba(42,157,143,0.22)",
+    image: "https://images.unsplash.com/photo-1630509866931-6bcfcc43db22?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+    accent: "#10B981",
+    bg: "rgba(16,185,129,0.88)",
+    category: "LIVRAISON EXPRESS",
+    Icon: Package,
+    headline: "Livré en flash,\nsuivi en direct",
+    sub: "Colis, courses, documents — on s'en occupe.",
+    caption: "Suivi GPS · Temps réel · Garanti",
   },
   {
     id: 3,
-    image: imgTransport,
-    objectPosition: "center 45%",
-    badge: "Transport Lourd",
-    badgeEmoji: "transport",
-    badgeIcon: Truck,
-    title: "Bougez vos",
-    titleHighlight: "marchandises",
-    description: "Des camions disponibles pour tous vos transports lourds. Chargement, déménagement, fret.",
-    gradientFrom: "rgba(30,96,145,0.96)",
-    gradientMid: "rgba(0,10,25,0.55)",
-    accentColor: "#1E6091",
-    accentBg: "rgba(30,96,145,0.22)",
+    image: "https://images.unsplash.com/photo-1611746351408-c0a1346be8e8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+    accent: "#3B82F6",
+    bg: "rgba(30,96,145,0.90)",
+    category: "TRANSPORT LOURD",
+    Icon: Truck,
+    headline: "Bougez vos\nmarchandises",
+    sub: "Camions disponibles pour déménagement et fret.",
+    caption: "Chargement · Déménagement · Fret",
   },
   {
     id: 4,
-    image: imgCovoiturage,
-    objectPosition: "center 35%",
-    badge: "Covoiturage",
-    badgeEmoji: "covoiturage",
-    badgeIcon: Car,
-    title: "Partagez,",
-    titleHighlight: "économisez",
-    description: "Voyagez ensemble et réduisez vos dépenses. Rejoignez une communauté de confiance.",
-    gradientFrom: "rgba(214,40,40,0.93)",
-    gradientMid: "rgba(20,0,0,0.55)",
-    accentColor: "#D62828",
-    accentBg: "rgba(214,40,40,0.22)",
+    image: "https://images.unsplash.com/photo-1708347456816-f4d28505c855?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+    accent: "#EF4444",
+    bg: "rgba(239,68,68,0.86)",
+    category: "COVOITURAGE",
+    Icon: Car,
+    headline: "Partagez,\néconomisez",
+    sub: "Voyagez ensemble. Moins cher, plus convivial.",
+    caption: "Trajets partagés · Communauté · Économies",
   },
   {
     id: 5,
-    image: imgAfrica,
-    objectPosition: "center 25%",
-    badge: "IPPOO TRIIP",
-    badgeEmoji: "africa",
-    badgeIcon: Globe,
-    title: "Le Monde se",
-    titleHighlight: "déplace avec IPPOO",
-    description: "Des milliers d'utilisateurs nous font confiance chaque jour. Rejoignez l'aventure IPPOO !",
-    gradientFrom: "rgba(233,196,106,0.15)",
-    gradientMid: "rgba(10,5,0,0.72)",
-    accentColor: "#E9C46A",
-    accentBg: "rgba(233,196,106,0.22)",
+    image: "https://images.unsplash.com/photo-1756721501657-639c90be59ec?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+    accent: "#F59E0B",
+    bg: "rgba(20,10,2,0.70)",
+    category: "IPPOO TRIIP",
+    Icon: Globe,
+    headline: "L'Afrique\nse déplace",
+    sub: "Des milliers de trajets effectués chaque jour.",
+    caption: "Bénin · Togo · Niger · Côte d'Ivoire…",
   },
 ];
 
-/* ─────────────────────────────────────────
-   African pattern SVG
-───────────────────────────────────────── */
-function AfricanDots({ color }: { color: string }) {
+/* ─── Micro progress bar ─── */
+function ProgressPill({ active, total, accent }: { active: number; total: number; accent: string }) {
   return (
-    <svg width="120" height="120" viewBox="0 0 120 120" fill="none" className="opacity-20">
-      {[0, 1, 2, 3].map(row =>
-        [0, 1, 2, 3].map(col => (
-          <circle
-            key={`${row}-${col}`}
-            cx={col * 30 + 15}
-            cy={row * 30 + 15}
-            r={row % 2 === col % 2 ? 5 : 2.5}
-            fill={color}
-          />
-        ))
-      )}
-    </svg>
+    <div className="flex items-center gap-1.5">
+      {slides.map((_, i) => (
+        <div
+          key={i}
+          className="rounded-full overflow-hidden"
+          style={{
+            height: 3,
+            width: i === active ? 28 : 6,
+            background: i === active ? accent : "rgba(255,255,255,0.28)",
+            transition: "width 0.4s cubic-bezier(0.22,1,0.36,1), background 0.4s",
+          }}
+        />
+      ))}
+    </div>
   );
 }
 
-function GeometricLines({ color }: { color: string }) {
-  return (
-    <svg width="200" height="60" viewBox="0 0 200 60" fill="none" className="opacity-15">
-      {[0, 1, 2, 3, 4].map(i => (
-        <rect key={i} x={i * 40} y={20} width={28} height={4} rx={2} fill={color} />
-      ))}
-      {[0, 1, 2, 3, 4].map(i => (
-        <rect key={`b-${i}`} x={i * 40 + 14} y={36} width={14} height={4} rx={2} fill={color} />
-      ))}
-    </svg>
-  );
-}
-
-/* ─────────────────────────────────────────
-   Main Component
-───────────────────────────────────────── */
+/* ─── Main ─── */
 export function OnboardingPage() {
   const navigate = useNavigate();
-  const [current, setCurrent] = useState(0);
-  const [animating, setAnimating] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState<boolean[]>(new Array(slides.length).fill(false));
-  const autoRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const touchStartX = useRef<number>(0);
-  const touchStartY = useRef<number>(0);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [cur, setCur] = useState(0);
+  const [dir, setDir] = useState(1);
+  const [busy, setBusy] = useState(false);
+  const touchX = useRef(0);
+  const touchY = useRef(0);
 
-  const goToSlide = useCallback((idx: number) => {
-    if (animating) return;
-    setAnimating(true);
-    setTimeout(() => {
-      setCurrent(idx);
-      setAnimating(false);
-    }, 350);
-  }, [animating]);
+  const slide = slides[cur];
+  const isLast = cur === slides.length - 1;
 
-  const nextSlide = useCallback(() => {
-    if (current < slides.length - 1) {
-      goToSlide(current + 1);
-    }
-  }, [current, goToSlide]);
+  const go = useCallback((idx: number, direction = 1) => {
+    if (busy || idx === cur) return;
+    setBusy(true);
+    setDir(direction);
+    setTimeout(() => { setCur(idx); setBusy(false); }, 380);
+  }, [busy, cur]);
 
-  const skipOrFinish = () => {
-    localStorage.setItem("ippoo_onboarding_done", "1");
-    navigate("/login");
-  };
+  const next = useCallback(() => {
+    if (cur < slides.length - 1) go(cur + 1, 1);
+  }, [cur, go]);
 
-  const handleGetStarted = () => {
-    localStorage.setItem("ippoo_onboarding_done", "1");
-    navigate("/login");
-  };
-
-  // Auto-advance
+  /* auto-advance */
   useEffect(() => {
-    if (current >= slides.length - 1) return;
-    const timer = setInterval(() => {
-      setAnimating(true);
-      setTimeout(() => {
-        setCurrent(prev => (prev < slides.length - 1 ? prev + 1 : prev));
-        setAnimating(false);
-      }, 380);
-    }, 4800);
-    return () => clearInterval(timer);
-  }, [current]);
+    if (isLast) return;
+    const t = setInterval(next, 5000);
+    return () => clearInterval(t);
+  }, [isLast, next]);
 
-  // Touch / swipe
+  /* swipe */
   const onTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-    touchStartY.current = e.touches[0].clientY;
+    touchX.current = e.touches[0].clientX;
+    touchY.current = e.touches[0].clientY;
   };
   const onTouchEnd = (e: React.TouchEvent) => {
-    const dx = touchStartX.current - e.changedTouches[0].clientX;
-    const dy = Math.abs(touchStartY.current - e.changedTouches[0].clientY);
-    if (Math.abs(dx) > 50 && dy < 80) {
-      if (dx > 0 && current < slides.length - 1) goToSlide(current + 1);
-      else if (dx < 0 && current > 0) goToSlide(current - 1);
+    const dx = touchX.current - e.changedTouches[0].clientX;
+    const dy = Math.abs(touchY.current - e.changedTouches[0].clientY);
+    if (Math.abs(dx) > 48 && dy < 80) {
+      if (dx > 0 && cur < slides.length - 1) go(cur + 1, 1);
+      else if (dx < 0 && cur > 0) go(cur - 1, -1);
     }
   };
 
-  const slide = slides[current];
-  const isLast = current === slides.length - 1;
+  const finish = () => {
+    localStorage.setItem("ippoo_onboarding_done", "1");
+    navigate("/login");
+  };
+
+  /* animation variants */
+  const variants = {
+    enter:  (d: number) => ({ opacity: 0, x: d > 0 ? 60 : -60, scale: 0.96 }),
+    center: { opacity: 1, x: 0, scale: 1 },
+    exit:   (d: number) => ({ opacity: 0, x: d > 0 ? -60 : 60, scale: 0.96 }),
+  };
 
   return (
     <div
-      ref={containerRef}
       className="relative w-full overflow-hidden bg-black select-none"
       style={{ height: "100dvh" }}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
-      {/* ── Background Images (all preloaded, only current visible) ── */}
-      {slides.map((s, i) => (
-        <div
-          key={s.id}
-          className="absolute inset-0 transition-opacity duration-700"
-          style={{ opacity: i === current && !animating ? 1 : i === current && animating ? 0 : 0, zIndex: 1 }}
+      {/* ── Background images (crossfade) ── */}
+      <AnimatePresence initial={false} custom={dir}>
+        <motion.div
+          key={slide.id}
+          className="absolute inset-0"
+          style={{ zIndex: 1 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.65 }}
         >
-          <ImageWithFallback
-            src={s.image}
-            alt={s.badge}
-            className="w-full h-full object-cover"
-            style={{ transform: "scale(1.04)", objectPosition: s.objectPosition }}
-            onLoad={() =>
-              setImageLoaded(prev => {
-                const next = [...prev];
-                next[i] = true;
-                return next;
-              })
-            }
+          <img
+            src={slide.image}
+            alt={slide.category}
+            className="w-full h-full object-cover object-center"
+            style={{ transform: "scale(1.04)" }}
           />
-        </div>
-      ))}
+        </motion.div>
+      </AnimatePresence>
 
-      {/* ── Gradient overlay: bottom → top ── */}
+      {/* ── Gradient overlay — stronger at bottom ── */}
       <div
-        className="absolute inset-0 transition-all duration-700"
+        className="absolute inset-0 pointer-events-none"
         style={{
           zIndex: 2,
           background: `linear-gradient(
             to top,
-            ${slide.gradientFrom} 0%,
-            ${slide.gradientMid} 45%,
-            rgba(0,0,0,0.18) 70%,
+            ${slide.bg} 0%,
+            rgba(0,0,0,0.55) 38%,
+            rgba(0,0,0,0.10) 62%,
             transparent 100%
           )`,
+          transition: "background 0.7s ease",
         }}
       />
 
-      {/* ── Top vignette (subtle) ── */}
+      {/* ── Top vignette ── */}
       <div
-        className="absolute inset-x-0 top-0 h-36 pointer-events-none"
-        style={{
-          zIndex: 3,
-          background: "linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, transparent 100%)",
-        }}
+        className="absolute inset-x-0 top-0 h-32 pointer-events-none"
+        style={{ zIndex: 3, background: "linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, transparent 100%)" }}
       />
 
-      {/* ── Decorative patterns (top-right) ── */}
-      <div className="absolute top-0 right-0 pointer-events-none" style={{ zIndex: 4 }}>
-        <AfricanDots color="white" />
-      </div>
-
-      {/* ── HEADER: Skip ── */}
+      {/* ── Top bar: counter + skip ── */}
       <div
-        className="absolute inset-x-0 top-0 flex items-center justify-end px-6 pt-12"
-        style={{ zIndex: 10 }}
+        className="absolute inset-x-0 top-0 flex items-center justify-between px-6"
+        style={{ zIndex: 10, paddingTop: "max(44px, env(safe-area-inset-top) + 12px)" }}
       >
+        {/* Slide counter */}
+        <div className="flex items-center gap-2">
+          <span
+            className="text-white/90 font-black tabular-nums leading-none"
+            style={{ fontFamily: "Plus Jakarta Sans, sans-serif", fontSize: "clamp(1.8rem,8vw,2.8rem)", letterSpacing: "-0.04em" }}
+          >
+            {String(cur + 1).padStart(2, "0")}
+          </span>
+          <span className="text-white/25 text-sm font-medium" style={{ fontFamily: "Plus Jakarta Sans, sans-serif" }}>
+            / {String(slides.length).padStart(2, "0")}
+          </span>
+        </div>
+
         {/* Skip */}
         {!isLast && (
           <button
-            onClick={skipOrFinish}
-            className="flex items-center gap-1 px-4 py-2 rounded-full text-white/80 text-sm font-medium backdrop-blur-sm border border-white/20 active:scale-95 transition-transform"
+            onClick={finish}
+            className="flex items-center gap-1.5 rounded-full px-4 py-2 text-white/75 text-sm font-semibold backdrop-blur-md border border-white/20 active:scale-95 transition-transform"
             style={{ background: "rgba(255,255,255,0.12)" }}
           >
-            Passer
-            <ChevronRight size={14} className="opacity-70" />
+            Passer <ChevronRight size={14} className="opacity-60" />
           </button>
         )}
       </div>
 
-      {/* ── Slide number indicator (top center) ── */}
+      {/* ── Progress pills strip (below counter) ── */}
       <div
-        className="absolute inset-x-0 flex justify-center"
-        style={{ top: "14px", zIndex: 10 }}
+        className="absolute left-6"
+        style={{ zIndex: 10, top: "max(100px, env(safe-area-inset-top) + 68px)" }}
       >
-        <div className="flex items-center gap-1.5">
-          {slides.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => goToSlide(i)}
-              className="transition-all duration-500 rounded-full"
-              style={{
-                width: i === current ? 28 : 6,
-                height: 6,
-                background: i === current ? slide.accentColor : "rgba(255,255,255,0.4)",
-                boxShadow: i === current ? `0 0 8px ${slide.accentColor}` : "none",
-              }}
-            />
-          ))}
-        </div>
+        <ProgressPill active={cur} total={slides.length} accent={slide.accent} />
       </div>
 
-      {/* ── Bottom Content ── */}
+      {/* ── Bottom content ── */}
       <div
-        className="absolute inset-x-0 bottom-0 px-6 flex flex-col gap-4 max-h-[80vh] overflow-y-auto"
-        style={{ zIndex: 10, paddingBottom: "max(1.75rem, env(safe-area-inset-bottom))" }}
+        className="absolute inset-x-0 bottom-0 flex flex-col"
+        style={{
+          zIndex: 10,
+          paddingBottom: "max(28px, env(safe-area-inset-bottom) + 16px)",
+          paddingLeft: 24,
+          paddingRight: 24,
+          gap: 0,
+        }}
       >
-        {/* Decorative lines */}
-        <GeometricLines color="white" />
-
-        {/* Badge */}
-        <div
-          className="flex items-center gap-2"
-          style={{ transform: animating ? "translateY(12px)" : "translateY(0)", opacity: animating ? 0 : 1 }}
-        >
-          <div
-            className="w-8 h-8 rounded-full flex items-center justify-center"
-            style={{ background: slide.accentBg }}
+        {/* Service badge */}
+        <AnimatePresence mode="wait" custom={dir}>
+          <motion.div
+            key={`badge-${slide.id}`}
+            custom={dir}
+            variants={variants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            className="flex items-center gap-2 mb-4"
           >
-            <slide.badgeIcon size={16} color={slide.accentColor} />
-          </div>
-          <p
-            className="text-white/80 leading-relaxed"
+            <div
+              className="flex items-center justify-center w-9 h-9 rounded-2xl shrink-0"
+              style={{ background: `${slide.accent}30`, border: `1.5px solid ${slide.accent}55` }}
+            >
+              <slide.Icon size={17} style={{ color: slide.accent }} />
+            </div>
+            <span
+              className="text-xs font-extrabold tracking-[0.18em] uppercase"
+              style={{ color: slide.accent, fontFamily: "Space Grotesk, sans-serif" }}
+            >
+              {slide.category}
+            </span>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Main headline */}
+        <AnimatePresence mode="wait" custom={dir}>
+          <motion.h1
+            key={`h-${slide.id}`}
+            custom={dir}
+            variants={variants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1], delay: 0.04 }}
+            className="text-white font-black leading-[1.06] mb-3"
             style={{
-              fontFamily: "Inter, sans-serif",
-              fontSize: "clamp(0.875rem, 4vw, 1rem)",
+              fontFamily: "Plus Jakarta Sans, sans-serif",
+              fontSize: "clamp(2rem, 9vw, 3rem)",
+              letterSpacing: "-0.03em",
+              whiteSpace: "pre-line",
             }}
           >
-            {boldBrand(slide.badge)}
-          </p>
-        </div>
+            {slide.headline}
+          </motion.h1>
+        </AnimatePresence>
 
-        {/* Title */}
-        <div
-          className="transition-all duration-500"
-          style={{ transform: animating ? "translateY(12px)" : "translateY(0)", opacity: animating ? 0 : 1 }}
-        >
-          <h1
-            className="text-white leading-[1.1] mb-3"
+        {/* Sub + caption */}
+        <AnimatePresence mode="wait" custom={dir}>
+          <motion.div
+            key={`sub-${slide.id}`}
+            custom={dir}
+            variants={variants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1], delay: 0.08 }}
+            className="mb-7"
+          >
+            <p
+              className="text-white/80 leading-relaxed mb-1"
+              style={{ fontFamily: "Inter, sans-serif", fontSize: "clamp(0.9rem, 4vw, 1rem)" }}
+            >
+              {slide.sub}
+            </p>
+            <p
+              className="text-white/42 text-xs tracking-wide"
+              style={{ fontFamily: "Space Grotesk, sans-serif" }}
+            >
+              {slide.caption}
+            </p>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* CTA row */}
+        {isLast ? (
+          <motion.button
+            onClick={finish}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15, type: "spring", stiffness: 300, damping: 24 }}
+            className="w-full flex items-center justify-between rounded-2xl px-5 py-4 active:scale-[0.97] transition-transform"
             style={{
-              fontFamily: "Plus Jakarta Sans, Inter, sans-serif",
-              fontSize: "clamp(1.6rem, 7vw, 2.4rem)",
-              fontWeight: 800,
-              letterSpacing: "-0.02em",
-            }}
-          >{slide.title}<br /><span style={{ color: slide.accentColor === "#E9C46A" ? "#E9C46A" : "white", textShadow: slide.accentColor === "#E9C46A" ? `0 0 30px ${slide.accentColor}` : "none" }}>{slide.titleHighlight}</span></h1>
-          <p
-            className="text-white/80 leading-relaxed"
-            style={{
-              fontFamily: "Inter, sans-serif",
-              fontSize: "clamp(0.875rem, 4vw, 1rem)",
+              background: `linear-gradient(130deg, ${slide.accent}, ${slide.accent}bb)`,
+              boxShadow: `0 12px 40px ${slide.accent}60`,
             }}
           >
-            {slide.description}
-          </p>
-        </div>
+            <span
+              className="text-white font-bold text-base"
+              style={{ fontFamily: "Plus Jakarta Sans, sans-serif" }}
+            >
+              Commencer l'aventure
+            </span>
+            <div
+              className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0"
+            >
+              <ArrowRight size={20} className="text-white" strokeWidth={2.5} />
+            </div>
+          </motion.button>
+        ) : (
+          <div className="flex items-center justify-between">
+            {/* Dot taps */}
+            <div className="flex items-center gap-2">
+              {slides.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => go(i, i > cur ? 1 : -1)}
+                  className="rounded-full transition-all duration-300"
+                  style={{
+                    width: i === cur ? 26 : 7,
+                    height: 7,
+                    background: i === cur ? slide.accent : "rgba(255,255,255,0.28)",
+                  }}
+                />
+              ))}
+            </div>
 
-        {/* CTA */}
-        <div className="flex items-center gap-3 mt-1">
-          {isLast ? (
-            // Final CTA
-            <button
-              onClick={handleGetStarted}
-              className="flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl font-bold text-white text-base active:scale-95 transition-all duration-200 shadow-sm"
+            {/* Next arrow */}
+            <motion.button
+              onClick={next}
+              whileTap={{ scale: 0.88 }}
+              className="w-14 h-14 rounded-2xl flex items-center justify-center"
               style={{
-                background: `linear-gradient(135deg, ${slide.accentColor === "#E9C46A" ? "#F77F00" : slide.accentColor}, ${slide.accentColor === "#E9C46A" ? "#F77F00" : slide.accentColor}dd)`,
-                boxShadow: `0 8px 32px ${slide.accentColor}66`,
-                fontFamily: "Plus Jakarta Sans, Inter, sans-serif",
+                background: slide.accent,
+                boxShadow: `0 8px 28px ${slide.accent}70`,
               }}
             >
-              <span>Commencer l'aventure</span>
-              <div
-                className="w-8 h-8 rounded-xl flex items-center justify-center bg-white/20"
-              >
-                <ArrowRight size={18} />
-              </div>
-            </button>
-          ) : (
-            <>
-              {/* Dot indicators row */}
-              <div className="flex items-center gap-2 flex-1">
-                {slides.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => goToSlide(i)}
-                    className="transition-all duration-400 rounded-full"
-                    style={{
-                      width: i === current ? 24 : 8,
-                      height: 8,
-                      background: i === current ? slide.accentColor : "rgba(255,255,255,0.3)",
-                    }}
-                  />
-                ))}
-              </div>
+              <ArrowRight size={22} className="text-white" strokeWidth={2.5} />
+            </motion.button>
+          </div>
+        )}
 
-              {/* Next button */}
-              <button
-                onClick={nextSlide}
-                className="w-14 h-14 rounded-2xl flex items-center justify-center active:scale-90 transition-all duration-200 shadow-sm"
-                style={{
-                  background: slide.accentColor,
-                  boxShadow: `0 8px 24px ${slide.accentColor}66`,
-                }}
-              >
-                <ArrowRight size={22} color="white" strokeWidth={2.5} />
-              </button>
-            </>
-          )}
-        </div>
-
-        {/* Progress bar */}
-        <div className="w-full h-0.5 rounded-full overflow-hidden bg-white/15">
-          <div
-            className="h-full rounded-full transition-all duration-700"
-            style={{
-              width: `${((current + 1) / slides.length) * 100}%`,
-              background: slide.accentColor,
-              boxShadow: `0 0 8px ${slide.accentColor}`,
-            }}
-          />
-        </div>
-
-        {/* Login link */}
-        <p className="text-center text-white/50 text-xs pb-1" style={{ fontFamily: "Inter, sans-serif" }}>
+        {/* Already have account */}
+        <p
+          className="text-center text-white/42 text-xs mt-5"
+          style={{ fontFamily: "Inter, sans-serif" }}
+        >
           Déjà un compte ?{" "}
           <button
-            onClick={skipOrFinish}
-            className="font-semibold underline underline-offset-2"
-            style={{ color: slide.accentColor }}
+            onClick={finish}
+            className="font-bold underline underline-offset-2"
+            style={{ color: `${slide.accent}e0` }}
           >
             Se connecter
           </button>
         </p>
       </div>
+
+      {/* ── Decorative: accent glow at bottom edge ── */}
+      <div
+        className="absolute inset-x-0 bottom-0 h-64 pointer-events-none"
+        style={{
+          zIndex: 3,
+          background: `radial-gradient(ellipse 80% 60% at 50% 100%, ${slide.accent}35 0%, transparent 70%)`,
+          transition: "background 0.7s ease",
+        }}
+      />
     </div>
   );
 }

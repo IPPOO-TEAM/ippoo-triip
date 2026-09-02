@@ -1,5 +1,5 @@
 /**
- * Helper de marque — met « IPPOO TRIIP » en gras partout où le nom apparaît
+ * Helper de marque - met « IPPOO TRIIP » en gras partout où le nom apparaît
  * dans un texte (y compris au milieu d'une phrase issue de données).
  */
 import { Fragment, type ReactNode } from "react";

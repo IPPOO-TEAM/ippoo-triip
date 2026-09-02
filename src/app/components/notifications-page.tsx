@@ -1,13 +1,16 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router";
 import {
-  Car, Package, Percent, Bell, MessageCircle, Wallet,
-  Check, Trash2, X, ChevronRight, Filter, BellOff, AlertTriangle
+  Car, Percent, Bell, Wallet,
+  Check, Trash2, ChevronRight, BellOff, AlertTriangle
 } from "lucide-react";
-import { AfricanPattern } from "./icons";
+import { motion } from "motion/react";
 import { toast } from "sonner";
 import { useEffect } from "react";
 import { api } from "../api/client";
+import { usePushFeed, type PushNotif } from "../store/push-notifications";
+import { resetUnread, decUnread } from "../store/unread";
+import { M3Page, EmptyState } from "./m3";
 
 interface Notification {
   id: number;
@@ -24,7 +27,7 @@ interface Notification {
   category: "course" | "livraison" | "promo" | "system" | "message" | "wallet";
 }
 
-/* ─── Présentation par type de notification (backend → UI) ─── */
+/* --- Présentation par type de notification (backend → UI) --- */
 const NOTIF_PRESENTATION: Record<string, Pick<Notification, "Icon" | "accent" | "iconBg" | "iconColor" | "link" | "category">> = {
   ride:    { Icon: Car,           accent: "border-l-blue-500",    iconBg: "bg-blue-50",    iconColor: "text-blue-500",    link: "/history", category: "course" },
   payment: { Icon: Wallet,        accent: "border-l-emerald-500", iconBg: "bg-emerald-50", iconColor: "text-emerald-500", link: "/wallet",  category: "wallet" },
@@ -45,16 +48,23 @@ function relativeTime(iso: string): string {
   return j === 1 ? "Hier" : `Il y a ${j} jours`;
 }
 
-const initialNotifications: Notification[] = [
-  { id: 1, Icon: Car, title: "Course acceptee", desc: "Hounkpatin A. arrive dans 3 min, Honda CB125 (AB 1234 BJ)", time: "Il y a 2 min", read: false, accent: "border-l-blue-500", iconBg: "bg-blue-50", iconColor: "text-blue-500", link: "/tracking", category: "course" },
-  { id: 2, Icon: Package, title: "Colis livre avec succes", desc: "Votre colis #IPP-20260409 a ete livre a Godomey. Destinataire: Aїdatou T.", time: "Il y a 30 min", read: false, accent: "border-l-emerald-500", iconBg: "bg-emerald-50", iconColor: "text-emerald-500", link: "/history", category: "livraison" },
-  { id: 3, Icon: Percent, title: "20% de reduction ce week-end !", desc: "Utilisez le code WEEKEND20 sur votre prochaine course. Valable samedi et dimanche.", time: "Il y a 1h", read: false, accent: "border-l-orange-500", iconBg: "bg-orange-50", iconColor: "text-orange-500", link: "/coupons", category: "promo" },
-  { id: 4, Icon: Bell, title: "Mise a jour disponible", desc: "Nouvelle version IPPOO v2.1 avec amelioration des performances et correction de bugs.", time: "Il y a 3h", read: true, accent: "border-l-gray-200", iconBg: "bg-gray-50", iconColor: "text-gray-400", link: null, category: "system" },
-  { id: 5, Icon: MessageCircle, title: "Nouveau message du support", desc: "Support : Votre ticket #102 'Facturation incorrecte' a ete resolu. Remboursement effectue.", time: "Hier", read: true, accent: "border-l-gray-200", iconBg: "bg-gray-50", iconColor: "text-gray-400", link: "/support", category: "message" },
-  { id: 6, Icon: Wallet, title: "Recharge reussie", desc: "+5 000 FCFA via MTN Mobile Money. Nouveau solde: 12 300 FCFA.", time: "Hier", read: true, accent: "border-l-gray-200", iconBg: "bg-gray-50", iconColor: "text-gray-400", link: "/wallet", category: "wallet" },
-  { id: 7, Icon: Car, title: "Course terminee", desc: "Course Campus → Cotonou Centre terminee. Prix: 1 200 FCFA. Notez votre chauffeur !", time: "Hier", read: true, accent: "border-l-gray-200", iconBg: "bg-gray-50", iconColor: "text-gray-400", link: "/history", category: "course" },
-  { id: 8, Icon: AlertTriangle, title: "Verification requise", desc: "Votre justificatif de domicile est en attente de verification. Temps restant: 48h.", time: "Il y a 2 jours", read: true, accent: "border-l-gray-200", iconBg: "bg-gray-50", iconColor: "text-gray-400", link: "/profile", category: "system" },
-];
+/** Construit une Notification d'affichage à partir des champs backend/feed. */
+function toNotification(
+  type: string, title: string, body: string, createdAtIso: string,
+  read: boolean, backendId: string, id: number,
+): Notification {
+  const p = NOTIF_PRESENTATION[type] ?? NOTIF_PRESENTATION.system;
+  return {
+    id, backendId, Icon: p.Icon, title, desc: body,
+    time: relativeTime(createdAtIso), read,
+    accent: read ? "border-l-gray-200" : p.accent,
+    iconBg: read ? "bg-gray-50" : p.iconBg,
+    iconColor: read ? "text-gray-400" : p.iconColor,
+    link: p.link, category: p.category,
+  };
+}
+
+const initialNotifications: Notification[] = [];
 
 type FilterType = "all" | "unread" | "course" | "promo" | "wallet";
 
@@ -66,36 +76,52 @@ export function NotificationsPage() {
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Charge les notifications depuis le backend mock (repli sur les données locales)
+  // Charge les notifications depuis le backend.
+  // NB: /notifications renvoie un objet paginé { items, total, ... }.
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const res = await api.get<any[]>("/notifications");
-        if (cancelled || !res?.length) return;
-        setItems(res.map((n, i) => {
-          const p = NOTIF_PRESENTATION[n.type] ?? NOTIF_PRESENTATION.system;
-          return {
-            id: i + 1,
-            backendId: n.id,
-            Icon: p.Icon,
-            title: n.title,
-            desc: n.body,
-            time: relativeTime(n.createdAt),
-            read: n.read,
-            accent: n.read ? "border-l-gray-200" : p.accent,
-            iconBg: n.read ? "bg-gray-50" : p.iconBg,
-            iconColor: n.read ? "text-gray-400" : p.iconColor,
-            link: p.link,
-            category: p.category,
-          };
-        }));
+        const res = await api.get<any>("/notifications?page=1&pageSize=50");
+        if (cancelled) return;
+        const rows: any[] = Array.isArray(res) ? res : (res?.items ?? []);
+        const backendIds = new Set(rows.map((n) => n.id));
+        setItems((prev) => {
+          // Conserve les notifs temps réel arrivées pendant le fetch (pas encore en base).
+          const extra = prev.filter((p) => p.backendId && !backendIds.has(p.backendId));
+          const base = rows.map((n, i) => toNotification(n.type, n.title, n.body, n.createdAt, n.read, n.id, i + 1));
+          const offset = base.length;
+          return [...extra.map((e, i) => ({ ...e, id: offset + i + 1 })), ...base];
+        });
       } catch {
-        /* repli silencieux sur initialNotifications */
+        if (!cancelled) setItems([]);
       }
     })();
     return () => { cancelled = true; };
   }, []);
+
+  // Temps réel : préfixe UNIQUEMENT les notifications diffusées APRÈS le montage.
+  // L'historique est déjà chargé par le fetch backend ci-dessus ; réinjecter le
+  // feed en mémoire créait une course (préfixe puis écrasé par le fetch) →
+  // blocs qui « disparaissent et réapparaissent ».
+  const mountedAt = useRef(Date.now());
+  const feed = usePushFeed();
+  useEffect(() => {
+    const relevant = feed.filter(
+      (n) => n.createdAt > mountedAt.current && (n.target === "all" || n.target === "clients"),
+    );
+    if (relevant.length === 0) return;
+    setItems((prev) => {
+      const known = new Set(prev.map((p) => p.backendId).filter(Boolean));
+      const fresh = relevant.filter((n) => !known.has(n.id));
+      if (fresh.length === 0) return prev;
+      const nextId = prev.reduce((m, p) => Math.max(m, p.id), 0) + 1;
+      const mapped = fresh.map((n: PushNotif, i) =>
+        toNotification(n.type, n.title, n.body, new Date(n.createdAt).toISOString(), false, n.id, nextId + i),
+      );
+      return [...mapped, ...prev];
+    });
+  }, [feed]);
 
   const unreadCount = items.filter(n => !n.read).length;
 
@@ -110,13 +136,16 @@ export function NotificationsPage() {
   const markAllRead = () => {
     setItems(items.map(n => ({ ...n, read: true })));
     api.post("/notifications/read-all").catch(() => {});
+    resetUnread();
     toast.success("Toutes les notifications marquees comme lues");
   };
 
   const markRead = (id: number) => {
     setItems(prev => prev.map(n => {
       if (n.id !== id) return n;
+      if (n.read) return n;                     // déjà lue : ne pas décrémenter
       if (n.backendId) api.post(`/notifications/${n.backendId}/read`).catch(() => {});
+      decUnread();
       return { ...n, read: true };
     }));
   };
@@ -158,50 +187,53 @@ export function NotificationsPage() {
     }
   };
 
+  const notifHero = (
+    <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
+      {([
+        { id: "all" as const, label: "Tout" },
+        { id: "unread" as const, label: `Non lues (${unreadCount})` },
+        { id: "course" as const, label: "Courses" },
+        { id: "promo" as const, label: "Promos" },
+        { id: "wallet" as const, label: "Cash" },
+      ]).map(f => (
+        <button key={f.id} onClick={() => setFilterType(f.id)}
+          className="px-3.5 py-2 rounded-full text-xs whitespace-nowrap transition"
+          style={filterType === f.id
+            ? { background: "#ffffff", color: "var(--m3-primary)" }
+            : { background: "rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.85)" }}>
+          {f.label}
+        </button>
+      ))}
+    </div>
+  );
+
+  const notifActions = (
+    <div className="flex items-center gap-2">
+      {unreadCount > 0 && (
+        <button onClick={markAllRead}
+          className="text-xs px-3 py-1.5 rounded-full bg-white/15 text-[var(--m3-on-primary)] active:scale-95 transition">
+          <Check className="w-3 h-3 inline mr-1" />Tout lire
+        </button>
+      )}
+      {items.length > 0 && (
+        <button onClick={() => setShowClearConfirm(true)} aria-label="Tout supprimer"
+          className="grid h-9 w-9 place-items-center rounded-full bg-white/15 text-[var(--m3-on-primary)] active:scale-95 transition">
+          <Trash2 className="w-4 h-4" />
+        </button>
+      )}
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-white">
-      <div className="relative bg-white px-5 pt-14 pb-4 rounded-b-[2rem] shadow-sm shadow-blue-100/30 overflow-hidden">
-        <div className="relative z-10">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <h2 className="title-gradient">Notifications</h2>
-              <p className="text-xs text-gray-400 mt-0.5">
-                {unreadCount > 0 ? `${unreadCount} non lue${unreadCount > 1 ? "s" : ""}` : "Tout est lu"}
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              {unreadCount > 0 && (
-                <button onClick={markAllRead} className="text-xs bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full active:bg-blue-100 transition">
-                  <Check className="w-3 h-3 inline mr-1" />Tout lire
-                </button>
-              )}
-              {items.length > 0 && (
-                <button onClick={() => setShowClearConfirm(true)} className="w-9 h-9 bg-slate-50 rounded-xl flex items-center justify-center active:bg-slate-100 transition">
-                  <Trash2 className="w-4 h-4 text-slate-400" />
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Filters */}
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-            {([
-              { id: "all" as const, label: "Tout" },
-              { id: "unread" as const, label: `Non lues (${unreadCount})` },
-              { id: "course" as const, label: "Courses" },
-              { id: "promo" as const, label: "Promos" },
-              { id: "wallet" as const, label: "Cash" },
-            ]).map(f => (
-              <button key={f.id} onClick={() => setFilterType(f.id)}
-                className={`px-3.5 py-2 rounded-full text-xs whitespace-nowrap transition ${filterType === f.id ? "bg-blue-500 text-white shadow-sm shadow-blue-500/20" : "bg-slate-100 text-slate-500 active:bg-slate-200"}`}>
-                {f.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="px-5 py-4 space-y-2.5">
+    <M3Page
+      title="Notifications"
+      subtitle={unreadCount > 0 ? `${unreadCount} non lue${unreadCount > 1 ? "s" : ""}` : "Tout est lu"}
+      icon={Bell}
+      back={false}
+      trailing={notifActions}
+      hero={notifHero}
+    >
+      <div className="mx-auto max-w-md space-y-2.5">
         {/* Clear confirm */}
         {showClearConfirm && (
           <div className="bg-red-50 rounded-2xl p-4 border border-red-200 flex items-center justify-between mb-2">
@@ -218,21 +250,19 @@ export function NotificationsPage() {
 
         {/* Empty state */}
         {filtered.length === 0 && (
-          <div className="text-center py-16">
-            <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <BellOff className="w-7 h-7 text-slate-300" />
-            </div>
-            <p className="text-slate-500 text-sm mb-1">
-              {items.length === 0 ? "Aucune notification" : "Aucune notification dans ce filtre"}
-            </p>
-            <p className="text-slate-400 text-xs">
-              {items.length === 0 ? "Vous etes a jour !" : "Changez de filtre pour voir d'autres notifications"}
-            </p>
-          </div>
+          <EmptyState
+            icon={BellOff}
+            title={items.length === 0 ? "Aucune notification" : "Aucune notification dans ce filtre"}
+            description={items.length === 0 ? "Vous êtes à jour !" : "Changez de filtre pour voir d'autres notifications."}
+          />
         )}
 
-        {filtered.map((n) => (
-          <div key={n.id} className="relative overflow-hidden rounded-2xl">
+        {filtered.map((n, i) => (
+          <motion.div key={n.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: i * 0.05, ease: [0.38, 1.21, 0.22, 1] }}
+            className="relative overflow-hidden rounded-2xl shadow-[0_2px_12px_rgba(15,23,42,0.05)]">
             {/* Delete button behind */}
             {swipedId === n.id && (
               <div className="absolute right-0 top-0 bottom-0 flex items-center gap-1 pr-2 z-0">
@@ -264,20 +294,20 @@ export function NotificationsPage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <p className={`text-sm truncate ${!n.read ? "text-gray-800" : "text-gray-500"}`}>{n.title}</p>
-                  {!n.read && <div className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0 animate-pulse" />}
+                  {!n.read && <div className="w-2 h-2 rounded-full flex-shrink-0 animate-pulse" style={{ background: "var(--m3-primary)" }} />}
                 </div>
                 <p className="text-xs text-gray-400 mt-0.5 line-clamp-2">{n.desc}</p>
                 <div className="flex items-center justify-between mt-2">
                   <p className="text-[10px] text-gray-300">{n.time}</p>
                   {n.link && (
-                    <span className="text-[10px] text-blue-500 flex items-center gap-0.5">
+                    <span className="text-[10px] flex items-center gap-0.5" style={{ color: "var(--m3-primary)" }}>
                       Voir <ChevronRight className="w-3 h-3" />
                     </span>
                   )}
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         ))}
 
         {/* Tip */}
@@ -287,6 +317,6 @@ export function NotificationsPage() {
           </p>
         )}
       </div>
-    </div>
+    </M3Page>
   );
 }

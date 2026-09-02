@@ -1,5 +1,6 @@
 import { createBrowserRouter } from "react-router";
 import { AppLayout } from "./components/app-layout";
+import { ThemeColorSync } from "./components/theme-color-sync";
 import { HomePage } from "./components/home-page";
 import { LoginPage } from "./components/login-page";
 import { OnboardingPage } from "./components/onboarding-page";
@@ -19,10 +20,7 @@ import { PromoDetailPage } from "./components/promo-detail-page";
 import { NotFoundPage } from "./components/not-found-page";
 import { SubscriptionsPage } from "./components/subscriptions-page";
 import { LOAPage } from "./components/loa-page";
-import { RatingPage } from "./components/rating-page";
-import { MissionPage } from "./components/mission-page";
 import { ReferralPage } from "./components/referral-page";
-import { LOARotationPage } from "./components/loa-rotation-page";
 import { AirFreightPage } from "./components/air-freight-page";
 import { LandingPage } from "./components/landing-page";
 import { DriverLayout } from "./components/driver/driver-layout";
@@ -36,6 +34,7 @@ import { DriverTrackingPage } from "./components/driver/driver-tracking";
 import { DriverRatingPage } from "./components/driver/driver-rating";
 import { DriverSupportPage } from "./components/driver/driver-support";
 import { AdminLayout } from "./components/admin/admin-layout";
+import { AdminLoginPage } from "./components/admin/admin-login";
 import { AdminDashboardPage } from "./components/admin/admin-dashboard";
 import { AdminOffersPage } from "./components/admin/admin-offers";
 import { AdminUsersPage } from "./components/admin/admin-users";
@@ -47,6 +46,10 @@ import { AdminNotificationsPage } from "./components/admin/admin-notifications";
 import { AdminSettingsPage } from "./components/admin/admin-settings";
 
 export const router = createBrowserRouter([
+  {
+    /* Root layout: syncs <meta name="theme-color"> on every navigation */
+    Component: ThemeColorSync,
+    children: [
   {
     path: "/",
     Component: LandingPage,
@@ -77,6 +80,10 @@ export const router = createBrowserRouter([
       { path: "rating", Component: DriverRatingPage },
       { path: "support", Component: DriverSupportPage },
     ],
+  },
+  {
+    path: "/admin/login",
+    Component: AdminLoginPage,
   },
   {
     path: "/admin",
@@ -113,10 +120,7 @@ export const router = createBrowserRouter([
       { path: "promo/:id", Component: PromoDetailPage },
       { path: "subscriptions", Component: SubscriptionsPage },
       { path: "loa", Component: LOAPage },
-      { path: "loa/rotation", Component: LOARotationPage },
       { path: "air-freight", Component: AirFreightPage },
-      { path: "rating", Component: RatingPage },
-      { path: "mission", Component: MissionPage },
       { path: "referral", Component: ReferralPage },
       { path: "*", Component: NotFoundPage },
     ],
@@ -125,4 +129,6 @@ export const router = createBrowserRouter([
     path: "*",
     Component: NotFoundPage,
   },
+  /* end ThemeColorSync children */
+  ]},
 ]);

@@ -1,11 +1,11 @@
-// IPPOO Flat Icons — Modern flat filled design, 24px grid
+// IPPOO Flat Icons - Modern flat filled design, 24px grid
 
 interface IconProps {
   className?: string;
   size?: number;
 }
 
-// ── Service Icons ──
+// -- Service Icons --
 
 export function IconFretAerien({ className = "", size = 24 }: IconProps) {
   return (
@@ -122,7 +122,7 @@ export function IconSupport({ className = "", size = 24 }: IconProps) {
   );
 }
 
-// ── Vehicle Icons ──
+// -- Vehicle Icons --
 
 export function IconMoto({ className = "", size = 24 }: IconProps) {
   return (
@@ -184,10 +184,10 @@ export function IconMinibus({ className = "", size = 24 }: IconProps) {
   );
 }
 
-// ── Decorative ──
+// -- Decorative --
 
 /**
- * Ancien motif kente en damier — DÉSACTIVÉ.
+ * Ancien motif kente en damier - DÉSACTIVÉ.
  * Le damier rendait les fonds illisibles (« grille en carreau »). Conformément
  * à la charte (fonds unis + halos lumineux uniquement, pas de damier), ce
  * composant ne rend plus rien. Conservé pour compatibilité des imports
@@ -197,7 +197,7 @@ export function AfricanPattern(_props: { opacity?: number; className?: string })
   return null;
 }
 
-// ── Badge ──
+// -- Badge --
 
 export function Badge({ children, variant = "default" }: { children: React.ReactNode; variant?: "default" | "express" | "promo" | "new" | "success" | "warning" | "info" }) {
   const styles: Record<string, string> = {

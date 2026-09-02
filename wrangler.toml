@@ -1,0 +1,8 @@
+# Cloudflare Pages — configuration.
+# Utilisée par `wrangler pages deploy` et par l'intégration Git de Pages.
+name = "ippoo-triip"
+compatibility_date = "2026-09-02"
+
+# Dossier de sortie du build Vite (contient index.html, _redirects, _headers,
+# sw.js, firebase-messaging-sw.js, manifest.json, assets/, icons/).
+pages_build_output_dir = "dist"

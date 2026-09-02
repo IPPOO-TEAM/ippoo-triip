@@ -1,16 +1,19 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router";
 import {
-  ChevronLeft, Eye, EyeOff, Plus, QrCode, Smartphone, Lock,
+  Eye, EyeOff, Plus, QrCode, Smartphone, Lock,
   ArrowDownLeft, ArrowUpRight, X, Copy, Banknote, Filter,
-  Download, Share2, Navigation, AlertTriangle, Check
+  Download, Share2, Navigation, AlertTriangle, Check, Wallet
 } from "lucide-react";
+import { motion } from "motion/react";
 import { toast } from "sonner";
 import { QRCodeSVG } from "qrcode.react";
 import walletHeroImg from "figma:asset/288963912b5fda944bb64f5351d84e719432a851.png";
+import { M3Page, M3Card, SectionHeader, EmptyState } from "./m3";
 import { usePayment } from "../hooks/use-payment";
 import type { MomoOperator } from "../services/mobile-money";
 import { api } from "../api/client";
+import { useAppStore } from "../store/app-store";
 
 /** Transactions backend (crédit/débit). */
 const CREDIT_TYPES = ["topup", "refund", "referral_bonus", "promo_credit"];
@@ -44,23 +47,19 @@ interface Transaction {
   iconColor: string;
 }
 
-const initialTransactions: Transaction[] = [
-  { id: 1, type: "debit", label: "Course moto, Dantokpa vers Calavi", amount: -1200, date: "10 Avr 2026", time: "14:32", icon: ArrowUpRight, iconBg: "bg-rose-50", iconColor: "text-rose-500" },
-  { id: 2, type: "credit", label: "Recharge MTN MoMo", amount: 5000, date: "09 Avr 2026", time: "11:15", icon: ArrowDownLeft, iconBg: "bg-emerald-50", iconColor: "text-emerald-500" },
-  { id: 3, type: "debit", label: "Livraison colis", amount: -1500, date: "08 Avr 2026", time: "16:45", icon: ArrowUpRight, iconBg: "bg-rose-50", iconColor: "text-rose-500" },
-  { id: 4, type: "credit", label: "Recharge Moov Money", amount: 3000, date: "07 Avr 2026", time: "13:10", icon: ArrowDownLeft, iconBg: "bg-emerald-50", iconColor: "text-emerald-500" },
-  { id: 5, type: "debit", label: "Covoiturage, Cotonou vers Porto-Novo", amount: -500, date: "06 Avr 2026", time: "07:30", icon: ArrowUpRight, iconBg: "bg-rose-50", iconColor: "text-rose-500" },
-  { id: 6, type: "debit", label: "Course moto, Gbégamey vers Akpakpa", amount: -800, date: "05 Avr 2026", time: "09:00", icon: ArrowUpRight, iconBg: "bg-rose-50", iconColor: "text-rose-500" },
-];
+const initialTransactions: Transaction[] = [];
 
 type ModalType = null | "recharge" | "qr" | "payRide" | "transactionDetail";
 
 export function WalletPage() {
   const navigate = useNavigate();
+  const { state } = useAppStore();
+  const payeeName = state.user?.fullName ?? "Mon compte IPPOO";
+  const payeeId = state.user?.id ?? "";
   const [showBalance, setShowBalance] = useState(true);
-  const [balance, setBalance] = useState(12300);
+  const [balance, setBalance] = useState(0);
   const [modal, setModal] = useState<ModalType>(null);
-  const [transactions, setTransactions] = useState(initialTransactions);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [txFilter, setTxFilter] = useState<"all" | "credit" | "debit">("all");
   const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
 
@@ -95,7 +94,7 @@ export function WalletPage() {
         api.get<any[]>("/wallet/transactions"),
       ]);
       if (wallet?.balanceXOF != null) setBalance(wallet.balanceXOF);
-      if (Array.isArray(txs) && txs.length) setTransactions(txs.map(mapTransaction));
+      setTransactions(Array.isArray(txs) ? txs.map(mapTransaction) : []);
     } catch {
       /* repli silencieux */
     }
@@ -125,7 +124,7 @@ export function WalletPage() {
     setRechargeLoading(false);
 
     if (ok) {
-      // Le backend a déjà crédité le wallet via /payments/momo — on resynchronise
+      // Le backend a déjà crédité le wallet via /payments/momo - on resynchronise
       await refresh();
       setModal(null);
       setRechargeAmount("");
@@ -161,118 +160,109 @@ export function WalletPage() {
     setQrAmount("");
   };
 
-  return (
-    <div className="min-h-screen bg-white pb-8">
-      {/* Header */}
-      <div className="relative bg-[#1E6091] px-5 pt-14 pb-32 overflow-hidden">
-        <img
-          src={walletHeroImg}
-          alt=""
-          aria-hidden
-          className="absolute right-0 bottom-0 h-[92%] w-auto object-contain object-right-bottom pointer-events-none select-none"
-          style={{
-            maskImage: "linear-gradient(to left, rgba(0,0,0,0.55) 30%, transparent 80%), linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%)",
-            WebkitMaskImage: "linear-gradient(to left, rgba(0,0,0,0.55) 30%, transparent 80%), linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%)",
-            maskComposite: "intersect",
-            WebkitMaskComposite: "source-in",
-            zIndex: 0,
-          }}
-        />
-        {/* Halos lumineux */}
-        <div className="absolute top-0 right-0 w-56 h-56 bg-[#E9C46A]/20 rounded-full -mr-20 -mt-10 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-40 h-40 bg-[#2A9D8F]/30 rounded-full -ml-10 blur-3xl pointer-events-none" />
-
-        <div className="relative" style={{ zIndex: 1 }}>
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-3">
-              <button onClick={() => navigate(-1)} className="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/25 active:scale-90 transition">
-                <ChevronLeft className="w-5 h-5 text-white" />
-              </button>
-              <h2 className="text-white">IPPOO Cash</h2>
-            </div>
+  const balanceHero = (
+    <div className="relative overflow-hidden rounded-3xl border border-white/25 bg-white/15 p-5 backdrop-blur-xl">
+      <img
+        src={walletHeroImg}
+        alt=""
+        aria-hidden
+        className="absolute right-0 bottom-0 h-[110%] w-auto object-contain object-right-bottom pointer-events-none select-none opacity-90"
+        style={{
+          maskImage: "linear-gradient(to left, rgba(0,0,0,0.55) 20%, transparent 75%)",
+          WebkitMaskImage: "linear-gradient(to left, rgba(0,0,0,0.55) 20%, transparent 75%)",
+          zIndex: 0,
+        }}
+      />
+      <div className="relative" style={{ zIndex: 1 }}>
+        <div className="flex items-center justify-between mb-1">
+          <p className="text-[13px] text-[var(--m3-on-primary)]/80">Solde disponible</p>
+          <button onClick={() => setShowBalance(!showBalance)} aria-label="Afficher le solde"
+            className="grid h-8 w-8 place-items-center rounded-full bg-white/15 text-[var(--m3-on-primary)] active:scale-90 transition">
+            {showBalance ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+          </button>
+        </div>
+        <p className="text-[34px] leading-tight tracking-tight text-[var(--m3-on-primary)]" style={{ fontFamily: "'Space Grotesk', monospace", fontWeight: 700 }}>
+          {showBalance ? balance.toLocaleString() : "••••••"} <span className="text-lg text-[var(--m3-on-primary)]/80">FCFA</span>
+        </p>
+        <div className="flex items-center gap-2 mt-3">
+          <div className="flex items-center gap-1.5 text-[var(--m3-on-primary)]/85 text-xs bg-white/15 px-3 py-1.5 rounded-full">
+            <Lock className="w-3 h-3" /> Sécurisé
           </div>
-
-          <div className="bg-white/15 backdrop-blur-xl rounded-2xl p-6 border border-white/25 shadow-sm">
-            <div className="flex items-center justify-between mb-1">
-              <p className="text-green-100 text-sm">Solde disponible</p>
-              <button onClick={() => setShowBalance(!showBalance)} className="w-8 h-8 bg-white/15 rounded-full flex items-center justify-center active:scale-90 transition">
-                {showBalance ? <Eye className="w-4 h-4 text-white/80" /> : <EyeOff className="w-4 h-4 text-white/80" />}
-              </button>
-            </div>
-            <p className="text-4xl text-white tracking-tight mb-1" style={{ fontFamily: "'Space Grotesk', monospace" }}>
-              {showBalance ? balance.toLocaleString() : "••••••"} <span className="text-lg text-green-100">FCFA</span>
-            </p>
-            <div className="flex items-center gap-2 mt-3">
-              <div className="flex items-center gap-1.5 text-white/80 text-xs bg-white/15 px-3 py-1.5 rounded-full border border-white/15">
-                <Lock className="w-3 h-3" /> Sécurisé
-              </div>
-              <div className="flex items-center gap-1.5 text-white/80 text-xs bg-white/15 px-3 py-1.5 rounded-full border border-white/15">
-                <Smartphone className="w-3 h-3" /> Mobile Money
-              </div>
-            </div>
+          <div className="flex items-center gap-1.5 text-[var(--m3-on-primary)]/85 text-xs bg-white/15 px-3 py-1.5 rounded-full">
+            <Smartphone className="w-3 h-3" /> Mobile Money
           </div>
         </div>
       </div>
+    </div>
+  );
 
-      <div className="px-5 -mt-20 relative z-10">
-        {/* Quick actions — 3 boutons uniquement */}
-        <div className="bg-white rounded-2xl shadow-sm shadow-emerald-100/60 p-6 border border-emerald-50">
-          <div className="grid grid-cols-3 gap-6">
+  return (
+    <M3Page title="IPPOO Cash" subtitle="Portefeuille mobile" icon={Wallet} back={false} hero={balanceHero}>
+      <div className="mx-auto max-w-md">
+        {/* Actions rapides */}
+        <M3Card className="!p-5">
+          <div className="grid grid-cols-3 gap-4">
             {[
-              { icon: Plus, label: "Recharger", gradient: "from-emerald-400 to-green-500", shadow: "shadow-emerald-400/30", action: () => setModal("recharge") },
-              { icon: QrCode, label: "QR Code", gradient: "from-violet-400 to-purple-500", shadow: "shadow-violet-400/30", action: () => setModal("qr") },
-              { icon: Navigation, label: "Régler course", gradient: "from-[#F77F00] to-[#D62828]", shadow: "shadow-orange-400/30", action: () => setModal("payRide") },
+              { icon: Plus, label: "Recharger", action: () => setModal("recharge") },
+              { icon: QrCode, label: "QR Code", action: () => setModal("qr") },
+              { icon: Navigation, label: "Régler course", action: () => setModal("payRide") },
             ].map((a) => (
               <button key={a.label} onClick={a.action} className="flex flex-col items-center gap-2 active:scale-90 transition">
-                <div className={`w-14 h-14 rounded-full flex items-center justify-center bg-gradient-to-br ${a.gradient} shadow-sm ${a.shadow}`}>
-                  <a.icon className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-[11px] text-gray-500">{a.label}</span>
+                <span className="grid h-14 w-14 place-items-center rounded-full" style={{ background: "var(--m3-primary)", color: "var(--m3-on-primary)", boxShadow: "0 8px 22px -8px var(--m3-primary)" }}>
+                  <a.icon className="w-5 h-5" strokeWidth={2.2} />
+                </span>
+                <span className="text-[11px] text-slate-500 text-center leading-tight">{a.label}</span>
               </button>
             ))}
           </div>
-        </div>
+        </M3Card>
 
         {/* Transactions */}
-        <div className="mt-6 mb-4">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="title-gradient">Transactions</h3>
+        <SectionHeader
+          title="Transactions"
+          action={
             <div className="flex gap-1.5">
               {([["all", "Tout"], ["credit", "Entrées"], ["debit", "Sorties"]] as const).map(([key, label]) => (
                 <button key={key} onClick={() => setTxFilter(key)}
-                  className={`text-xs px-3 py-1.5 rounded-full border transition ${txFilter === key ? "bg-blue-50 text-blue-600 border-blue-200" : "text-slate-400 border-slate-100"}`}>
+                  className="text-xs px-3 py-1.5 rounded-full border transition"
+                  style={txFilter === key
+                    ? { background: "var(--m3-container)", color: "var(--m3-on-container)", borderColor: "transparent" }
+                    : { color: "#94a3b8", borderColor: "#f1f5f9" }}>
                   {label}
                 </button>
               ))}
             </div>
-          </div>
-          <div className="space-y-2">
-            {filteredTx.length === 0 && (
-              <div className="text-center py-8">
-                <Filter className="w-6 h-6 text-slate-300 mx-auto mb-2" />
-                <p className="text-sm text-slate-400">Aucune transaction</p>
-              </div>
-            )}
-            {filteredTx.map((t) => (
-              <button key={t.id} onClick={() => { setSelectedTx(t); setModal("transactionDetail"); }}
-                className="w-full bg-white rounded-2xl p-3.5 flex items-center gap-3.5 border border-gray-100 shadow-sm shadow-gray-100/40 active:bg-slate-50 transition text-left">
-                <div className={`w-10 h-10 ${t.iconBg} rounded-full flex items-center justify-center shrink-0`}>
-                  <t.icon className={`w-4 h-4 ${t.iconColor}`} />
+          }
+        />
+
+        {filteredTx.length === 0 ? (
+          <EmptyState icon={Filter} title="Aucune transaction" description="Vos recharges et paiements apparaîtront ici." />
+        ) : (
+          <div className="space-y-2.5">
+            {filteredTx.map((t, i) => (
+              <M3Card key={t.id} delay={i * 0.05} onClick={() => { setSelectedTx(t); setModal("transactionDetail"); }} className="!p-3.5">
+                <div className="flex items-center gap-3.5">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full"
+                    style={t.amount > 0
+                      ? { background: "var(--m3-container)", color: "var(--m3-primary)" }
+                      : { background: "#fee2e2", color: "#ef4444" }}>
+                    <t.icon className="w-4 h-4" strokeWidth={2.2} />
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-slate-800 truncate">{t.label}</p>
+                    <p className="text-[10px] text-slate-400">{t.date} · {t.time}</p>
+                  </div>
+                  <span className="text-sm shrink-0" style={{ fontFamily: "'Space Grotesk', monospace", color: t.amount > 0 ? "var(--m3-primary)" : "#1e293b" }}>
+                    {t.amount > 0 ? "+" : ""}{t.amount.toLocaleString()} F
+                  </span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-800 truncate">{t.label}</p>
-                  <p className="text-[10px] text-gray-400">{t.date} · {t.time}</p>
-                </div>
-                <span className={`text-sm shrink-0 ${t.amount > 0 ? "text-emerald-500" : "text-gray-800"}`} style={{ fontFamily: "'Space Grotesk', monospace" }}>
-                  {t.amount > 0 ? "+" : ""}{t.amount.toLocaleString()} F
-                </span>
-              </button>
+              </M3Card>
             ))}
           </div>
-        </div>
+        )}
       </div>
 
-      {/* ═══════ MODALS ═══════ */}
+      {/* ------- MODALS ------- */}
 
       {/* Recharge */}
       {modal === "recharge" && (
@@ -323,7 +313,7 @@ export function WalletPage() {
           <div className="text-center mb-4">
             <div className="w-52 h-52 bg-white rounded-2xl border-2 border-slate-100 flex items-center justify-center mx-auto mb-4 p-3 shadow-sm">
               <QRCodeSVG
-                value={`ippoo://pay?user=IPPOO-USR-DA&name=Dossou+Adjovi${qrAmount ? `&amount=${qrAmount}` : ""}`}
+                value={`ippoo://pay?user=${encodeURIComponent(payeeId)}&name=${encodeURIComponent(payeeName)}${qrAmount ? `&amount=${qrAmount}` : ""}`}
                 size={184}
                 bgColor="#ffffff"
                 fgColor="#1e293b"
@@ -331,8 +321,8 @@ export function WalletPage() {
                 includeMargin={false}
               />
             </div>
-            <p className="text-sm text-slate-700 mb-1">Dossou Adjovi</p>
-            <p className="text-xs text-slate-400">IPPOO-2024-USR-DA</p>
+            <p className="text-sm text-slate-700 mb-1">{payeeName}</p>
+            {payeeId && <p className="text-xs text-slate-400">{payeeId}</p>}
           </div>
           <div className="flex items-center gap-2 bg-slate-50 rounded-2xl px-4 py-3 border border-slate-100 mb-4">
             <Banknote className="w-4 h-4 text-slate-400" />
@@ -341,12 +331,12 @@ export function WalletPage() {
             <span className="text-xs text-slate-400">FCFA</span>
           </div>
           <div className="flex gap-2">
-            <button onClick={() => { navigator.clipboard?.writeText(`ippoo://pay?user=IPPOO-USR-DA${qrAmount ? `&amount=${qrAmount}` : ""}`); toast.success("Lien de paiement copié !"); }}
+            <button onClick={() => { navigator.clipboard?.writeText(`ippoo://pay?user=${encodeURIComponent(payeeId)}${qrAmount ? `&amount=${qrAmount}` : ""}`); toast.success("Lien de paiement copié !"); }}
               className="flex-1 flex items-center justify-center gap-2 bg-slate-100 text-slate-700 py-3 rounded-xl text-sm active:scale-[0.98] transition">
               <Copy className="w-4 h-4" /> Copier
             </button>
             <button onClick={async () => {
-              const shareData = { title: "Payer Dossou Adjovi", text: `Payez ${qrAmount ? qrAmount + " FCFA" : ""} via IPPOO`, url: `https://ippoo.app/pay/IPPOO-USR-DA${qrAmount ? `?amount=${qrAmount}` : ""}` };
+              const shareData = { title: `Payer ${payeeName}`, text: `Payez ${qrAmount ? qrAmount + " FCFA" : ""} via IPPOO`, url: `https://ippoo.app/pay/${encodeURIComponent(payeeId)}${qrAmount ? `?amount=${qrAmount}` : ""}` };
               if (navigator.share) { try { await navigator.share(shareData); } catch (_) {} }
               else { navigator.clipboard?.writeText(shareData.url); toast.success("Lien copié !"); }
               closeModal();
@@ -437,7 +427,7 @@ export function WalletPage() {
           </div>
         </ModalOverlay>
       )}
-    </div>
+    </M3Page>
   );
 }
 

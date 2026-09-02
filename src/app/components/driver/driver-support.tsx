@@ -11,7 +11,7 @@ import {
 import { toast } from "sonner";
 import logoImg from "../../../imports/IPPOO_Transport_&_Logistique-1.png";
 
-/* ─── Types ─── */
+/* --- Types --- */
 interface ChatMessage {
   id: number;
   from: "driver" | "bot" | "agent" | "system";
@@ -34,7 +34,7 @@ interface Ticket {
 
 type View = "main" | "chat" | "tickets" | "ticketDetail" | "faq" | "emergency";
 
-/* ─── Data ─── */
+/* --- Data --- */
 const faqItems = [
   { q: "Comment recevoir plus de missions ?", a: "Restez en ligne aux heures de pointe (7h-9h, 12h-14h, 17h-20h), maintenez une note superieure à 4.5, et acceptez au moins 85% des missions proposees.", category: "missions" },
   { q: "Comment retirer mes gains ?", a: "Allez dans Gains > Retirer, choisissez votre operateur (MTN, Moov, Celtiis), entrez le montant et confirmez. Le retrait est traite en 1 à 5 minutes.", category: "paiement" },
@@ -46,26 +46,8 @@ const faqItems = [
   { q: "Quels sont les bonus disponibles ?", a: "Bonus heure de pointe (+30%), bonus courses consecutives (10 courses = 1000 F), bonus weekend, et bonus zone eloignee.", category: "bonus" },
 ];
 
-const initialTickets: Ticket[] = [
-  {
-    id: 205, subject: "Contestation tarif course #IPP-D-20260410-003", category: "Paiement",
-    status: "resolved", statusLabel: "Resolu", statusColor: "bg-emerald-50 text-emerald-600",
-    date: "09 Avr 2026",
-    messages: [
-      { from: "driver", text: "La course #IPP-D-20260410-003 a ete annulee mais j'avais deja commence le trajet. Je demande une compensation.", date: "09 Avr 14:20" },
-      { from: "support", text: "Nous avons examine votre demande. Effectivement, vous aviez parcouru 1.2 km avant l'annulation. Un credit de 400 FCFA a ete ajoute a votre solde.", date: "09 Avr 16:45" },
-    ],
-  },
-  {
-    id: 198, subject: "Probleme GPS pendant course", category: "Technique",
-    status: "closed", statusLabel: "Ferme", statusColor: "bg-slate-100 text-slate-500",
-    date: "05 Avr 2026",
-    messages: [
-      { from: "driver", text: "Le GPS perd le signal regulierement pendant les courses dans la zone de Gbegamey.", date: "05 Avr 10:00" },
-      { from: "support", text: "Merci pour le signalement. Nous avons ameliore la couverture GPS dans cette zone. N'hesitez pas a nous contacter si le probleme persiste.", date: "06 Avr 09:30" },
-    ],
-  },
-];
+// Aucun endpoint de support n'existe : on démarre sans ticket (jamais de données fictives).
+const initialTickets: Ticket[] = [];
 
 const botResponses: Record<string, string> = {
   "retrait": "Pour retirer vos gains, allez dans l'onglet Gains > Retirer. Choisissez votre operateur, entrez le montant et confirmez. Les retraits sont traites en 1 à 5 min.",
@@ -79,10 +61,7 @@ const botResponses: Record<string, string> = {
 export function DriverSupportPage() {
   const navigate = useNavigate();
   const [view, setView] = useState<View>("main");
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-    { id: 1, from: "system", text: "Bienvenue sur le support chauffeur IPPOO. Notre assistant IA va vous aider.", time: "Maintenant" },
-    { id: 2, from: "bot", text: "Bonjour Hounkpatin ! Comment puis-je vous aider ? Posez votre question ou choisissez un sujet.", time: "Maintenant" },
-  ]);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [msgInput, setMsgInput] = useState("");
   const [tickets, setTickets] = useState(initialTickets);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
@@ -137,7 +116,7 @@ export function DriverSupportPage() {
 
   return (
     <div className="min-h-full bg-slate-50 pb-4">
-      {/* ═══ MAIN VIEW ═══ */}
+      {/* --- MAIN VIEW --- */}
       {view === "main" && (
         <>
           <div className="bg-[#F77F00] pt-12 pb-6 px-5 relative overflow-hidden">
@@ -190,7 +169,7 @@ export function DriverSupportPage() {
         </>
       )}
 
-      {/* ═══ CHAT VIEW ═══ */}
+      {/* --- CHAT VIEW --- */}
       {view === "chat" && (
         <div className="flex flex-col" style={{ height: "calc(100dvh - 64px)" }}>
           {/* Header */}
@@ -237,6 +216,13 @@ export function DriverSupportPage() {
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-5 space-y-3">
+            {chatMessages.length === 0 && !isTyping && (
+              <div className="text-center py-10">
+                <Bot className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+                <p className="text-slate-400 text-xs">Posez votre question a l'assistant</p>
+                <p className="text-slate-300 text-[10px]">Ou choisissez un sujet ci-dessus</p>
+              </div>
+            )}
             {chatMessages.map(msg => (
               <div key={msg.id} className={`flex ${msg.from === "driver" ? "justify-end" : "justify-start"}`}>
                 {msg.from === "system" ? (
@@ -289,7 +275,7 @@ export function DriverSupportPage() {
         </div>
       )}
 
-      {/* ═══ TICKETS VIEW ═══ */}
+      {/* --- TICKETS VIEW --- */}
       {view === "tickets" && (
         <>
           <div className="bg-white pt-12 pb-4 px-5 border-b border-slate-100">
@@ -307,6 +293,13 @@ export function DriverSupportPage() {
             </div>
           </div>
           <div className="px-5 mt-3 space-y-2">
+            {tickets.length === 0 && (
+              <div className="text-center py-16">
+                <FileText className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                <p className="text-slate-400 text-sm">Aucun ticket de support</p>
+                <p className="text-slate-300 text-[10px]">Vos demandes d'assistance apparaitront ici</p>
+              </div>
+            )}
             {tickets.map(t => (
               <button
                 key={t.id}
@@ -325,7 +318,7 @@ export function DriverSupportPage() {
         </>
       )}
 
-      {/* ═══ TICKET DETAIL ═══ */}
+      {/* --- TICKET DETAIL --- */}
       {view === "ticketDetail" && selectedTicket && (
         <>
           <div className="bg-white pt-12 pb-4 px-5 border-b border-slate-100">
@@ -359,7 +352,7 @@ export function DriverSupportPage() {
         </>
       )}
 
-      {/* ═══ FAQ VIEW ═══ */}
+      {/* --- FAQ VIEW --- */}
       {view === "faq" && (
         <>
           <div className="bg-white pt-12 pb-4 px-5 border-b border-slate-100">
@@ -399,7 +392,7 @@ export function DriverSupportPage() {
         </>
       )}
 
-      {/* ═══ EMERGENCY VIEW ═══ */}
+      {/* --- EMERGENCY VIEW --- */}
       {view === "emergency" && (
         <>
           <div className="bg-[#D62828] pt-12 pb-6 px-5 relative overflow-hidden">

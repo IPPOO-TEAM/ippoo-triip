@@ -1,5 +1,5 @@
 /**
- * Registre de mocks API IPPOO TRIIP — backend simulé AVEC ÉTAT.
+ * Registre de mocks API IPPOO TRIIP - backend simulé AVEC ÉTAT.
  *
  * Branché sur la base en mémoire (./db). Contrairement à un mock figé :
  *  - les courses créées sont persistées et retrouvables ;
@@ -15,9 +15,9 @@ import type { Ride, RideStatus, Transaction } from "../types/domain";
 
 const { uid, nowIso, distanceKm, estimatePrice } = helpers;
 
-/* ─────────────────────────────────────────── */
+/* ------------------------------------------- */
 /*  Utilitaires                                  */
-/* ─────────────────────────────────────────── */
+/* ------------------------------------------- */
 
 /** Parse ?key=value depuis un chemin mocké. */
 function query(path: string): Record<string, string> {
@@ -93,9 +93,9 @@ function advanceRide(ride: Ride): Ride {
   return ride;
 }
 
-/* ═══════════════════════════════════════════ */
+/* ------------------------------------------- */
 /*  AUTH                                          */
-/* ═══════════════════════════════════════════ */
+/* ------------------------------------------- */
 
 const OTP_CODE = "123456"; // OTP de démonstration (tout code à 6 chiffres est accepté)
 
@@ -138,9 +138,9 @@ registerMock("POST", "/auth/refresh", () => ({
 
 registerMock("POST", "/auth/logout", () => ({ ok: true }));
 
-/* ═══════════════════════════════════════════ */
+/* ------------------------------------------- */
 /*  PROFIL UTILISATEUR                            */
-/* ═══════════════════════════════════════════ */
+/* ------------------------------------------- */
 
 registerMock("GET", "/users/me", () => db().users["u_me"]);
 
@@ -158,9 +158,9 @@ registerMock("POST", "/users/me/kyc", ({ body }) => {
   return { status: "verified", documentType: body?.documentType ?? "cni" };
 });
 
-/* ═══════════════════════════════════════════ */
+/* ------------------------------------------- */
 /*  CHAUFFEURS                                    */
-/* ═══════════════════════════════════════════ */
+/* ------------------------------------------- */
 
 registerMock("GET", "/drivers/nearby", ({ path }) => {
   const q = query(path);
@@ -186,7 +186,7 @@ registerMock("GET", /^\/drivers\/[^/]+$/, ({ path }) => {
   return dr;
 });
 
-/* ─── Espace chauffeur ─── */
+/* --- Espace chauffeur --- */
 registerMock("PATCH", "/driver/status", ({ body }) => {
   const d = db();
   const dr = d.drivers["d_1"];
@@ -218,9 +218,9 @@ registerMock("GET", "/driver/earnings", () => {
   };
 });
 
-/* ═══════════════════════════════════════════ */
+/* ------------------------------------------- */
 /*  COURSES                                       */
-/* ═══════════════════════════════════════════ */
+/* ------------------------------------------- */
 
 registerMock("POST", "/rides/estimate", ({ body }) => {
   const origin = body?.origin ?? PLACES[0];
@@ -297,6 +297,7 @@ registerMock("GET", /^\/rides\/[^/]+$/, ({ path }) => {
     driverRating: dr?.rating ?? 0,
     driverTrips: dr?.totalRides ?? 0,
     driverVehicle: dr ? VEHICLE_LABEL[dr.vehicleType] ?? dr.vehicleType : "",
+    driverLocation: dr?.currentLocation ?? undefined,
   };
 });
 
@@ -331,9 +332,9 @@ registerMock("POST", /^\/rides\/[^/]+\/rate$/, ({ path, body }) => {
   return { ok: true, rating: body?.rating ?? 5 };
 });
 
-/* ═══════════════════════════════════════════ */
+/* ------------------------------------------- */
 /*  WALLET & TRANSACTIONS                         */
-/* ═══════════════════════════════════════════ */
+/* ------------------------------------------- */
 
 registerMock("GET", "/wallet/me", () => {
   const w = db().wallets["u_me"];
@@ -382,9 +383,9 @@ registerMock("POST", "/wallet/topup", ({ body }) => {
   return { transaction: tx, balanceXOF: d.wallets["u_me"].balanceXOF };
 });
 
-/* ═══════════════════════════════════════════ */
+/* ------------------------------------------- */
 /*  PAIEMENTS MOBILE MONEY                        */
-/* ═══════════════════════════════════════════ */
+/* ------------------------------------------- */
 
 registerMock("POST", "/payments/momo/initiate", ({ body }) => {
   const d = db();
@@ -427,9 +428,9 @@ registerMock("GET", /^\/payments\/momo\/[^/]+\/status$/, ({ path }) => {
   return { status: pay.status };
 });
 
-/* ═══════════════════════════════════════════ */
+/* ------------------------------------------- */
 /*  NOTIFICATIONS                                 */
-/* ═══════════════════════════════════════════ */
+/* ------------------------------------------- */
 
 registerMock("GET", "/notifications", ({ path }) => {
   const list = db().notifications
@@ -455,9 +456,9 @@ registerMock("POST", "/notifications/read-all", () => {
   return { ok: true };
 });
 
-/* ═══════════════════════════════════════════ */
+/* ------------------------------------------- */
 /*  PARRAINAGE                                    */
-/* ═══════════════════════════════════════════ */
+/* ------------------------------------------- */
 
 registerMock("GET", "/referrals/me", () => {
   const refs = db().referrals.filter((r) => r.referrerId === "u_me");
@@ -483,9 +484,9 @@ registerMock("POST", "/referrals/invite", ({ body }) => {
   return ref;
 });
 
-/* ═══════════════════════════════════════════ */
+/* ------------------------------------------- */
 /*  COMMANDES GROUPÉES                            */
-/* ═══════════════════════════════════════════ */
+/* ------------------------------------------- */
 
 registerMock("GET", "/group-orders", () =>
   Object.values(db().groupOrders).sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)));
@@ -511,9 +512,9 @@ registerMock("POST", /^\/group-orders\/[^/]+\/join$/, ({ path, body }) => {
   return go;
 });
 
-/* ═══════════════════════════════════════════ */
+/* ------------------------------------------- */
 /*  COVOITURAGE                                   */
-/* ═══════════════════════════════════════════ */
+/* ------------------------------------------- */
 
 registerMock("GET", "/carpools", ({ path }) => {
   const q = query(path);
@@ -538,9 +539,9 @@ registerMock("POST", /^\/carpools\/[^/]+\/book$/, ({ path, body }) => {
   return { ok: true, trip: c, totalXOF: seats * c.pricePerSeatXOF };
 });
 
-/* ═══════════════════════════════════════════ */
+/* ------------------------------------------- */
 /*  FRET AÉRIEN                                   */
-/* ═══════════════════════════════════════════ */
+/* ------------------------------------------- */
 
 registerMock("POST", "/air-freight/quote", ({ body }) => {
   const weight = Number(body?.weightKg ?? 1);
@@ -576,9 +577,9 @@ registerMock("GET", /^\/air-freight\/track\/[^/]+$/, ({ path }) => {
   return ship;
 });
 
-/* ═══════════════════════════════════════════ */
+/* ------------------------------------------- */
 /*  ADMIN                                         */
-/* ═══════════════════════════════════════════ */
+/* ------------------------------------------- */
 
 registerMock("GET", "/admin/stats", () => {
   const d = db();

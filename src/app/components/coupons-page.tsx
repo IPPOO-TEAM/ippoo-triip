@@ -1,118 +1,98 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
-import {
-  ChevronLeft, Ticket, Copy, Check, Clock, Zap,
-  Percent, Tag
-} from "lucide-react";
-import { AfricanPattern } from "./icons";
+import { Ticket, Percent, Tag } from "lucide-react";
 import { coupons, couponFilters, type CouponCategory } from "./coupons-data";
 import { CouponTicket } from "./coupon-ticket";
 import { toast } from "sonner";
+import { M3Page, SectionHeader, M3Card, EmptyState } from "./m3";
 
 export function CouponsPage() {
-  const navigate = useNavigate();
   const [active, setActive] = useState<CouponCategory>("all");
-  const [copiedId, setCopiedId] = useState<string | null>(null);
   const [promoCode, setPromoCode] = useState("");
 
   const filtered = active === "all" ? coupons : coupons.filter((c) => c.category === active);
   const activeCoupons = filtered.filter((c) => !c.used);
   const usedCoupons = filtered.filter((c) => c.used);
 
-  const handleCopy = (id: string, code: string) => {
-    navigator.clipboard?.writeText(code);
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
+  const applyCode = () => {
+    if (promoCode.trim()) {
+      const found = coupons.find(c => c.code === promoCode.trim());
+      if (found) toast.success("Code valide !", { description: found.title });
+      else toast.error("Code invalide", { description: "Verifiez votre code promo" });
+    } else {
+      toast.error("Entrez un code promo");
+    }
   };
 
+  const Hero = (
+    <div className="space-y-4">
+      <div className="flex gap-2">
+        <div className="flex flex-1 items-center gap-2 rounded-full bg-white px-4 py-3 shadow-sm">
+          <Tag className="h-4 w-4 text-[var(--m3-primary)]" />
+          <input
+            value={promoCode}
+            onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+            placeholder="Entrer un code promo"
+            className="flex-1 bg-transparent text-sm uppercase tracking-wide text-slate-800 outline-none placeholder:text-slate-400"
+          />
+        </div>
+        <button
+          onClick={applyCode}
+          className="rounded-full bg-white px-5 text-sm font-semibold text-[var(--m3-primary)] shadow-sm transition active:scale-95"
+        >
+          Appliquer
+        </button>
+      </div>
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 rounded-full border border-white/15 bg-white/15 px-3 py-1.5 text-xs text-[var(--m3-on-primary)] backdrop-blur-md">
+          <Ticket className="h-3 w-3" /> {activeCoupons.length} actifs
+        </div>
+        <div className="flex items-center gap-1.5 rounded-full border border-white/15 bg-white/15 px-3 py-1.5 text-xs text-[var(--m3-on-primary)] backdrop-blur-md">
+          <Percent className="h-3 w-3" /> Jusqu'a 30%
+        </div>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <div className="relative bg-[#F77F00] px-5 pt-14 pb-10 overflow-hidden rounded-b-[2rem]">
-        <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
-        <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-6">
-            <button onClick={() => navigate(-1)} className="w-10 h-10 bg-white/15 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/15">
-              <ChevronLeft className="w-5 h-5 text-white" />
-            </button>
-            <div className="flex-1">
-              <h2 className="text-white">Coupons & Promos</h2>
-              <p className="text-orange-100 text-xs">Economisez sur vos courses et livraisons</p>
-            </div>
-            <div className="w-10 h-10 bg-white/15 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/15">
-              <Ticket className="w-5 h-5 text-white" />
-            </div>
-          </div>
-
-          {/* Promo code input */}
-          <div className="flex gap-2">
-            <div className="flex-1 flex items-center gap-2 bg-white rounded-2xl px-4 py-3 shadow-sm">
-              <Tag className="w-4 h-4 text-orange-500" />
-              <input
-                value={promoCode}
-                onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                placeholder="Entrer un code promo"
-                className="flex-1 bg-transparent outline-none text-sm text-foreground placeholder:text-slate-400 uppercase tracking-wide"
-              />
-            </div>
-            <button
-              onClick={() => {
-                if (promoCode.trim()) {
-                  const found = coupons.find(c => c.code === promoCode.trim());
-                  if (found) toast.success("Code valide !", { description: found.title });
-                  else toast.error("Code invalide", { description: "Verifiez votre code promo" });
-                } else {
-                  toast.error("Entrez un code promo");
-                }
-              }}
-              className="bg-white text-orange-500 px-5 rounded-2xl text-sm shadow-sm hover:bg-orange-50 transition active:scale-95"
-            >
-              Appliquer
-            </button>
-          </div>
-
-          {/* Stats */}
-          <div className="flex items-center gap-3 mt-4">
-            <div className="flex items-center gap-1.5 bg-white/15 backdrop-blur-sm px-3 py-1.5 rounded-full text-white text-xs border border-white/10">
-              <Ticket className="w-3 h-3" /> {activeCoupons.length} actifs
-            </div>
-            <div className="flex items-center gap-1.5 bg-white/15 backdrop-blur-sm px-3 py-1.5 rounded-full text-white text-xs border border-white/10">
-              <Percent className="w-3 h-3" /> Jusqu'a 30%
-            </div>
-          </div>
+    <M3Page
+      title="Coupons & Promos"
+      subtitle="Economisez sur vos courses et livraisons"
+      icon={Ticket}
+      hero={Hero}
+    >
+      <div className="mx-auto max-w-md">
+        {/* Filtres */}
+        <div className="flex gap-1.5 overflow-x-auto scrollbar-hide pb-1">
+          {couponFilters.map((f) => {
+            const on = active === f.id;
+            return (
+              <button
+                key={f.id}
+                onClick={() => setActive(f.id)}
+                className="flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2.5 text-xs font-semibold transition"
+                style={on
+                  ? { background: "var(--m3-primary)", color: "var(--m3-on-primary)" }
+                  : { background: "var(--m3-container)", color: "var(--m3-primary)" }}
+              >
+                <f.icon className="h-3.5 w-3.5" /> {f.label}
+              </button>
+            );
+          })}
         </div>
-      </div>
 
-      {/* Filters */}
-      <div className="px-5 -mt-4 relative z-10">
-        <div className="bg-white rounded-2xl shadow-sm p-1.5 flex gap-1 border border-slate-100 overflow-x-auto scrollbar-hide">
-          {couponFilters.map((f) => (
-            <button
-              key={f.id}
-              onClick={() => setActive(f.id)}
-              className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs whitespace-nowrap transition-all flex-1 justify-center ${
-                active === f.id
-                  ? "bg-orange-400 text-black shadow-sm shadow-orange-500/25"
-                  : "text-slate-500 hover:bg-slate-50"
-              }`}
-            >
-              <f.icon className="w-3.5 h-3.5" /> {f.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Coupons list */}
-      <div className="px-5 mt-5">
+        {/* Coupons list */}
         {activeCoupons.length > 0 && (
           <>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="title-gradient">Disponibles</h3>
-              <span className="text-[10px] bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-full">{activeCoupons.length} coupons</span>
-            </div>
+            <SectionHeader
+              title="Disponibles"
+              icon={Ticket}
+              action={<span className="rounded-full px-2.5 py-1 text-[10px] font-semibold" style={{ background: "var(--m3-container)", color: "var(--m3-primary)" }}>{activeCoupons.length} coupons</span>}
+            />
             <div className="space-y-4">
-              {activeCoupons.map((coupon) => (
-                <CouponTicket key={coupon.id} coupon={coupon} />
+              {activeCoupons.map((coupon, i) => (
+                <M3Card key={coupon.id} delay={i * 0.05} className="!p-0 !border-0 !bg-transparent !shadow-none">
+                  <CouponTicket coupon={coupon} />
+                </M3Card>
               ))}
             </div>
           </>
@@ -120,10 +100,7 @@ export function CouponsPage() {
 
         {usedCoupons.length > 0 && (
           <>
-            <div className="flex items-center justify-between mb-4 mt-8">
-              <h3 className="text-slate-400">Utilises</h3>
-              <span className="text-xs text-slate-400">{usedCoupons.length}</span>
-            </div>
+            <SectionHeader title="Utilises" action={<span className="text-xs text-slate-400">{usedCoupons.length}</span>} />
             <div className="space-y-4 opacity-50">
               {usedCoupons.map((coupon) => (
                 <CouponTicket key={coupon.id} coupon={coupon} />
@@ -133,16 +110,15 @@ export function CouponsPage() {
         )}
 
         {filtered.length === 0 && (
-          <div className="text-center py-16">
-            <div className="w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Ticket className="w-8 h-8 text-orange-400" />
-            </div>
-            <p className="text-slate-400">Aucun coupon dans cette categorie</p>
-          </div>
+          <EmptyState
+            icon={Ticket}
+            title="Aucun coupon"
+            description="Aucun coupon dans cette categorie pour le moment."
+          />
         )}
       </div>
-
-      <div className="h-8" />
-    </div>
+    </M3Page>
   );
 }
+
+export default CouponsPage;

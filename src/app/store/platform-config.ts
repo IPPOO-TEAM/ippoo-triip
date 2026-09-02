@@ -1,5 +1,5 @@
 /**
- * Configuration centrale de la plateforme IPPOO TRIIP — SOURCE DE VÉRITÉ UNIQUE.
+ * Configuration centrale de la plateforme IPPOO TRIIP - SOURCE DE VÉRITÉ UNIQUE.
  *
  * Permet à l'administrateur (back office) d'éditer :
  *   - les tarifs/prix et les fiches de chaque offre/service,
@@ -50,7 +50,7 @@ export interface PlatformConfig {
   updatedAt: number;
 }
 
-const STORAGE_KEY = "ippoo_platform_config_v1";
+const STORAGE_KEY = "ippoo_triip_platform_config_v1";
 
 export const DEFAULT_CONFIG: PlatformConfig = {
   offers: [
@@ -166,7 +166,7 @@ function persist() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
   } catch {
-    /* quota / mode privé — ignoré */
+    /* quota / mode privé - ignoré */
   }
 }
 
@@ -193,7 +193,7 @@ export function resetPlatformConfig() {
   emit();
 }
 
-/* ── Mises à jour ciblées ── */
+/* -- Mises à jour ciblées -- */
 export function updateOffer(id: string, patch: Partial<OfferConfig>) {
   setPlatformConfig((c) => ({
     ...c,
@@ -212,7 +212,7 @@ export function updateContact(patch: Partial<ContactConfig>) {
   setPlatformConfig((c) => ({ ...c, contact: { ...c.contact, ...patch } }));
 }
 
-/* ── Synchronisation inter-onglets ── */
+/* -- Synchronisation inter-onglets -- */
 if (typeof window !== "undefined") {
   window.addEventListener("storage", (e) => {
     if (e.key === STORAGE_KEY) {

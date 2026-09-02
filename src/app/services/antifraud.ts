@@ -1,5 +1,5 @@
 /**
- * ML antifraude IPPOO — heuristiques côté client (pré-filtre).
+ * ML antifraude IPPOO - heuristiques côté client (pré-filtre).
  * Le score est remonté au backend pour la vraie décision (ML serveur).
  *
  * Signaux capturés :
@@ -17,8 +17,8 @@ export type FraudSignal = {
   detail?: string;
 };
 
-const DEVICE_KEY = "ippoo_device_id";
-const HISTORY_KEY = "ippoo_phone_history";
+const DEVICE_KEY = "ippoo_triip_device_id";
+const HISTORY_KEY = "ippoo_triip_phone_history";
 
 export function getOrCreateDeviceId(): string {
   let id = localStorage.getItem(DEVICE_KEY);

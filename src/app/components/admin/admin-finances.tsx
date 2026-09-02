@@ -1,68 +1,84 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  Wallet, TrendingUp, TrendingDown, Download, ArrowUpRight, Clock,
-  CheckCircle2, XCircle, MoreHorizontal, ChevronLeft, ChevronRight,
-  CreditCard, Banknote, PiggyBank, ArrowDownLeft, ArrowUpLeft, Search
+  Wallet, TrendingUp, Download, Clock,
+  Banknote, PiggyBank, Loader2, Inbox
 } from "lucide-react";
-import { AreaChart, Area, BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
-import { getAvatar } from "../avatars";
+import { BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { toast } from "sonner";
 import { downloadBlob } from "../utils";
+import { api } from "../../api/client";
 
-/* ─── Mock Data ─── */
-const revenueWeekly = [
-  { name: "Sem 1", revenue: 28500000, commission: 5700000 },
-  { name: "Sem 2", revenue: 31200000, commission: 6240000 },
-  { name: "Sem 3", revenue: 29800000, commission: 5960000 },
-  { name: "Sem 4", revenue: 34100000, commission: 6820000 },
-];
+/* --- Types --- */
+type Finances = {
+  grossRevenue: number;
+  netRevenue: number;
+  pendingPayouts: number;
+  totalTransactions: number;
+  revenueByMethod: Record<string, number>;
+};
 
-const commissionByService = [
-  { name: "Taxi-Moto", value: 2800000 },
-  { name: "Livraison", value: 1900000 },
-  { name: "Transport", value: 980000 },
-  { name: "Covoiturage", value: 650000 },
-  { name: "Groupée", value: 240000 },
-  { name: "AIR", value: 150000 },
-];
+/* --- Config (libellés moyens de paiement) --- */
+const methodLabel: Record<string, string> = {
+  mtn_momo: "MTN MoMo",
+  moov_money: "Moov Money",
+  celtiis_cash: "Celtiis Cash",
+  card: "Carte bancaire",
+  cash: "Espèces",
+  wallet: "IPPOO Cash",
+  unknown: "Autre",
+};
 
-const TRANSACTIONS = [
-  { id: "TRX-001", type: "commission" as const, description: "Commission course IP-9001", amount: "+160 FCFA", driver: "Hounkpatin Akotchaye", driverInit: "HA", date: "11 Avr 14:32", status: "completed" },
-  { id: "TRX-002", type: "payout" as const, description: "Retrait vers MTN Money", amount: "-125,000 FCFA", driver: "Togbédji Mensah", driverInit: "TM", date: "11 Avr 14:15", status: "completed" },
-  { id: "TRX-003", type: "commission" as const, description: "Commission livraison IP-9002", amount: "+300 FCFA", driver: "Sèdégan Houéfa", driverInit: "AD", date: "11 Avr 14:10", status: "pending" },
-  { id: "TRX-004", type: "payout" as const, description: "Retrait vers Moov Money", amount: "-85,000 FCFA", driver: "Koffi Adjibadé", driverInit: "GB", date: "11 Avr 13:45", status: "pending" },
-  { id: "TRX-005", type: "commission" as const, description: "Commission transport IP-9003", amount: "+3,000 FCFA", driver: "Togbédji Mensah", driverInit: "TM", date: "11 Avr 13:40", status: "completed" },
-  { id: "TRX-006", type: "refund" as const, description: "Remboursement course annulée IP-9005", amount: "-1,000 FCFA", driver: "", driverInit: "GB", date: "11 Avr 13:20", status: "completed" },
-  { id: "TRX-007", type: "payout" as const, description: "Retrait vers compte bancaire", amount: "-250,000 FCFA", driver: "Aïdatou Bello", driverInit: "AB", date: "11 Avr 12:00", status: "completed" },
-  { id: "TRX-008", type: "commission" as const, description: "Commission IPPOO AIR IP-9008", amount: "+5,000 FCFA", driver: "", driverInit: "SA", date: "11 Avr 11:30", status: "pending" },
-];
-
-const PENDING_PAYOUTS = [
-  { driver: "Togbédji Mensah", initials: "TM", amount: "125,000 FCFA", method: "MTN Money", requested: "11 Avr 14:15" },
-  { driver: "Koffi Adjibadé", initials: "GB", amount: "85,000 FCFA", method: "Moov Money", requested: "11 Avr 13:45" },
-  { driver: "Fifamè Agbodjèlou", initials: "FD", amount: "62,000 FCFA", method: "MTN Money", requested: "11 Avr 12:30" },
-  { driver: "Adjagba Cocou", initials: "SA", amount: "45,000 FCFA", method: "Ecobank", requested: "11 Avr 11:00" },
-];
-
-const typeConfig: Record<string, { label: string; color: string; icon: any }> = {
-  commission: { label: "Commission", color: "#2A9D8F", icon: ArrowDownLeft },
-  payout: { label: "Retrait", color: "#1E6091", icon: ArrowUpLeft },
-  refund: { label: "Remboursement", color: "#D62828", icon: ArrowUpLeft },
+const nf = new Intl.NumberFormat("fr-FR");
+const fmtXof = (v: number) => {
+  if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M FCFA`;
+  if (v >= 1_000) return `${(v / 1_000).toFixed(0)}K FCFA`;
+  return `${nf.format(v)} FCFA`;
 };
 
 export function AdminFinancesPage() {
   const [period, setPeriod] = useState<"jour" | "semaine" | "mois">("semaine");
-  const [txFilter, setTxFilter] = useState("all");
-  const [payouts, setPayouts] = useState(PENDING_PAYOUTS);
+  const [data, setData] = useState<Finances | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    (async () => {
+      try {
+        const d = await api.get<Finances>("/admin/finances");
+        if (!cancelled) setData(d);
+      } catch {
+        if (!cancelled) setData(null);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const methodChart = data
+    ? Object.entries(data.revenueByMethod ?? {}).map(([m, pct]) => ({ name: methodLabel[m] ?? m, value: pct }))
+    : [];
 
   const exportCSV = () => {
-    const h = "Chauffeur,Méthode,Montant,Date demande\n";
-    const r = PENDING_PAYOUTS.map(p => [p.driver, p.method, p.amount, p.requested].join(","));
-    downloadBlob(h + r.join("\n"), `finances-${new Date().toISOString().slice(0,10)}.csv`, "text/csv");
+    if (!data) return;
+    const h = "Indicateur,Valeur\n";
+    const rows = [
+      ["Revenus bruts", data.grossRevenue],
+      ["Revenus nets", data.netRevenue],
+      ["Retraits en attente", data.pendingPayouts],
+      ["Transactions", data.totalTransactions],
+    ].map(r => r.join(","));
+    downloadBlob(h + rows.join("\n"), `finances-${new Date().toISOString().slice(0,10)}.csv`, "text/csv");
     toast.success("Rapport financier exporté");
   };
 
-  const filteredTx = TRANSACTIONS.filter(t => txFilter === "all" || t.type === txFilter);
+  const kpis = [
+    { label: "Revenus bruts", value: data ? fmtXof(data.grossRevenue) : "—", icon: Wallet, color: "#1E6091" },
+    { label: "Revenus nets (commissions)", value: data ? fmtXof(data.netRevenue) : "—", icon: PiggyBank, color: "#2A9D8F" },
+    { label: "Retraits en attente", value: data ? fmtXof(data.pendingPayouts) : "—", icon: Clock, color: "#D62828" },
+    { label: "Transactions", value: data ? nf.format(data.totalTransactions) : "—", icon: Banknote, color: "#F77F00" },
+  ];
 
   return (
     <div className="p-4 md:p-6 space-y-5">
@@ -85,152 +101,68 @@ export function AdminFinancesPage() {
 
       {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        {[
-          { label: "Revenus bruts", value: "34.1M FCFA", change: "+9.3%", up: true, icon: Wallet, color: "#1E6091" },
-          { label: "Commissions", value: "6.82M FCFA", change: "+9.3%", up: true, icon: PiggyBank, color: "#2A9D8F" },
-          { label: "Retraits chauffeurs", value: "27.2M FCFA", change: "+7.8%", up: true, icon: Banknote, color: "#F77F00" },
-          { label: "Retraits en attente", value: "317,000 FCFA", change: "12 demandes", up: false, icon: Clock, color: "#D62828" },
-        ].map((kpi, i) => (
+        {kpis.map((kpi, i) => (
           <div key={i} className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <kpi.icon className="w-5 h-5" style={{ color: kpi.color }} />
-              <span className={`text-xs px-2 py-1 rounded-full flex items-center gap-1 ${kpi.up ? "bg-green-50 text-green-600" : "bg-orange-50 text-[#F77F00]"}`}>
-                {kpi.up && <TrendingUp className="w-3 h-3" />}
-                {kpi.change}
-              </span>
+              <TrendingUp className="w-4 h-4 text-slate-300" />
             </div>
-            <p className="text-2xl text-slate-900" style={{ fontFamily: "'Space Grotesk', monospace" }}>{kpi.value}</p>
+            <p className="text-2xl text-slate-900" style={{ fontFamily: "'Space Grotesk', monospace" }}>{loading ? "…" : kpi.value}</p>
             <p className="text-slate-500 text-xs mt-1">{kpi.label}</p>
           </div>
         ))}
       </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
-          <h3 className="title-gradient mb-4">Revenus & Commissions (par semaine)</h3>
+      {/* Revenue by method */}
+      <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
+        <h3 className="title-gradient mb-4">Répartition des revenus par moyen de paiement</h3>
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-12 text-slate-400">
+            <Loader2 className="w-6 h-6 animate-spin mb-3" />
+            <p className="text-xs">Chargement…</p>
+          </div>
+        ) : methodChart.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-slate-400">
+            <Inbox className="w-8 h-8 mb-3" />
+            <p className="text-sm text-slate-500">Aucune donnée pour le moment</p>
+          </div>
+        ) : (
           <ResponsiveContainer width="100%" height={240}>
-            <AreaChart data={revenueWeekly}>
-              <CartesianGrid key="grid" strokeDasharray="3 3" stroke="#f1f5f9" />
-              <XAxis key="xaxis" dataKey="name" tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
-              <YAxis key="yaxis" tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000000).toFixed(0)}M`} />
-              <Tooltip key="tooltip" contentStyle={{ borderRadius: 12, fontSize: 12 }} formatter={(v: number) => [`${(v / 1000000).toFixed(2)}M FCFA`]} />
-              <Area key="area-revenue" type="monotone" dataKey="revenue" stroke="#1E6091" strokeWidth={2} fill="#1E6091" fillOpacity={0.1} name="Revenus" />
-              <Area key="area-commission" type="monotone" dataKey="commission" stroke="#2A9D8F" strokeWidth={2} fill="none" strokeDasharray="5 5" name="Commissions" />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
-          <h3 className="title-gradient mb-4">Commissions par service</h3>
-          <ResponsiveContainer width="100%" height={240}>
-            <BarChart data={commissionByService}>
+            <BarChart data={methodChart}>
               <CartesianGrid key="grid" strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
               <XAxis key="xaxis" dataKey="name" tick={{ fontSize: 10, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
-              <YAxis key="yaxis" tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000000).toFixed(1)}M`} />
-              <Tooltip key="tooltip" contentStyle={{ borderRadius: 12, fontSize: 12 }} formatter={(v: number) => [`${(v / 1000).toFixed(0)}K FCFA`]} />
+              <YAxis key="yaxis" tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} />
+              <Tooltip key="tooltip" contentStyle={{ borderRadius: 12, fontSize: 12 }} formatter={(v: number) => [`${v}%`]} />
               <Bar key="bar" dataKey="value" fill="#F77F00" radius={[6, 6, 0, 0]} barSize={32} />
             </BarChart>
           </ResponsiveContainer>
-        </div>
+        )}
       </div>
 
       {/* Pending Payouts */}
       <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <h3 className="title-gradient">Retraits en attente de validation</h3>
-          <span className="text-xs px-3 py-1 bg-orange-50 text-[#F77F00] rounded-full">{PENDING_PAYOUTS.length} en attente</span>
+          <span className="text-xs px-3 py-1 bg-orange-50 text-[#F77F00] rounded-full">
+            {data ? fmtXof(data.pendingPayouts) : "—"}
+          </span>
         </div>
-        <div className="space-y-3">
-          {payouts.map((p, i) => (
-            <div key={i} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl">
-              <img src={getAvatar(p.initials) || ""} alt="" className="w-9 h-9 rounded-full object-cover" />
-              <div className="flex-1 min-w-0">
-                <p className="text-slate-700 text-sm">{p.driver}</p>
-                <p className="text-slate-400 text-[10px]">{p.method} · {p.requested}</p>
-              </div>
-              <span className="text-sm text-slate-800 shrink-0" style={{ fontFamily: "'Space Grotesk', monospace" }}>{p.amount}</span>
-              <div className="flex gap-1.5 shrink-0">
-                <button
-                  onClick={() => {
-                    setPayouts((prev) => prev.filter((_, idx) => idx !== i));
-                    toast.success(`Retrait validé pour ${p.driver}`);
-                  }}
-                  aria-label="Valider le retrait"
-                  className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center hover:bg-emerald-100 transition"
-                >
-                  <CheckCircle2 className="w-4 h-4 text-[#2A9D8F]" />
-                </button>
-                <button
-                  onClick={() => {
-                    setPayouts((prev) => prev.filter((_, idx) => idx !== i));
-                    toast.warning(`Retrait refusé pour ${p.driver}`);
-                  }}
-                  aria-label="Refuser le retrait"
-                  className="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center hover:bg-red-100 transition"
-                >
-                  <XCircle className="w-4 h-4 text-[#D62828]" />
-                </button>
-              </div>
-            </div>
-          ))}
+        <div className="flex flex-col items-center justify-center py-10 text-slate-400">
+          <Inbox className="w-8 h-8 mb-3" />
+          <p className="text-sm text-slate-500">Aucun retrait individuel à afficher</p>
+          <p className="text-xs mt-1">Le détail des demandes de retrait apparaîtra ici.</p>
         </div>
       </div>
 
       {/* Transactions */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row gap-3">
-          <h3 className="title-gradient flex-1">Dernières transactions</h3>
-          <div className="flex gap-2">
-            {[
-              { key: "all", label: "Toutes" },
-              { key: "commission", label: "Commissions" },
-              { key: "payout", label: "Retraits" },
-              { key: "refund", label: "Remboursements" },
-            ].map(f => (
-              <button key={f.key} onClick={() => setTxFilter(f.key)}
-                className={`px-3 py-1.5 rounded-lg text-xs transition ${txFilter === f.key ? "bg-[#1E6091] text-white" : "bg-slate-100 text-slate-500"}`}
-              >{f.label}</button>
-            ))}
-          </div>
+        <div className="p-4 border-b border-slate-100">
+          <h3 className="title-gradient">Dernières transactions</h3>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-slate-100">
-                {["ID", "Type", "Description", "Chauffeur", "Montant", "Date", "Statut"].map((h, i) => (
-                  <th key={i} className="text-left text-[10px] text-slate-400 px-4 py-3">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filteredTx.map((t) => {
-                const tc = typeConfig[t.type];
-                return (
-                  <tr key={t.id} className="border-b border-slate-50 hover:bg-slate-50/50">
-                    <td className="px-4 py-3 text-xs text-slate-500" style={{ fontFamily: "'Space Grotesk', monospace" }}>{t.id}</td>
-                    <td className="px-4 py-3">
-                      <span className="text-[10px] px-2 py-1 rounded-full" style={{ background: `${tc.color}15`, color: tc.color }}>{tc.label}</span>
-                    </td>
-                    <td className="px-4 py-3 text-xs text-slate-600">{t.description}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <img src={getAvatar(t.driverInit) || ""} alt="" className="w-6 h-6 rounded-full object-cover" />
-                        <span className="text-xs text-slate-600">{t.driver}</span>
-                      </div>
-                    </td>
-                    <td className={`px-4 py-3 text-xs ${t.amount.startsWith("+") ? "text-[#2A9D8F]" : "text-[#D62828]"}`} style={{ fontFamily: "'Space Grotesk', monospace" }}>{t.amount}</td>
-                    <td className="px-4 py-3 text-[10px] text-slate-400">{t.date}</td>
-                    <td className="px-4 py-3">
-                      <span className={`text-[10px] px-2 py-1 rounded-full ${t.status === "completed" ? "bg-emerald-50 text-[#2A9D8F]" : "bg-orange-50 text-[#F77F00]"}`}>
-                        {t.status === "completed" ? "Validé" : "En attente"}
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        <div className="flex flex-col items-center justify-center py-16 text-slate-400">
+          <Inbox className="w-8 h-8 mb-3" />
+          <p className="text-sm text-slate-500">Aucune transaction pour le moment</p>
+          <p className="text-xs mt-1">Les transactions apparaîtront ici automatiquement.</p>
         </div>
       </div>
     </div>

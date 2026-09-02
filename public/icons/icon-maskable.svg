@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Full bleed background for maskable -->
+  <rect width="512" height="512" fill="#F77F00"/>
+  <!-- TRIIP "I" mark centered with generous safe zone (content in center 60%) -->
+  <rect x="168" y="152" width="176" height="36" rx="18" fill="white"/>
+  <rect x="238" y="152" width="36" height="208" rx="18" fill="white"/>
+  <rect x="168" y="324" width="176" height="36" rx="18" fill="white"/>
+  <circle cx="340" cy="168" r="20" fill="#1E6091"/>
+</svg>

@@ -1,100 +1,66 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import {
-  ChevronLeft, ChevronRight, User, MapPin, Moon, FileText, LogOut,
-  Camera, Star, Settings, Key, Fingerprint, Eye, Award, Car,
-  X, Check, Shield, Phone, Mail, Edit3, Globe, Bell, Lock,
-  Upload, AlertTriangle, Calendar, Wrench, CreditCard, TrendingUp,
-  Bike, Truck, Clock, Sun, Monitor, Route, Gift, Share2,
-  HelpCircle, MessageCircle, Heart, Database, UserX, Copy, Pencil
+  ChevronLeft, ChevronRight, User, MapPin, FileText, LogOut,
+  Camera, Star, Settings, Key, Fingerprint, Car,
+  Shield, Phone, Mail, Lock, Upload, TrendingUp, Gift, Copy
 } from "lucide-react";
 import { toast } from "sonner";
 import { ProfileAvatar } from "../profile-avatar";
-import { AVATARS } from "../avatars";
+import { api } from "../../api/client";
 import logoImg from "../../../imports/IPPOO_Transport_&_Logistique-1.png";
 
-/* ─── Types ─── */
+/* --- Types --- */
 type PanelId = null | "personal" | "vehicle" | "documents" | "pin" | "biometric" | "settings" | "logout" | "stats" | "referral";
 
 interface DocItem {
-  id: number;
+  id: string;
   name: string;
-  type: string;
   status: "verified" | "pending" | "expired";
   date: string;
   expiry?: string;
 }
 
-interface VehicleInfo {
-  type: string;
-  brand: string;
-  model: string;
-  plate: string;
-  year: string;
-  color: string;
-  insurance: string;
-  insuranceExpiry: string;
-  lastMaintenance: string;
-  nextMaintenance: string;
-  mileage: string;
+interface DriverMe {
+  id: string;
+  fullName: string;
+  phone: string;
+  email?: string;
+  city?: string;
+  avatarUrl?: string;
+  referralCode?: string;
+  rating: number;
+  totalRides: number;
+  vehicleType?: string;
+  vehiclePlate?: string;
+  licenseNumber?: string;
+  createdAt?: string;
 }
 
-/* ─── Mock ─── */
-const driverInfo = {
-  name: "Hounkpatin Akotchaye",
-  initials: "HA",
-  phone: "+229 97 12 34 56",
-  email: "hounkpatin.a@ippoo.bj",
-  address: "Quartier Gbègamey, Cotonou",
-  dob: "15/03/1992",
-  nip: "BJ-0297-XXXX-XXXX",
-  level: "Gold",
-  rating: 4.87,
-  totalRides: 1247,
-  memberSince: "Mars 2024",
-  status: "active",
-  commissionRate: 15,
+interface Earnings {
+  netMonth: number;
+  acceptanceRate: number;
+  rating: number;
+  totalRides: number;
+}
+
+/* --- Config --- */
+const VEHICLE_LABEL: Record<string, string> = {
+  moto: "Moto", tricycle: "Tricycle", car: "Voiture", van: "Mini-bus", truck: "Camion",
 };
+const COMMISSION_RATE = 15; // constante métier IPPOO
 
-const vehicleInfo: VehicleInfo = {
-  type: "Moto",
-  brand: "Honda",
-  model: "CB125F",
-  plate: "AB-1234-RB",
-  year: "2023",
-  color: "Noir",
-  insurance: "NSIA Assurances",
-  insuranceExpiry: "15 Juin 2026",
-  lastMaintenance: "01 Avr 2026",
-  nextMaintenance: "01 Jul 2026",
-  mileage: "23 400 km",
-};
+function initialsOf(name: string) {
+  return name.split(" ").filter(Boolean).map((w) => w[0]).slice(0, 2).join("").toUpperCase() || "?";
+}
+function monthYear(iso?: string) {
+  if (!iso) return "—";
+  const months = ["Jan", "Fev", "Mar", "Avr", "Mai", "Jun", "Jul", "Aou", "Sep", "Oct", "Nov", "Dec"];
+  const d = new Date(iso);
+  return `${months[d.getMonth()]} ${d.getFullYear()}`;
+}
 
-const documents: DocItem[] = [
-  { id: 1, name: "Permis de conduire", type: "A", status: "verified", date: "15 Jan 2024", expiry: "15 Jan 2029" },
-  { id: 2, name: "Carte nationale d'identite", type: "CNI", status: "verified", date: "20 Mar 2024" },
-  { id: 3, name: "Carte grise vehicule", type: "CG", status: "pending", date: "10 Avr 2026", expiry: "25 Avr 2026" },
-  { id: 4, name: "Attestation d'assurance", type: "ASS", status: "verified", date: "01 Jan 2026", expiry: "15 Jun 2026" },
-  { id: 5, name: "Casier judiciaire", type: "CJ", status: "verified", date: "05 Fév 2024" },
-  { id: 6, name: "Visite technique", type: "VT", status: "expired", date: "01 Oct 2025", expiry: "01 Avr 2026" },
-];
-
-const performanceStats = {
-  totalRides: 1247,
-  totalEarnings: 3420000,
-  avgRating: 4.87,
-  acceptance: 96,
-  cancellation: 2.1,
-  onTimeRate: 94,
-  avgResponseTime: "18s",
-  fiveStarRate: 78,
-  monthlyRides: 142,
-  monthlyEarnings: 342000,
-  rank: 12,
-  totalDrivers: 850,
-};
-
-/* ─── Slide Panel ─── */
+/* --- Slide Panel --- */
 function SlidePanel({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: React.ReactNode }) {
   return (
     <div className={`fixed inset-0 z-50 transition-all duration-300 ${open ? "visible" : "invisible"}`}>
@@ -112,7 +78,7 @@ function SlidePanel({ open, onClose, title, children }: { open: boolean; onClose
   );
 }
 
-/* ─── Toggle ─── */
+/* --- Toggle --- */
 function Toggle({ on, onToggle, label, desc }: { on: boolean; onToggle: () => void; label: string; desc: string }) {
   return (
     <button onClick={onToggle} className="w-full flex items-center justify-between py-4 border-b border-slate-50">
@@ -130,10 +96,13 @@ function Toggle({ on, onToggle, label, desc }: { on: boolean; onToggle: () => vo
 export function DriverProfilePage() {
   const navigate = useNavigate();
   const [panel, setPanel] = useState<PanelId>(null);
-  const [editName, setEditName] = useState(driverInfo.name);
-  const [editPhone, setEditPhone] = useState(driverInfo.phone);
-  const [editEmail, setEditEmail] = useState(driverInfo.email);
-  const [editAddress, setEditAddress] = useState(driverInfo.address);
+  const [me, setMe] = useState<DriverMe | null>(null);
+  const [earnings, setEarnings] = useState<Earnings | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [editName, setEditName] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editAddress, setEditAddress] = useState("");
   const [notifSound, setNotifSound] = useState(true);
   const [notifMissions, setNotifMissions] = useState(true);
   const [notifEarnings, setNotifEarnings] = useState(true);
@@ -142,11 +111,40 @@ export function DriverProfilePage() {
   const [autoAccept, setAutoAccept] = useState(false);
   const [showConfirmLogout, setShowConfirmLogout] = useState(false);
 
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      const [p, e] = await Promise.all([
+        api.get<DriverMe>("/driver/me").catch(() => null),
+        api.get<Earnings>("/driver/earnings").catch(() => null),
+      ]);
+      if (cancelled) return;
+      if (p) {
+        setMe(p);
+        setEditName(p.fullName ?? "");
+        setEditPhone(p.phone ?? "");
+        setEditEmail(p.email ?? "");
+        setEditAddress(p.city ?? "");
+      }
+      if (e) setEarnings(e);
+      setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const name = me?.fullName ?? "";
+  const initials = initialsOf(name);
+  const vehicleTypeLabel = me?.vehicleType ? (VEHICLE_LABEL[me.vehicleType] ?? me.vehicleType) : "—";
+
+  // Aucun endpoint documents : liste vide (jamais de faux justificatifs).
+  const documents: DocItem[] = [];
+
   const menuSections = [
     {
       title: "Compte",
       items: [
-        { icon: User, label: "Informations personnelles", panel: "personal" as PanelId, badge: null },
+        { icon: User, label: "Informations personnelles", panel: "personal" as PanelId, badge: null as number | null },
         { icon: Car, label: "Mon vehicule", panel: "vehicle" as PanelId, badge: null },
         { icon: FileText, label: "Documents & justificatifs", panel: "documents" as PanelId, badge: documents.filter(d => d.status !== "verified").length || null },
         { icon: TrendingUp, label: "Statistiques & performances", panel: "stats" as PanelId, badge: null },
@@ -177,6 +175,13 @@ export function DriverProfilePage() {
   const statusColor = (s: string) => s === "verified" ? "bg-emerald-50 text-emerald-600" : s === "pending" ? "bg-amber-50 text-amber-600" : "bg-red-50 text-red-600";
   const statusLabel = (s: string) => s === "verified" ? "Verifie" : s === "pending" ? "En attente" : "Expire";
 
+  const statCards = [
+    { label: "Courses totales", value: me ? me.totalRides.toLocaleString() : "—", color: "#1E6091" },
+    { label: "Gains du mois", value: earnings ? `${(earnings.netMonth / 1000).toFixed(0)}K F` : "—", color: "#2A9D8F" },
+    { label: "Note moyenne", value: me ? me.rating.toFixed(2) : "—", color: "#E9C46A" },
+    { label: "Taux acceptation", value: earnings ? `${Math.round(earnings.acceptanceRate * 100)}%` : "—", color: "#2A9D8F" },
+  ];
+
   return (
     <div className="min-h-full bg-slate-50 pb-4">
       {/* Header */}
@@ -195,7 +200,7 @@ export function DriverProfilePage() {
         {/* Avatar + info */}
         <div className="relative z-10 flex items-center gap-4">
           <div className="relative">
-            <ProfileAvatar initials="HA" size={72} />
+            <ProfileAvatar initials={initials} photoUrl={me?.avatarUrl} size={72} />
             <button
               onClick={() => toast.info("Sélectionnez une nouvelle photo de profil")}
               aria-label="Changer la photo de profil"
@@ -205,16 +210,12 @@ export function DriverProfilePage() {
             </button>
           </div>
           <div className="flex-1">
-            <p className="text-white text-base">{driverInfo.name}</p>
-            <p className="text-white/60 text-[10px]">Chauffeur depuis {driverInfo.memberSince}</p>
+            <p className="text-white text-base">{name || (loading ? "Chargement..." : "Chauffeur")}</p>
+            <p className="text-white/60 text-[10px]">Chauffeur depuis {monthYear(me?.createdAt)}</p>
             <div className="flex items-center gap-2 mt-1">
-              <div className="flex items-center gap-1 bg-[#E9C46A]/20 rounded-full px-2 py-0.5">
-                <Award className="w-3 h-3 text-[#E9C46A]" />
-                <span className="text-[#E9C46A] text-[9px]">{driverInfo.level}</span>
-              </div>
               <div className="flex items-center gap-1">
                 <Star className="w-3 h-3 text-[#E9C46A] fill-[#E9C46A]" />
-                <span className="text-white/80 text-[10px]">{driverInfo.rating} ({driverInfo.totalRides} courses)</span>
+                <span className="text-white/80 text-[10px]">{me ? `${me.rating.toFixed(2)} (${me.totalRides} courses)` : "—"}</span>
               </div>
             </div>
           </div>
@@ -224,12 +225,9 @@ export function DriverProfilePage() {
         <div className="relative z-10 mt-4 bg-white/10 rounded-xl p-3 flex items-center gap-3">
           <Car className="w-5 h-5 text-[#E9C46A]" />
           <div className="flex-1">
-            <p className="text-white text-[11px]">{vehicleInfo.brand} {vehicleInfo.model}</p>
-            <p className="text-white/50 text-[9px]">{vehicleInfo.plate} - {vehicleInfo.type}</p>
+            <p className="text-white text-[11px]">{vehicleTypeLabel}</p>
+            <p className="text-white/50 text-[9px]">{me?.vehiclePlate ?? "—"}</p>
           </div>
-          <span className="text-emerald-300 text-[9px] flex items-center gap-1">
-            <Check className="w-3 h-3" /> Actif
-          </span>
         </div>
       </div>
 
@@ -261,14 +259,14 @@ export function DriverProfilePage() {
         ))}
       </div>
 
-      {/* ═══ PERSONAL INFO PANEL ═══ */}
+      {/* --- PERSONAL INFO PANEL --- */}
       <SlidePanel open={panel === "personal"} onClose={() => setPanel(null)} title="Informations personnelles">
         <div className="space-y-4">
           {[
             { label: "Nom complet", value: editName, onChange: setEditName, icon: User },
             { label: "Telephone", value: editPhone, onChange: setEditPhone, icon: Phone },
             { label: "Email", value: editEmail, onChange: setEditEmail, icon: Mail },
-            { label: "Adresse", value: editAddress, onChange: setEditAddress, icon: MapPin },
+            { label: "Ville", value: editAddress, onChange: setEditAddress, icon: MapPin },
           ].map((f, i) => (
             <div key={i}>
               <label className="text-[10px] text-slate-400 uppercase tracking-wider mb-1.5 block">{f.label}</label>
@@ -278,35 +276,28 @@ export function DriverProfilePage() {
               </div>
             </div>
           ))}
-          <div>
-            <label className="text-[10px] text-slate-400 uppercase tracking-wider mb-1.5 block">Date de naissance</label>
-            <p className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-500">{driverInfo.dob}</p>
-          </div>
-          <div>
-            <label className="text-[10px] text-slate-400 uppercase tracking-wider mb-1.5 block">NIP</label>
-            <p className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-500">{driverInfo.nip}</p>
-          </div>
-          <button onClick={() => { toast.success("Informations mises a jour"); setPanel(null); }} className="w-full py-3.5 rounded-xl bg-[#2A9D8F] text-white text-xs shadow-sm shadow-emerald-500/15">
+          <button
+            onClick={async () => {
+              try {
+                await api.patch("/driver/me", { fullName: editName, email: editEmail, city: editAddress });
+                toast.success("Informations mises a jour");
+              } catch { toast.error("Echec de la mise a jour"); }
+              setPanel(null);
+            }}
+            className="w-full py-3.5 rounded-xl bg-[#2A9D8F] text-white text-xs shadow-sm shadow-emerald-500/15"
+          >
             Sauvegarder
           </button>
         </div>
       </SlidePanel>
 
-      {/* ═══ VEHICLE PANEL ═══ */}
+      {/* --- VEHICLE PANEL --- */}
       <SlidePanel open={panel === "vehicle"} onClose={() => setPanel(null)} title="Mon vehicule">
         <div className="space-y-4">
           {Object.entries({
-            "Type": vehicleInfo.type,
-            "Marque": vehicleInfo.brand,
-            "Modele": vehicleInfo.model,
-            "Immatriculation": vehicleInfo.plate,
-            "Annee": vehicleInfo.year,
-            "Couleur": vehicleInfo.color,
-            "Assurance": vehicleInfo.insurance,
-            "Expiration assurance": vehicleInfo.insuranceExpiry,
-            "Dernier entretien": vehicleInfo.lastMaintenance,
-            "Prochain entretien": vehicleInfo.nextMaintenance,
-            "Kilometrage": vehicleInfo.mileage,
+            "Type": vehicleTypeLabel,
+            "Immatriculation": me?.vehiclePlate ?? "—",
+            "Numero de permis": me?.licenseNumber ?? "—",
           }).map(([label, value], i) => (
             <div key={i} className="flex items-center justify-between py-2 border-b border-slate-50">
               <span className="text-slate-400 text-[10px]">{label}</span>
@@ -319,9 +310,16 @@ export function DriverProfilePage() {
         </div>
       </SlidePanel>
 
-      {/* ═══ DOCUMENTS PANEL ═══ */}
+      {/* --- DOCUMENTS PANEL --- */}
       <SlidePanel open={panel === "documents"} onClose={() => setPanel(null)} title="Documents & justificatifs">
         <div className="space-y-3">
+          {documents.length === 0 && (
+            <div className="text-center py-10">
+              <FileText className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+              <p className="text-slate-400 text-xs">Aucun document</p>
+              <p className="text-slate-300 text-[10px]">Ajoutez vos justificatifs pour verification</p>
+            </div>
+          )}
           {documents.map(doc => (
             <div key={doc.id} className="bg-slate-50 rounded-xl p-3 flex items-center gap-3">
               <FileText className="w-5 h-5 text-slate-400" />
@@ -340,58 +338,43 @@ export function DriverProfilePage() {
         </div>
       </SlidePanel>
 
-      {/* ═══ STATS PANEL ═══ */}
+      {/* --- STATS PANEL --- */}
       <SlidePanel open={panel === "stats"} onClose={() => setPanel(null)} title="Statistiques & performances">
         <div className="space-y-4">
-          <div className="bg-[#2A9D8F] rounded-2xl p-4 text-center">
-            <p className="text-white/60 text-[10px]">Classement general</p>
-            <p className="text-white text-2xl" style={{ fontFamily: "'Space Grotesk', monospace" }}>#{performanceStats.rank}</p>
-            <p className="text-white/50 text-[9px]">sur {performanceStats.totalDrivers} chauffeurs</p>
-          </div>
           <div className="grid grid-cols-2 gap-3">
-            {[
-              { label: "Courses totales", value: performanceStats.totalRides.toLocaleString(), color: "#1E6091" },
-              { label: "Gains totaux", value: `${(performanceStats.totalEarnings / 1000).toFixed(0)}K F`, color: "#2A9D8F" },
-              { label: "Note moyenne", value: performanceStats.avgRating.toString(), color: "#E9C46A" },
-              { label: "Taux acceptation", value: `${performanceStats.acceptance}%`, color: "#2A9D8F" },
-              { label: "Taux annulation", value: `${performanceStats.cancellation}%`, color: "#D62828" },
-              { label: "Ponctualite", value: `${performanceStats.onTimeRate}%`, color: "#1E6091" },
-              { label: "Temps reponse", value: performanceStats.avgResponseTime, color: "#F77F00" },
-              { label: "Avis 5 etoiles", value: `${performanceStats.fiveStarRate}%`, color: "#E9C46A" },
-            ].map((s, i) => (
+            {statCards.map((s, i) => (
               <div key={i} className="bg-slate-50 rounded-xl p-3 text-center">
                 <p className="text-slate-800 text-sm" style={{ fontFamily: "'Space Grotesk', monospace", color: s.color }}>{s.value}</p>
                 <p className="text-slate-400 text-[9px]">{s.label}</p>
               </div>
             ))}
           </div>
-        </div>
-      </SlidePanel>
-
-      {/* ═══ REFERRAL PANEL ═══ */}
-      <SlidePanel open={panel === "referral"} onClose={() => setPanel(null)} title="Parrainage chauffeurs">
-        <div className="text-center mb-6">
-          <Gift className="w-12 h-12 text-[#F77F00] mx-auto mb-3" />
-          <p className="text-slate-800 text-sm mb-1">Parrainez un chauffeur</p>
-          <p className="text-slate-400 text-[10px]">Gagnez 5 000 F pour chaque chauffeur parraine qui complete 10 courses</p>
-        </div>
-        <div className="bg-slate-50 rounded-xl p-4 text-center mb-4">
-          <p className="text-slate-400 text-[10px] mb-1">Votre code parrain</p>
-          <p className="text-[#1E6091] text-lg" style={{ fontFamily: "'Space Grotesk', monospace" }}>HOUNK-DRV2026</p>
-          <button onClick={() => { navigator.clipboard.writeText("HOUNK-DRV2026"); toast.success("Code copie"); }} className="mt-2 text-[#2A9D8F] text-[10px] flex items-center gap-1 mx-auto">
-            <Copy className="w-3 h-3" /> Copier
-          </button>
-        </div>
-        <div className="bg-emerald-50 rounded-xl p-3 flex items-center gap-3">
-          <TrendingUp className="w-5 h-5 text-emerald-600" />
-          <div>
-            <p className="text-emerald-700 text-xs">3 chauffeurs parraines</p>
-            <p className="text-emerald-500 text-[10px]">15 000 F gagnes au total</p>
+          <div className="bg-blue-50 rounded-xl p-3 flex items-center gap-3">
+            <Shield className="w-5 h-5 text-[#1E6091]" />
+            <p className="text-[#1E6091] text-[11px]">Commission IPPOO : {COMMISSION_RATE}%</p>
           </div>
         </div>
       </SlidePanel>
 
-      {/* ═══ PIN PANEL ═══ */}
+      {/* --- REFERRAL PANEL --- */}
+      <SlidePanel open={panel === "referral"} onClose={() => setPanel(null)} title="Parrainage chauffeurs">
+        <div className="text-center mb-6">
+          <Gift className="w-12 h-12 text-[#F77F00] mx-auto mb-3" />
+          <p className="text-slate-800 text-sm mb-1">Parrainez un chauffeur</p>
+          <p className="text-slate-400 text-[10px]">Partagez votre code de parrainage avec d'autres chauffeurs</p>
+        </div>
+        <div className="bg-slate-50 rounded-xl p-4 text-center mb-4">
+          <p className="text-slate-400 text-[10px] mb-1">Votre code parrain</p>
+          <p className="text-[#1E6091] text-lg" style={{ fontFamily: "'Space Grotesk', monospace" }}>{me?.referralCode ?? "—"}</p>
+          {me?.referralCode && (
+            <button onClick={() => { navigator.clipboard.writeText(me.referralCode!); toast.success("Code copie"); }} className="mt-2 text-[#2A9D8F] text-[10px] flex items-center gap-1 mx-auto">
+              <Copy className="w-3 h-3" /> Copier
+            </button>
+          )}
+        </div>
+      </SlidePanel>
+
+      {/* --- PIN PANEL --- */}
       <SlidePanel open={panel === "pin"} onClose={() => setPanel(null)} title="Code PIN">
         <div className="text-center py-8">
           <Lock className="w-12 h-12 text-slate-300 mx-auto mb-3" />
@@ -409,7 +392,7 @@ export function DriverProfilePage() {
         </div>
       </SlidePanel>
 
-      {/* ═══ BIOMETRIC PANEL ═══ */}
+      {/* --- BIOMETRIC PANEL --- */}
       <SlidePanel open={panel === "biometric"} onClose={() => setPanel(null)} title="Biometrie">
         <Toggle on={biometric} onToggle={() => { setBiometric(!biometric); toast.success(biometric ? "Biometrie desactivee" : "Biometrie activee"); }} label="Empreinte digitale / Face ID" desc="Connexion rapide avec biometrie" />
         <div className="mt-6 bg-blue-50 rounded-xl p-4">
@@ -419,7 +402,7 @@ export function DriverProfilePage() {
         </div>
       </SlidePanel>
 
-      {/* ═══ SETTINGS PANEL ═══ */}
+      {/* --- SETTINGS PANEL --- */}
       <SlidePanel open={panel === "settings"} onClose={() => setPanel(null)} title="Parametres">
         <p className="text-slate-400 text-[10px] uppercase tracking-wider mb-2">Notifications</p>
         <Toggle on={notifSound} onToggle={() => setNotifSound(!notifSound)} label="Sons des notifications" desc="Jouer un son pour les nouvelles missions" />
@@ -433,7 +416,7 @@ export function DriverProfilePage() {
         <Toggle on={darkMode} onToggle={() => setDarkMode(!darkMode)} label="Mode sombre" desc="Activer le theme sombre" />
       </SlidePanel>
 
-      {/* ═══ LOGOUT CONFIRM ═══ */}
+      {/* --- LOGOUT CONFIRM --- */}
       {showConfirmLogout && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-5">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowConfirmLogout(false)} />

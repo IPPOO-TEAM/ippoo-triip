@@ -1,5 +1,5 @@
 /**
- * Hook gestion course IPPOO — création + suivi avec fallback offline.
+ * Hook gestion course IPPOO - création + suivi avec fallback offline.
  */
 import { useCallback, useEffect, useState } from "react";
 import { api } from "../api/client";

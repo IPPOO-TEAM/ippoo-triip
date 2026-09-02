@@ -3,7 +3,7 @@
 @import './theme.css';
 @import './dark-and-data.css';
 
-/* ─── Ressenti « app native » (transverse, sans toucher à la DA) ─── */
+/* --- Ressenti « app native » (transverse, sans toucher à la DA) --- */
 /* Supprime le flash bleu au tap (Android/iOS) sur tous les éléments cliquables */
 * {
   -webkit-tap-highlight-color: transparent;

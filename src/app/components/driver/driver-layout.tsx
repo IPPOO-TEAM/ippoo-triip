@@ -1,25 +1,19 @@
 import { Outlet, useNavigate, useLocation } from "react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { Home, Clock, Wallet, User, Bell, Navigation } from "lucide-react";
 import { PWAInstallPrompt } from "../pwa-install-prompt";
 import { PushNotificationHost } from "../push-host";
 import { useScrollRestoration } from "../../hooks/use-scroll-restoration";
-
-const UNREAD_NOTIF_KEY = "ippoo_driver_unread_notifs";
+import { RequireAuth } from "../require-auth";
+import { useUnread, resetUnread } from "../../store/unread";
 
 export function DriverLayout() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [unreadCount, setUnreadCount] = useState(() => {
-    const stored = localStorage.getItem(UNREAD_NOTIF_KEY);
-    return stored !== null ? parseInt(stored, 10) : 5;
-  });
+  const unreadCount = useUnread();
 
   useEffect(() => {
-    if (location.pathname === "/driver/notifications") {
-      setUnreadCount(0);
-      localStorage.setItem(UNREAD_NOTIF_KEY, "0");
-    }
+    if (location.pathname === "/driver/notifications") resetUnread();
   }, [location.pathname]);
 
   const tabs = [
@@ -39,6 +33,7 @@ export function DriverLayout() {
   useScrollRestoration(scrollRef);
 
   return (
+    <RequireAuth role="driver">
     <div className="flex flex-col max-w-md mx-auto bg-white" style={{ height: "100dvh" }}>
       <PWAInstallPrompt />
       <PushNotificationHost audience="drivers" />
@@ -78,5 +73,6 @@ export function DriverLayout() {
         })}
       </nav>
     </div>
+    </RequireAuth>
   );
 }

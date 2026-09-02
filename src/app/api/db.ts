@@ -1,5 +1,5 @@
 /**
- * Base de données mock IPPOO TRIIP — store en mémoire avec persistance localStorage.
+ * Base de données mock IPPOO TRIIP - store en mémoire avec persistance localStorage.
  *
  * Simule un vrai backend avec état : les courses créées sont retrouvables,
  * le solde du wallet évolue avec les paiements, les statuts progressent dans le temps.
@@ -12,7 +12,7 @@ import type {
   Notification, Referral, GroupOrder, CarpoolTrip, AirFreightShipment,
 } from "../types/domain";
 
-const DB_KEY = "ippoo_db_v1";
+const DB_KEY = "ippoo_triip_db_v1";
 const nowIso = () => new Date().toISOString();
 const isoAgo = (ms: number) => new Date(Date.now() - ms).toISOString();
 const isoIn = (ms: number) => new Date(Date.now() + ms).toISOString();
@@ -33,9 +33,9 @@ export type Db = {
   meta: { seededAt: string };
 };
 
-/* ─────────────────────────────────────────── */
-/*  Données de référence — Bénin                 */
-/* ─────────────────────────────────────────── */
+/* ------------------------------------------- */
+/*  Données de référence - Bénin                 */
+/* ------------------------------------------- */
 
 /** Lieux réels du Grand Nokoué (Cotonou, Calavi, Porto-Novo). */
 export const PLACES = [
@@ -74,16 +74,16 @@ const DRIVER_DATA: Array<{ name: string; vehicleType: DriverProfile["vehicleType
 function avatarFor(name: string): string {
   const female = FIRST_FEMALE.some((f) => name.startsWith(f));
   const seed = encodeURIComponent(name);
-  // Portraits déterministes (placeholder réaliste) — remplaçables par avatars.ts côté UI.
+  // Portraits déterministes (placeholder réaliste) - remplaçables par avatars.ts côté UI.
   return `https://i.pravatar.cc/200?u=${seed}&${female ? "women" : "men"}`;
 }
 
 function rand<T>(arr: T[]): T { return arr[Math.floor(Math.random() * arr.length)]; }
 function uid(prefix: string): string { return `${prefix}_${Math.random().toString(36).slice(2, 9)}`; }
 
-/* ─────────────────────────────────────────── */
+/* ------------------------------------------- */
 /*  Seed                                         */
-/* ─────────────────────────────────────────── */
+/* ------------------------------------------- */
 
 function seed(): Db {
   const seededAt = nowIso();
@@ -102,7 +102,7 @@ function seed(): Db {
     createdAt: isoAgo(120 * 86400_000),
   };
 
-  // Second client de démonstration — porte l'activité d'exemple (courses,
+  // Second client de démonstration - porte l'activité d'exemple (courses,
   // transactions) pour les tableaux de bord admin/chauffeur, afin que le
   // nouvel inscrit (`me`) démarre, lui, avec un compte totalement vierge.
   const demoClient: User = {
@@ -144,14 +144,14 @@ function seed(): Db {
     };
   });
 
-  // Wallet — le nouvel inscrit (`me`) démarre à 0 ; l'activité de démo est
+  // Wallet - le nouvel inscrit (`me`) démarre à 0 ; l'activité de démo est
   // portée par le client de démonstration pour les tableaux de bord internes.
   const wallets: Record<string, Wallet> = {
     [me.id]: { userId: me.id, balanceXOF: 0, pendingXOF: 0, currency: "XOF" },
     [demoClient.id]: { userId: demoClient.id, balanceXOF: 12500, pendingXOF: 0, currency: "XOF" },
   };
 
-  // Historique de courses — rattaché au client de démonstration (pas à `me`)
+  // Historique de courses - rattaché au client de démonstration (pas à `me`)
   const rides: Record<string, Ride> = {};
   const rideEvents: RideEvent[] = [];
   const services: Ride["serviceType"][] = ["taxi_moto", "delivery", "heavy_transport", "carpool"];
@@ -178,7 +178,7 @@ function seed(): Db {
     };
   }
 
-  // Transactions — rattachées au client de démonstration (pas à `me`)
+  // Transactions - rattachées au client de démonstration (pas à `me`)
   const transactions: Transaction[] = [
     { id: uid("tx"), userId: demoClient.id, type: "topup", method: "mtn_momo", amountXOF: 5000, status: "success", createdAt: isoAgo(3 * 86400_000), description: "Recharge MTN MoMo" },
     { id: uid("tx"), userId: demoClient.id, type: "ride_payment", method: "wallet", amountXOF: 1500, status: "success", createdAt: isoAgo(2 * 86400_000), description: "Course Dantokpa → Ganhi" },
@@ -186,7 +186,7 @@ function seed(): Db {
     { id: uid("tx"), userId: demoClient.id, type: "topup", method: "moov_money", amountXOF: 10000, status: "success", createdAt: isoAgo(6 * 3600_000), description: "Recharge Moov Money" },
   ];
 
-  // Notifications — boîte de réception vide pour le nouvel inscrit
+  // Notifications - boîte de réception vide pour le nouvel inscrit
   const notifications: Notification[] = [];
 
   // Parrainages
@@ -266,9 +266,9 @@ function seed(): Db {
   };
 }
 
-/* ─────────────────────────────────────────── */
+/* ------------------------------------------- */
 /*  Persistance                                  */
-/* ─────────────────────────────────────────── */
+/* ------------------------------------------- */
 
 let _db: Db | null = null;
 
@@ -303,9 +303,9 @@ export function resetDb(): Db {
   return _db;
 }
 
-/* ─────────────────────────────────────────── */
+/* ------------------------------------------- */
 /*  Helpers métier réutilisés par les mocks      */
-/* ─────────────────────────────────────────── */
+/* ------------------------------------------- */
 
 export const helpers = {
   uid,

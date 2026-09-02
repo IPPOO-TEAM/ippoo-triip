@@ -1,65 +1,126 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import {
-  ChevronLeft, Bike, Package, Wallet, Bell, MessageCircle,
-  Check, Trash2, X, ChevronRight, AlertTriangle, Star,
-  Gift, Shield, Navigation, Clock, Zap, TrendingUp, Award,
-  Calendar, Phone, Users, BellOff
+  ChevronLeft, Wallet, Bell, MessageCircle, Trash2, X,
+  Navigation, Star, Shield, AlertTriangle, Loader2, BellOff
 } from "lucide-react";
 import { toast } from "sonner";
-import logoImg from "../../../imports/IPPOO_Transport_&_Logistique-1.png";
+import { api } from "../../api/client";
+import { usePushFeed } from "../../store/push-notifications";
+import { resetUnread, decUnread } from "../../store/unread";
 
-/* ─── Types ─── */
-interface Notification {
-  id: number;
-  Icon: React.ElementType;
+/* --- Types --- */
+type NotifType = "ride" | "payment" | "promo" | "system" | "sos";
+
+interface ApiNotif {
+  id: string;
+  type: NotifType;
   title: string;
-  desc: string;
-  time: string;
+  body: string;
   read: boolean;
-  accent: string;
-  iconBg: string;
-  iconColor: string;
-  link: string | null;
-  category: "mission" | "earning" | "bonus" | "system" | "message" | "rating" | "document";
+  createdAt: string;
+  metadata?: { url?: string } | null;
 }
 
-type FilterType = "all" | "unread" | "mission" | "earning" | "bonus";
+type FilterType = "all" | "unread" | "ride" | "payment" | "promo";
 
-const initialNotifications: Notification[] = [
-  { id: 1, Icon: Navigation, title: "Nouvelle demande de course", desc: "Fifamè D. demande une course moto de Dantokpa vers Campus UAC. Distance: 5.2 km - Gain: +1 200 F", time: "Il y a 30s", read: false, accent: "border-l-blue-500", iconBg: "bg-blue-50", iconColor: "text-blue-500", link: "/driver/missions", category: "mission" },
-  { id: 2, Icon: Package, title: "Livraison urgente disponible", desc: "Colis 3.5 kg de Boulevard St-Michel vers Godomey. Gain: +1 800 F (urgent)", time: "Il y a 2 min", read: false, accent: "border-l-orange-500", iconBg: "bg-orange-50", iconColor: "text-orange-500", link: "/driver/missions", category: "mission" },
-  { id: 3, Icon: Wallet, title: "Retrait effectue", desc: "10 000 FCFA retires via MTN MoMo. Nouveau solde disponible: 30 600 FCFA.", time: "Il y a 1h", read: false, accent: "border-l-emerald-500", iconBg: "bg-emerald-50", iconColor: "text-emerald-500", link: "/driver/earnings", category: "earning" },
-  { id: 4, Icon: Star, title: "Nouvel avis client", desc: "Gbètoho B. vous a attribue 5 etoiles: 'Excellent chauffeur, très ponctuel et courtois'", time: "Il y a 2h", read: false, accent: "border-l-amber-500", iconBg: "bg-amber-50", iconColor: "text-amber-500", link: "/driver/rating", category: "rating" },
-  { id: 5, Icon: Zap, title: "Bonus heure de pointe!", desc: "Gagnez +30% de bonus sur toutes les courses entre 17h et 20h ce soir.", time: "Il y a 3h", read: false, accent: "border-l-violet-500", iconBg: "bg-violet-50", iconColor: "text-violet-500", link: "/driver/missions", category: "bonus" },
-  { id: 6, Icon: TrendingUp, title: "Objectif atteint!", desc: "Felicitations! Vous avez atteint 25 courses cette semaine. Bonus de 2 000 F credite.", time: "Il y a 5h", read: true, accent: "border-l-gray-200", iconBg: "bg-gray-50", iconColor: "text-gray-400", link: "/driver/earnings", category: "bonus" },
-  { id: 7, Icon: Shield, title: "Documents a renouveler", desc: "Votre carte grise expire dans 15 jours. Mettez-la a jour pour continuer a recevoir des missions.", time: "Hier", read: true, accent: "border-l-gray-200", iconBg: "bg-gray-50", iconColor: "text-gray-400", link: "/driver/profile", category: "document" },
-  { id: 8, Icon: Calendar, title: "Mission planifiee demain", desc: "Rappel: Course vers l'Aeroport demain à 08h00. Client: Sessinou A.", time: "Hier", read: true, accent: "border-l-gray-200", iconBg: "bg-gray-50", iconColor: "text-gray-400", link: "/driver/missions", category: "mission" },
-  { id: 9, Icon: MessageCircle, title: "Message du support", desc: "Support: Votre ticket #205 'Contestation tarif course' a ete resolu en votre faveur.", time: "Il y a 2 jours", read: true, accent: "border-l-gray-200", iconBg: "bg-gray-50", iconColor: "text-gray-400", link: "/driver/support", category: "message" },
-  { id: 10, Icon: Award, title: "Niveau Gold atteint!", desc: "Bravo! Vous etes maintenant chauffeur Gold. Priorite sur les courses premium.", time: "Il y a 3 jours", read: true, accent: "border-l-gray-200", iconBg: "bg-gray-50", iconColor: "text-gray-400", link: "/driver/profile", category: "bonus" },
-];
+/* Type -> présentation épurée (icône + couleurs + lien par défaut) */
+const TYPE_META: Record<NotifType, { Icon: React.ElementType; accent: string; iconBg: string; iconColor: string; link: string | null }> = {
+  ride:    { Icon: Navigation,    accent: "border-l-blue-500",    iconBg: "bg-blue-50",    iconColor: "text-blue-500",    link: "/driver/missions" },
+  payment: { Icon: Wallet,        accent: "border-l-emerald-500", iconBg: "bg-emerald-50", iconColor: "text-emerald-500", link: "/driver/earnings" },
+  promo:   { Icon: Star,          accent: "border-l-violet-500",  iconBg: "bg-violet-50",  iconColor: "text-violet-500",  link: null },
+  system:  { Icon: Shield,        accent: "border-l-slate-400",   iconBg: "bg-slate-50",   iconColor: "text-slate-500",   link: null },
+  sos:     { Icon: AlertTriangle, accent: "border-l-red-500",     iconBg: "bg-red-50",     iconColor: "text-red-500",     link: null },
+};
+
+function relativeTime(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return "À l'instant";
+  if (m < 60) return `Il y a ${m} min`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `Il y a ${h} h`;
+  const d = Math.floor(h / 24);
+  if (d === 1) return "Hier";
+  return `Il y a ${d} jours`;
+}
 
 export function DriverNotificationsPage() {
   const navigate = useNavigate();
-  const [items, setItems] = useState(initialNotifications);
+  const [items, setItems] = useState<ApiNotif[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<FilterType>("all");
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const res = await api.get<{ items: ApiNotif[] } | ApiNotif[]>("/notifications?page=1&pageSize=50");
+        const list = Array.isArray(res) ? res : (res?.items ?? []);
+        if (alive) {
+          const ids = new Set(list.map((n) => n.id));
+          // Conserve les notifs temps réel arrivées pendant le fetch (pas encore en base).
+          setItems((prev) => [...prev.filter((p) => !ids.has(p.id)), ...list]);
+        }
+      } catch {
+        if (alive) setItems([]);
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => { alive = false; };
+  }, []);
+
+  // Temps réel : préfixe UNIQUEMENT les notifications diffusées APRÈS le montage
+  // (l'historique vient du fetch backend) — évite le clignotement des blocs.
+  const mountedAt = useRef(Date.now());
+  const feed = usePushFeed();
+  useEffect(() => {
+    const relevant = feed.filter(
+      (n) => n.createdAt > mountedAt.current && (n.target === "all" || n.target === "drivers"),
+    );
+    if (relevant.length === 0) return;
+    setItems((prev) => {
+      const known = new Set(prev.map((p) => p.id));
+      const fresh = relevant
+        .filter((n) => !known.has(n.id))
+        .map((n): ApiNotif => ({
+          id: n.id,
+          type: (["ride", "payment", "promo", "system", "sos"] as const).includes(n.type as NotifType)
+            ? (n.type as NotifType) : "system",
+          title: n.title,
+          body: n.body,
+          read: false,
+          createdAt: new Date(n.createdAt).toISOString(),
+        }));
+      return fresh.length ? [...fresh, ...prev] : prev;
+    });
+  }, [feed]);
 
   const unreadCount = items.filter(n => !n.read).length;
 
   const filtered = items.filter(n => {
     if (filterType === "unread") return !n.read;
-    if (filterType === "mission") return n.category === "mission";
-    if (filterType === "earning") return n.category === "earning" || n.category === "rating";
-    if (filterType === "bonus") return n.category === "bonus";
+    if (filterType === "ride") return n.type === "ride";
+    if (filterType === "payment") return n.type === "payment";
+    if (filterType === "promo") return n.type === "promo";
     return true;
   });
 
-  const markAllRead = () => {
+  const markAllRead = async () => {
     setItems(items.map(n => ({ ...n, read: true })));
+    resetUnread();
+    try { await api.post("/notifications/read-all", {}); } catch { /* silencieux */ }
     toast.success("Toutes les notifications marquees comme lues");
   };
-  const markRead = (id: number) => setItems(items.map(n => n.id === id ? { ...n, read: true } : n));
-  const deleteNotif = (id: number) => {
+  const markRead = async (id: string) => {
+    setItems(prev => prev.map(n => {
+      if (n.id === id && !n.read) decUnread();
+      return n.id === id ? { ...n, read: true } : n;
+    }));
+    try { await api.post(`/notifications/${id}/read`, {}); } catch { /* silencieux */ }
+  };
+  const deleteNotif = (id: string) => {
     setItems(items.filter(n => n.id !== id));
     toast.success("Notification supprimee");
   };
@@ -71,9 +132,9 @@ export function DriverNotificationsPage() {
   const filterTabs = [
     { id: "all" as FilterType, label: "Tout", count: items.length },
     { id: "unread" as FilterType, label: "Non lues", count: unreadCount },
-    { id: "mission" as FilterType, label: "Missions", count: items.filter(n => n.category === "mission").length },
-    { id: "earning" as FilterType, label: "Gains", count: items.filter(n => n.category === "earning" || n.category === "rating").length },
-    { id: "bonus" as FilterType, label: "Bonus", count: items.filter(n => n.category === "bonus").length },
+    { id: "ride" as FilterType, label: "Courses", count: items.filter(n => n.type === "ride").length },
+    { id: "payment" as FilterType, label: "Paiements", count: items.filter(n => n.type === "payment").length },
+    { id: "promo" as FilterType, label: "Promos", count: items.filter(n => n.type === "promo").length },
   ];
 
   return (
@@ -115,40 +176,60 @@ export function DriverNotificationsPage() {
 
       {/* List */}
       <div className="px-5 mt-3 space-y-2">
-        {filtered.length === 0 && (
-          <div className="text-center py-16">
-            <BellOff className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <p className="text-slate-400 text-sm">Aucune notification</p>
+        {loading ? (
+          <div className="flex items-center justify-center gap-2 py-16 text-slate-400 text-sm">
+            <Loader2 className="w-4 h-4 animate-spin" /> Chargement…
           </div>
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-16">
+            {items.length === 0 ? (
+              <>
+                <Bell className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                <p className="text-slate-400 text-sm">Aucune notification pour le moment</p>
+                <p className="text-slate-300 text-[11px] mt-1">Vos alertes de courses et paiements apparaitront ici.</p>
+              </>
+            ) : (
+              <>
+                <BellOff className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                <p className="text-slate-400 text-sm">Aucune notification dans ce filtre</p>
+              </>
+            )}
+          </div>
+        ) : (
+          filtered.map(n => {
+            const meta = TYPE_META[n.type] ?? TYPE_META.system;
+            const link = n.metadata?.url ?? meta.link;
+            const Icon = meta.Icon;
+            return (
+              <button
+                key={n.id}
+                onClick={() => {
+                  markRead(n.id);
+                  if (link) navigate(link.startsWith("/") ? link : `/${link}`);
+                }}
+                className={`w-full bg-white rounded-xl border-l-4 ${n.read ? "border-l-slate-200" : meta.accent} border border-slate-100 p-3 flex items-start gap-3 text-left active:bg-slate-50 transition ${!n.read ? "shadow-sm" : ""}`}
+              >
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${n.read ? "bg-slate-50" : meta.iconBg}`}>
+                  <Icon className={`w-4 h-4 ${n.read ? "text-slate-400" : meta.iconColor}`} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className={`text-xs ${!n.read ? "text-slate-800" : "text-slate-500"}`}>{n.title}</p>
+                    {!n.read && <div className="w-2 h-2 rounded-full bg-[#F77F00] shrink-0 mt-1" />}
+                  </div>
+                  <p className="text-slate-400 text-[10px] mt-0.5 line-clamp-2" style={{ lineHeight: 1.5 }}>{n.body}</p>
+                  <p className="text-slate-300 text-[9px] mt-1">{relativeTime(n.createdAt)}</p>
+                </div>
+                <button
+                  onClick={e => { e.stopPropagation(); deleteNotif(n.id); }}
+                  className="w-7 h-7 rounded-lg bg-slate-50 flex items-center justify-center shrink-0 mt-0.5"
+                >
+                  <X className="w-3 h-3 text-slate-400" />
+                </button>
+              </button>
+            );
+          })
         )}
-        {filtered.map(n => (
-          <button
-            key={n.id}
-            onClick={() => {
-              markRead(n.id);
-              if (n.link) navigate(n.link);
-            }}
-            className={`w-full bg-white rounded-xl border-l-4 ${n.read ? "border-l-slate-200" : n.accent} border border-slate-100 p-3 flex items-start gap-3 text-left active:bg-slate-50 transition ${!n.read ? "shadow-sm" : ""}`}
-          >
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${n.iconBg}`}>
-              <n.Icon className={`w-4 h-4 ${n.iconColor}`} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between gap-2">
-                <p className={`text-xs ${!n.read ? "text-slate-800" : "text-slate-500"}`}>{n.title}</p>
-                {!n.read && <div className="w-2 h-2 rounded-full bg-[#F77F00] shrink-0 mt-1" />}
-              </div>
-              <p className="text-slate-400 text-[10px] mt-0.5 line-clamp-2" style={{ lineHeight: 1.5 }}>{n.desc}</p>
-              <p className="text-slate-300 text-[9px] mt-1">{n.time}</p>
-            </div>
-            <button
-              onClick={e => { e.stopPropagation(); deleteNotif(n.id); }}
-              className="w-7 h-7 rounded-lg bg-slate-50 flex items-center justify-center shrink-0 mt-0.5"
-            >
-              <X className="w-3 h-3 text-slate-400" />
-            </button>
-          </button>
-        ))}
       </div>
 
       {items.length > 0 && (

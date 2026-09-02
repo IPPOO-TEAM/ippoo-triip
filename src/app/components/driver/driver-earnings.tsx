@@ -12,9 +12,9 @@ import { QRCodeSVG } from "qrcode.react";
 import { api } from "../../api/client";
 import logoImg from "../../../imports/IPPOO_Transport_&_Logistique-1.png";
 
-/* ─── Types ─── */
+/* --- Types --- */
 interface Transaction {
-  id: number;
+  id: string;
   type: "earning" | "withdrawal" | "bonus" | "penalty" | "commission";
   label: string;
   amount: number;
@@ -28,38 +28,51 @@ type ModalType = null | "withdraw" | "detail" | "qr";
 type TxFilter = "all" | "earning" | "withdrawal" | "bonus";
 type PeriodFilter = "today" | "week" | "month" | "all";
 
-/* ─── Mock ─── */
-const transactions: Transaction[] = [
-  { id: 1, type: "earning", label: "Course moto - Dantokpa vers UAC", amount: 1200, date: "11 Avr 2026", time: "12:05", status: "completed" },
-  { id: 2, type: "earning", label: "Livraison colis - St-Michel vers Godomey", amount: 1800, date: "11 Avr 2026", time: "09:15", status: "completed" },
-  { id: 3, type: "earning", label: "Course moto - Akpakpa vers Gbègamey", amount: 800, date: "11 Avr 2026", time: "07:32", status: "completed" },
-  { id: 4, type: "bonus", label: "Bonus heure de pointe (07h-09h)", amount: 500, date: "11 Avr 2026", time: "09:00", status: "completed" },
-  { id: 5, type: "commission", label: "Commission IPPOO (15%)", amount: -570, date: "11 Avr 2026", time: "00:00", status: "completed" },
-  { id: 6, type: "withdrawal", label: "Retrait MTN MoMo", amount: -10000, date: "10 Avr 2026", time: "18:30", method: "MTN MoMo", status: "completed" },
-  { id: 7, type: "earning", label: "Course voiture - Aeroport vers Hotel", amount: 3500, date: "10 Avr 2026", time: "16:45", status: "completed" },
-  { id: 8, type: "earning", label: "Covoiturage Cotonou-Porto-Novo", amount: 2000, date: "10 Avr 2026", time: "14:00", status: "completed" },
-  { id: 9, type: "bonus", label: "Bonus 10 courses consecutives", amount: 1000, date: "10 Avr 2026", time: "12:00", status: "completed" },
-  { id: 10, type: "withdrawal", label: "Retrait Moov Money", amount: -15000, date: "09 Avr 2026", time: "20:00", method: "Moov Money", status: "pending" },
-  { id: 11, type: "penalty", label: "Penalite annulation tardive", amount: -200, date: "09 Avr 2026", time: "08:00", status: "completed" },
-];
-
+/* --- État initial neutre (aucune donnée fabriquée) --- */
 const DEFAULT_BREAKDOWN = {
-  grossToday: 18500,
-  commissionToday: 2775,
-  netToday: 15725,
-  grossWeek: 87300,
-  commissionWeek: 13095,
-  netWeek: 74205,
-  grossMonth: 342000,
-  commissionMonth: 51300,
-  netMonth: 290700,
-  totalBalance: 45600,
-  pendingWithdrawals: 15000,
-  availableBalance: 30600,
-  bonusEarned: 3500,
-  totalRides: 28,
-  avgPerRide: 661,
+  grossToday: 0,
+  commissionToday: 0,
+  netToday: 0,
+  grossWeek: 0,
+  commissionWeek: 0,
+  netWeek: 0,
+  grossMonth: 0,
+  commissionMonth: 0,
+  netMonth: 0,
+  totalBalance: 0,
+  pendingWithdrawals: 0,
+  availableBalance: 0,
+  bonusEarned: 0,
+  totalRides: 0,
+  avgPerRide: 0,
 };
+
+/* --- Mappage transaction backend -> vue --- */
+const NEGATIVE_TYPES = ["withdrawal", "payout", "penalty", "commission"];
+function normalizeTxType(t: string): Transaction["type"] {
+  if (t === "withdrawal" || t === "payout") return "withdrawal";
+  if (t === "bonus") return "bonus";
+  if (t === "penalty") return "penalty";
+  if (t === "commission") return "commission";
+  return "earning";
+}
+function mapBackendTx(tx: any): Transaction {
+  const type = normalizeTxType(tx.type);
+  const magnitude = Math.abs(Number(tx.amountXOF ?? 0));
+  const amount = NEGATIVE_TYPES.includes(tx.type) ? -magnitude : magnitude;
+  const d = tx.createdAt ? new Date(tx.createdAt) : new Date();
+  const months = ["Jan", "Fev", "Mar", "Avr", "Mai", "Jun", "Jul", "Aou", "Sep", "Oct", "Nov", "Dec"];
+  return {
+    id: String(tx.id),
+    type,
+    label: tx.description || tx.reference || "Transaction",
+    amount,
+    date: `${d.getDate().toString().padStart(2, "0")} ${months[d.getMonth()]} ${d.getFullYear()}`,
+    time: `${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`,
+    method: tx.method || undefined,
+    status: tx.status === "success" ? "completed" : tx.status === "pending" ? "pending" : "failed",
+  };
+}
 
 const operators = [
   { name: "MTN MoMo", color: "from-yellow-400 to-amber-500", min: 500, max: 500000 },
@@ -79,17 +92,27 @@ export function DriverEarningsPage() {
   const [withdrawPhone, setWithdrawPhone] = useState("+229 97 12 34 56");
   const [withdrawLoading, setWithdrawLoading] = useState(false);
   const [earningsBreakdown, setEarningsBreakdown] = useState(DEFAULT_BREAKDOWN);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [txLoading, setTxLoading] = useState(true);
 
-  // Charge la ventilation des gains depuis le backend mock (repli sur les valeurs par défaut)
+  // Charge la ventilation des gains + les transactions réelles depuis le backend
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      setTxLoading(true);
       try {
         const e = await api.get<any>("/driver/earnings");
-        if (cancelled || !e) return;
-        setEarningsBreakdown((prev) => ({ ...prev, ...e }));
+        if (!cancelled && e) setEarningsBreakdown((prev) => ({ ...prev, ...e }));
       } catch {
-        /* repli silencieux */
+        /* pas de repli sur des données fictives */
+      }
+      try {
+        const res = await api.get<{ items: any[] }>("/wallet/transactions?page=1&pageSize=50");
+        if (!cancelled) setTransactions(Array.isArray(res?.items) ? res.items.map(mapBackendTx) : []);
+      } catch {
+        if (!cancelled) setTransactions([]);
+      } finally {
+        if (!cancelled) setTxLoading(false);
       }
     })();
     return () => { cancelled = true; };
@@ -248,6 +271,17 @@ export function DriverEarningsPage() {
       {/* Transactions */}
       <div className="px-5">
         <p className="text-slate-400 text-[10px] mb-2">Transactions recentes</p>
+        {txLoading ? (
+          <div className="flex justify-center py-10">
+            <div className="w-6 h-6 border-2 border-slate-200 border-t-[#2A9D8F] rounded-full animate-spin" />
+          </div>
+        ) : filteredTx.length === 0 ? (
+          <div className="text-center py-12">
+            <CreditCard className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+            <p className="text-slate-400 text-xs">Aucune transaction</p>
+            <p className="text-slate-300 text-[10px]">Vos gains et retraits apparaitront ici</p>
+          </div>
+        ) : (
         <div className="space-y-2">
           {filteredTx.map(t => {
             const Icon = txIcon(t.type);
@@ -275,9 +309,10 @@ export function DriverEarningsPage() {
             );
           })}
         </div>
+        )}
       </div>
 
-      {/* ═══ WITHDRAW MODAL ═══ */}
+      {/* --- WITHDRAW MODAL --- */}
       {modal === "withdraw" && (
         <div className="fixed inset-0 z-50">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setModal(null)} />
@@ -348,7 +383,7 @@ export function DriverEarningsPage() {
         </div>
       )}
 
-      {/* ═══ TX DETAIL MODAL ═══ */}
+      {/* --- TX DETAIL MODAL --- */}
       {modal === "detail" && selectedTx && (
         <div className="fixed inset-0 z-50">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setModal(null)} />

@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { getGPSPosition } from "./utils";
 import logoImg from "../../imports/IPPOO_Transport_&_Logistique-1.png";
 
-/* ─── Types ─── */
+/* --- Types --- */
 type MissionType = "course" | "livraison" | "commande";
 
 interface Stop {
@@ -26,12 +26,9 @@ interface Parcel {
   weight: string;
 }
 
-/* ─── Mock scheduled missions ─── */
-const scheduledMissions = [
-  { id: 1, type: "course" as MissionType, date: "12 Avr 2026", time: "08:00–09:00", stops: 2, status: "confirmed" },
-  { id: 2, type: "livraison" as MissionType, date: "12 Avr 2026", time: "14:00–16:00", stops: 3, status: "pending" },
-  { id: 3, type: "commande" as MissionType, date: "13 Avr 2026", time: "10:00–12:00", stops: 1, status: "confirmed" },
-];
+interface ScheduledMission {
+  id: number; type: MissionType; date: string; time: string; stops: number; status: string;
+}
 
 export function MissionPage() {
   const navigate = useNavigate();
@@ -46,6 +43,8 @@ export function MissionPage() {
   const [selectedDate, setSelectedDate] = useState("Aujourd'hui");
   const [submitting, setSubmitting] = useState(false);
   const [gpsLoading, setGpsLoading] = useState<number | null>(null);
+  // Aucune mission de démo : la liste démarre vide et se remplit au fil des créations réelles
+  const [scheduledMissions] = useState<ScheduledMission[]>([]);
 
   useEffect(() => {
     const el = document.querySelector(".flex-1.min-h-0.overflow-y-auto");
@@ -56,8 +55,8 @@ export function MissionPage() {
   }, []);
 
   const timeSlots = [
-    "06:00–08:00", "08:00–10:00", "10:00–12:00",
-    "12:00–14:00", "14:00–16:00", "16:00–18:00", "18:00–20:00"
+    "06:00-08:00", "08:00-10:00", "10:00-12:00",
+    "12:00-14:00", "14:00-16:00", "16:00-18:00", "18:00-20:00"
   ];
 
   const dates = ["Aujourd'hui", "Demain", "13 Avr", "14 Avr", "15 Avr"];
@@ -99,7 +98,7 @@ export function MissionPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 pb-6">
-      {/* ── Header ── */}
+      {/* -- Header -- */}
       <div className="relative overflow-hidden rounded-b-[2rem] shadow-sm">
         <div className="absolute inset-0 bg-gradient-to-b from-[#1E6091] via-[#2A9D8F] to-[#1E6091]" />
         <div className="absolute -right-10 -top-10 w-48 h-48 bg-white/10 rounded-full blur-3xl" />
@@ -296,6 +295,15 @@ export function MissionPage() {
             <Calendar className="w-4 h-4 text-[#1E6091]" />
             Missions planifiées
           </h2>
+          {scheduledMissions.length === 0 && (
+            <div className="bg-white rounded-2xl p-6 flex flex-col items-center gap-2 text-center shadow-sm">
+              <span className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center">
+                <Calendar className="w-6 h-6 text-[#1E6091]" strokeWidth={1.6} />
+              </span>
+              <p className="text-sm text-slate-600">Aucune mission planifiée</p>
+              <p className="text-[11px] text-slate-400">Créez votre première mission ci-dessus</p>
+            </div>
+          )}
           {scheduledMissions.map(m => (
             <div key={m.id} className="bg-white rounded-2xl p-4 shadow-sm mb-2 flex items-center gap-3">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${m.type === "course" ? "bg-blue-50" : m.type === "livraison" ? "bg-orange-50" : "bg-violet-50"}`}>

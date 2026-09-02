@@ -1,30 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  Settings, Globe, MapPin, CreditCard, Percent, Shield, Bell,
-  Palette, Users, Car, Zap, Save, ChevronRight, ToggleLeft, ToggleRight,
-  Plus, Trash2, Edit3, Check, RotateCcw
+  Settings, MapPin, CreditCard, Percent, Shield, Bell,
+  Save, ToggleLeft, ToggleRight,
+  Plus, Trash2, Edit3, Check, RotateCcw, Inbox
 } from "lucide-react";
 import { toast } from "sonner";
 import { resetDb } from "../../api/db";
+import { api } from "../../api/client";
 
-/* ─── Mock Data ─── */
-const ZONES = [
-  { id: 1, name: "Cotonou Centre", active: true, baseFare: 300, perKm: 150, minFare: 500 },
-  { id: 2, name: "Porto-Novo", active: true, baseFare: 350, perKm: 160, minFare: 500 },
-  { id: 3, name: "Abomey-Calavi", active: true, baseFare: 300, perKm: 140, minFare: 450 },
-  { id: 4, name: "Parakou", active: true, baseFare: 250, perKm: 130, minFare: 400 },
-  { id: 5, name: "Bohicon", active: true, baseFare: 250, perKm: 120, minFare: 400 },
-  { id: 6, name: "Natitingou", active: false, baseFare: 300, perKm: 140, minFare: 450 },
-];
-
-const COMMISSION_RATES = [
-  { service: "Taxi-Moto", rate: 20 },
-  { service: "Livraison de colis", rate: 20 },
-  { service: "Transport lourd", rate: 20 },
-  { service: "Covoiturage", rate: 15 },
-  { service: "Commandes groupées", rate: 20 },
-  { service: "IPPOO AIR", rate: 20 },
-];
+/* --- Types (config plateforme) --- */
+type Zone = { id: number; name: string; active: boolean; baseFare: number; perKm: number; minFare: number };
+type CommissionRate = { service: string; rate: number };
 
 interface SettingSection {
   id: string;
@@ -44,11 +30,28 @@ const SECTIONS: SettingSection[] = [
 
 export function AdminSettingsPage() {
   const [activeSection, setActiveSection] = useState("general");
-  const [zones, setZones] = useState(ZONES);
-  const [commissions, setCommissions] = useState(COMMISSION_RATES);
+  const [zones, setZones] = useState<Zone[]>([]);
+  const [commissions, setCommissions] = useState<CommissionRate[]>([]);
   const [saved, setSaved] = useState(false);
 
-  /* ── États des toggles des sections paramètres ── */
+  /* -- Charge la config plateforme depuis le backend (repli : vide) -- */
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const cfg = await api.get<Record<string, any>>("/platform/config");
+        if (cancelled) return;
+        if (Array.isArray(cfg?.zones)) setZones(cfg.zones as Zone[]);
+        const rates = cfg?.commissionRates ?? cfg?.commissions;
+        if (Array.isArray(rates)) setCommissions(rates as CommissionRate[]);
+      } catch {
+        if (!cancelled) { setZones([]); setCommissions([]); }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  /* -- États des toggles des sections paramètres -- */
   const [services, setServices] = useState(
     ["Taxi-Moto", "Livraison de colis", "Transport de biens lourds", "Commandes groupées", "Covoiturage", "IPPOO AIR"].map((n) => ({ name: n, active: true })),
   );
@@ -274,6 +277,13 @@ export function AdminSettingsPage() {
                   </tbody>
                 </table>
               </div>
+              {zones.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-12 text-slate-400">
+                  <Inbox className="w-8 h-8 mb-3" />
+                  <p className="text-sm text-slate-500">Aucune zone configurée</p>
+                  <p className="text-xs mt-1">Ajoutez une zone pour définir sa tarification.</p>
+                </div>
+              )}
             </div>
           )}
 
@@ -282,6 +292,13 @@ export function AdminSettingsPage() {
             <div className="bg-white rounded-2xl border border-slate-100 p-6 space-y-5">
               <h3 className="title-gradient">Taux de commission par service</h3>
               <p className="text-xs text-slate-400">Pourcentage prélevé par IPPOO sur chaque course ou livraison.</p>
+              {commissions.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-12 text-slate-400">
+                  <Inbox className="w-8 h-8 mb-3" />
+                  <p className="text-sm text-slate-500">Aucun taux de commission configuré</p>
+                  <p className="text-xs mt-1">Les taux définis dans la config plateforme apparaîtront ici.</p>
+                </div>
+              )}
               <div className="space-y-3">
                 {commissions.map((c, i) => (
                   <div key={i} className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl">

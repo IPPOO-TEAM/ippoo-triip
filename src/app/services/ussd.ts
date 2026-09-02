@@ -1,5 +1,5 @@
 /**
- * Fallback USSD IPPOO — pour zones sans data ou téléphones non-smartphones.
+ * Fallback USSD IPPOO - pour zones sans data ou téléphones non-smartphones.
  *
  * Principe : encoder une action en short-code que l'utilisateur compose.
  * Côté opérateur télécom : le menu USSD pointe vers une API gateway IPPOO.

@@ -2,7 +2,7 @@ import { useNavigate } from "react-router";
 import { useState, useRef, useCallback, useEffect } from "react";
 import {
   ChevronRight, ChevronLeft, User, MapPin, Type, FileText, LogOut,
-  Camera, Star, Settings, Key, Fingerprint, Eye, Award, Ticket,
+  Camera, ShieldCheck, ShieldAlert, Settings, Key, Fingerprint, Eye, Award, Ticket,
   X, Check, Plus, Trash2, Upload, Globe, Bell, Phone, Mail, Shield,
   Edit3, EyeOff, AlertTriangle, Info, MapPinned,
   Share2, HelpCircle, MessageCircle, Heart, Smartphone, Clock,
@@ -12,13 +12,14 @@ import {
 import { AfricanPattern } from "./icons";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { toast } from "sonner";
-import { AVATARS } from "./avatars";
 import { SettingsCard } from "./settings-card";
 import { BrandLogo } from "./brand-logo";
 import { compressImage } from "./utils";
 import { api } from "../api/client";
+import { useAppStore } from "../store/app-store";
+import { M3Page, SectionHeader } from "./m3";
 
-/* ─── Types ─── */
+/* --- Types --- */
 type PanelId = null | "personal" | "addresses" | "documents" | "pin" | "biometric" | "privacy" | "darkmode" | "settings" | "logout";
 
 interface Address {
@@ -36,7 +37,7 @@ interface DocItem {
   date: string;
 }
 
-/* ─── Slide Panel Wrapper ─── */
+/* --- Slide Panel Wrapper --- */
 function SlidePanel({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: React.ReactNode }) {
   return (
     <div className={`fixed inset-0 z-50 transition-all duration-300 ${open ? "visible" : "invisible"}`}>
@@ -56,7 +57,7 @@ function SlidePanel({ open, onClose, title, children }: { open: boolean; onClose
   );
 }
 
-/* ─── Toggle ─── */
+/* --- Toggle --- */
 function Toggle({ on, onToggle, label, desc, disabled = false }: { on: boolean; onToggle: () => void; label: string; desc: string; disabled?: boolean }) {
   return (
     <button onClick={disabled ? undefined : onToggle} className={`w-full flex items-center justify-between py-4 border-b border-slate-50 ${disabled ? "opacity-50" : ""}`}>
@@ -71,7 +72,7 @@ function Toggle({ on, onToggle, label, desc, disabled = false }: { on: boolean; 
   );
 }
 
-/* ─── Input Field ─── */
+/* --- Input Field --- */
 function Field({ label, value, onChange, type = "text", icon: Icon, placeholder, error, disabled = false, rightElement }: {
   label: string; value: string; onChange: (v: string) => void; type?: string; icon?: React.ElementType;
   placeholder?: string; error?: string; disabled?: boolean; rightElement?: React.ReactNode;
@@ -96,7 +97,7 @@ function Field({ label, value, onChange, type = "text", icon: Icon, placeholder,
   );
 }
 
-/* ─── Save Button ─── */
+/* --- Save Button --- */
 function SaveButton({ onClick, label = "Enregistrer", loading = false, disabled = false }: { onClick: () => void; label?: string; loading?: boolean; disabled?: boolean }) {
   return (
     <button
@@ -109,12 +110,12 @@ function SaveButton({ onClick, label = "Enregistrer", loading = false, disabled 
   );
 }
 
-/* ─── Section Header ─── */
+/* --- Section Header --- */
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return <p className="text-[10px] text-slate-400 uppercase tracking-wider mb-3">{children}</p>;
 }
 
-/* ─── Info Row ─── */
+/* --- Info Row --- */
 function InfoRow({ icon: Icon, label, value, color = "text-slate-400" }: { icon: React.ElementType; label: string; value: string; color?: string }) {
   return (
     <div className="flex items-center gap-3 py-3 border-b border-slate-50">
@@ -125,7 +126,7 @@ function InfoRow({ icon: Icon, label, value, color = "text-slate-400" }: { icon:
   );
 }
 
-/* ─── PIN Strength ─── */
+/* --- PIN Strength --- */
 function PinStrength({ pin }: { pin: string }) {
   const len = pin.length;
   const isNumeric = /^\d+$/.test(pin);
@@ -150,7 +151,7 @@ function PinStrength({ pin }: { pin: string }) {
   );
 }
 
-/* ─── Menu config ─── */
+/* --- Menu config --- */
 const menuSections = [
   {
     title: "COMPTE",
@@ -178,12 +179,16 @@ const menuSections = [
   },
 ];
 
-/* ──────────────────── MAIN COMPONENT ──────────────────── */
+/* -------------------- MAIN COMPONENT -------------------- */
 export function ProfilePage() {
   const navigate = useNavigate();
+  const { state } = useAppStore();
+  const u0 = state.user;
+  const u0First = (u0?.fullName ?? "").split(" ")[0] ?? "";
+  const u0Last = (u0?.fullName ?? "").split(" ").slice(1).join(" ");
   const [activePanel, setActivePanel] = useState<PanelId>(null);
   const [saving, setSaving] = useState(false);
-  const [avatarSrc, setAvatarSrc] = useState(AVATARS["DA"] || "");
+  const [avatarSrc, setAvatarSrc] = useState(u0?.avatarUrl ?? "");
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const docInputRef = useRef<HTMLInputElement>(null);
   const [pendingDocType, setPendingDocType] = useState("");
@@ -282,14 +287,14 @@ export function ProfilePage() {
     return () => { stopCamera(); };
   }, [stopCamera]);
 
-  /* Personal info */
-  const [name, setName] = useState("Dosso Adjovi");
-  const [firstName, setFirstName] = useState("Dosso");
-  const [lastName, setLastName] = useState("Adjovi");
-  const [phone, setPhone] = useState("+229 97 00 00 00");
-  const [email, setEmail] = useState("dosso.adjovi@email.com");
-  const [gender, setGender] = useState<"homme" | "femme" | "autre">("homme");
-  const [birthDate, setBirthDate] = useState("1995-06-15");
+  /* Personal info — initialisées depuis le profil réel de l'utilisateur (vides sinon) */
+  const [name, setName] = useState(u0?.fullName ?? "");
+  const [firstName, setFirstName] = useState(u0First);
+  const [lastName, setLastName] = useState(u0Last);
+  const [phone, setPhone] = useState(u0?.phone ?? "");
+  const [email, setEmail] = useState(u0?.email ?? "");
+  const [gender, setGender] = useState<"homme" | "femme" | "autre">("autre");
+  const [birthDate, setBirthDate] = useState("");
   const [accountType, setAccountType] = useState<"particulier" | "professionnel">("particulier");
   const [personalErrors, setPersonalErrors] = useState<Record<string, string>>({});
 
@@ -315,24 +320,32 @@ export function ProfilePage() {
     return () => { cancelled = true; };
   }, []);
 
+  /* Compteurs réels dérivés de l'historique de l'utilisateur */
+  const [historyCount, setHistoryCount] = useState({ rides: 0, deliveries: 0 });
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await api.get<{ items: any[] }>("/rides?pageSize=100");
+        if (cancelled) return;
+        const items = res?.items ?? [];
+        const deliveries = items.filter((r) => r?.serviceType === "delivery").length;
+        setHistoryCount({ rides: items.length - deliveries, deliveries });
+      } catch { /* repli : reste à zéro */ }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   /* Addresses */
-  const [addresses, setAddresses] = useState<Address[]>([
-    { id: 1, label: "Domicile", value: "Quartier Zongo, Rue 142, Cotonou", isDefault: true },
-    { id: 2, label: "Bureau", value: "Boulevard St-Michel, Immeuble BCEAO, Cotonou" },
-    { id: 3, label: "Marche Dantokpa", value: "Marche Dantokpa, Stand A24, Cotonou" },
-  ]);
+  const [addresses, setAddresses] = useState<Address[]>([]);
   const [newAddrLabel, setNewAddrLabel] = useState("");
   const [newAddrValue, setNewAddrValue] = useState("");
   const [editingAddr, setEditingAddr] = useState<number | null>(null);
   const [editAddrLabel, setEditAddrLabel] = useState("");
   const [editAddrValue, setEditAddrValue] = useState("");
 
-  /* Documents */
-  const [docs, setDocs] = useState<DocItem[]>([
-    { id: 1, name: "Carte Nationale d'Identite (Recto)", type: "CNI", status: "verified", date: "12 Mars 2026" },
-    { id: 2, name: "Carte Nationale d'Identite (Verso)", type: "CNI", status: "verified", date: "12 Mars 2026" },
-    { id: 3, name: "Justificatif de domicile", type: "Justificatif", status: "pending", date: "08 Avril 2026" },
-  ]);
+  /* Documents — chaque utilisateur démarre vide et téléverse les siens */
+  const [docs, setDocs] = useState<DocItem[]>([]);
   const [showDocUpload, setShowDocUpload] = useState(false);
   const [newDocType, setNewDocType] = useState("");
   const docTypes = ["CNI (Recto)", "CNI (Verso)", "Passeport", "Permis de conduire", "Justificatif de domicile", "Attestation professionnelle"];
@@ -358,7 +371,7 @@ export function ProfilePage() {
   const [allowDataCollection, setAllowDataCollection] = useState(true);
   const [twoFactor, setTwoFactor] = useState(false);
 
-  /* Appearance — taille du texte (persistée) */
+  /* Appearance - taille du texte (persistée) */
   const [fontSize, setFontSize] = useState<"small" | "medium" | "large">(
     () => (localStorage.getItem("ippoo_font_size") as "small" | "medium" | "large") || "medium",
   );
@@ -384,7 +397,7 @@ export function ProfilePage() {
     else if (item.panel) setActivePanel(item.panel);
   };
 
-  /* ─── Validators ─── */
+  /* --- Validators --- */
   const validateEmail = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
   const validatePhone = (p: string) => /^\+?\d[\d\s]{7,}$/.test(p.replace(/\s/g, ""));
 
@@ -486,8 +499,56 @@ export function ProfilePage() {
     setTimeout(() => navigate("/login"), 1500);
   };
 
+  const maskedPhone = maskNumber ? phone.replace(/(\d{2})\s(\d{2})\s(\d{2})\s(\d{2})$/, "** ** ** **") : phone;
+
+  /* Valeurs réelles dérivées (aucune donnée en dur) */
+  const initials = (name.trim().split(/\s+/).filter(Boolean).map((p) => p[0]).slice(0, 2).join("") || "?").toUpperCase();
+  const kycVerified = u0?.kycStatus === "verified";
+  const userId = u0?.id ? `IPPOO-USR-${String(u0.id).toUpperCase()}` : "—";
+  const cashLabel = state.wallet
+    ? `${new Intl.NumberFormat("fr-FR", { notation: "compact", maximumFractionDigits: 1 }).format(state.wallet.balanceXOF)}`
+    : "0";
+  const hero = (
+    <div className="flex items-center gap-4">
+      <div className="relative">
+        <div className="w-[68px] h-[68px] rounded-3xl overflow-hidden border-2 border-white/25 bg-white/15 shadow-sm">
+          {avatarSrc ? (
+            <ImageWithFallback src={avatarSrc} alt="Profil" className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center" style={{ background: "var(--m3-accent)" }}>
+              <span className="text-white text-xl font-bold">{initials}</span>
+            </div>
+          )}
+        </div>
+        <button onClick={() => setShowPhotoMenu(true)} aria-label="Changer la photo"
+          className="absolute -bottom-1 -right-1 grid h-8 w-8 place-items-center rounded-2xl bg-white shadow-sm active:scale-90 transition">
+          <Camera className="w-4 h-4" style={{ color: "var(--m3-primary)" }} />
+        </button>
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-[var(--m3-on-primary)] text-[17px] font-bold truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{name}</p>
+        <p className="text-[var(--m3-on-primary)]/70 text-[12px]">{maskedPhone}</p>
+        <div className="flex items-center gap-2 mt-2">
+          <span className="text-[10px] bg-white/15 text-[var(--m3-on-primary)] px-2.5 py-1 rounded-full border border-white/20 capitalize">{accountType}</span>
+          <span className="flex items-center gap-1 bg-white/15 px-2 py-1 rounded-full border border-white/20">
+            {kycVerified ? (
+              <ShieldCheck className="w-3 h-3 text-emerald-300" strokeWidth={2.4} />
+            ) : (
+              <ShieldAlert className="w-3 h-3 text-amber-300" strokeWidth={2.4} />
+            )}
+            <span className="text-[10px] text-[var(--m3-on-primary)]">{kycVerified ? "Vérifié" : "À vérifier"}</span>
+          </span>
+        </div>
+      </div>
+      <button onClick={() => setActivePanel("personal")} aria-label="Modifier le profil"
+        className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-white/25 bg-white/15 text-[var(--m3-on-primary)] backdrop-blur-md active:scale-90 transition">
+        <Edit3 className="w-4 h-4" strokeWidth={2.2} />
+      </button>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-white pb-8">
+    <M3Page title="Mon profil" subtitle="Gérez votre compte IPPOO" icon={User} back={false} hero={hero}>
       {/* Input caché pour avatar (unique, top-level) */}
       <input
         ref={avatarInputRef}
@@ -534,84 +595,35 @@ export function ProfilePage() {
           toast.success("Document televerse !", { description: `${pendingDocType}, Verification sous 24-48h` });
         }}
       />
-      {/* ═══ HEADER ═══ */}
-      <div className="relative bg-[#1E6091] px-5 pt-14 pb-24 overflow-hidden">
-        <div className="absolute top-0 right-0 w-40 h-40 bg-cyan-400/15 rounded-full -mr-20 -mt-10 blur-3xl" />
-        <div className="relative z-10 flex items-center gap-4">
-          <div className="relative">
-            <div className="w-[72px] h-[72px] bg-white/15 rounded-2xl flex items-center justify-center border-2 border-white/20 overflow-hidden shadow-sm">
-              {avatarSrc ? (
-                <ImageWithFallback src={avatarSrc} alt="Profil" className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full bg-[#F77F00] flex items-center justify-center">
-                  <span className="text-white text-xl">DA</span>
-                </div>
-              )}
-            </div>
-            <button
-              onClick={() => setShowPhotoMenu(true)}
-              className="absolute -bottom-1 -right-1 w-8 h-8 bg-white rounded-xl flex items-center justify-center shadow-sm active:scale-90 transition"
-            >
-              <Camera className="w-4 h-4 text-blue-600" />
-            </button>
-          </div>
-          <div className="flex-1">
-            <p className="text-white text-lg">{name}</p>
-            <p className="text-blue-200 text-xs">{maskNumber ? phone.replace(/(\d{2})\s(\d{2})\s(\d{2})\s(\d{2})$/, "** ** ** **") : phone}</p>
-            <div className="flex items-center gap-2 mt-2">
-              <span className="text-[10px] bg-white/15 text-white px-2.5 py-1 rounded-full border border-white/15 capitalize">{accountType}</span>
-              <div className="flex items-center gap-1 bg-white/15 px-2 py-1 rounded-full border border-white/15">
-                <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
-                <span className="text-[10px] text-white">4.8</span>
-              </div>
-            </div>
-          </div>
-          <button onClick={() => setActivePanel("personal")} className="w-10 h-10 bg-white/15 rounded-2xl flex items-center justify-center border border-white/10">
-            <Edit3 className="w-4 h-4 text-white" />
+      {/* --- STATS --- */}
+      <div className="grid grid-cols-3 gap-3 mb-5">
+        {[
+          { value: String(historyCount.rides), label: "Courses", icon: Clock, to: "/app/history" },
+          { value: String(historyCount.deliveries), label: "Livraisons", icon: MapPinned, to: "/app/history" },
+          { value: cashLabel, label: "IPPOO Cash", icon: Award, to: "/app/wallet" },
+        ].map((s) => (
+          <button key={s.label} onClick={() => navigate(s.to)}
+            className="min-w-0 rounded-2xl bg-white p-3.5 text-center shadow-[0_2px_10px_rgba(15,23,42,0.05)] border border-black/[0.05] active:scale-[0.97] transition">
+            <span className="mx-auto mb-2 grid h-9 w-9 place-items-center rounded-full" style={{ background: "var(--m3-container)", color: "var(--m3-primary)" }}>
+              <s.icon className="w-4 h-4" strokeWidth={2.2} />
+            </span>
+            <p className="truncate text-[18px] font-bold text-slate-800 tabular-nums" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{s.value}</p>
+            <p className="truncate text-[10px] text-slate-400 uppercase tracking-wide">{s.label}</p>
           </button>
-        </div>
+        ))}
       </div>
 
-      {/* ═══ STATS ═══ */}
-      <div className="px-5 -mt-16 relative z-10">
-        <div className="bg-white rounded-2xl shadow-sm shadow-slate-200/60 p-5 border border-white/80">
-          <div className="grid grid-cols-3 gap-4">
-            <button onClick={() => navigate("/app/history")} className="text-center group">
-              <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-2 group-active:scale-90 transition">
-                <Award className="w-4 h-4 text-blue-600" />
-              </div>
-              <p className="text-blue-600 text-xl" style={{ fontFamily: "Space Grotesk, sans-serif" }}>24</p>
-              <p className="text-[10px] text-slate-400 uppercase tracking-wide">Courses</p>
-            </button>
-            <button onClick={() => navigate("/app/history")} className="text-center border-x border-slate-100 group">
-              <div className="w-10 h-10 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-2 group-active:scale-90 transition">
-                <Award className="w-4 h-4 text-orange-500" />
-              </div>
-              <p className="text-orange-500 text-xl" style={{ fontFamily: "Space Grotesk, sans-serif" }}>12</p>
-              <p className="text-[10px] text-slate-400 uppercase tracking-wide">Livraisons</p>
-            </button>
-            <button onClick={() => navigate("/app/wallet")} className="text-center group">
-              <div className="w-10 h-10 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-2 group-active:scale-90 transition">
-                <Award className="w-4 h-4 text-emerald-500" />
-              </div>
-              <p className="text-emerald-500 text-xl" style={{ fontFamily: "Space Grotesk, sans-serif" }}>12.3k</p>
-              <p className="text-[10px] text-slate-400 uppercase tracking-wide">IPPOO Cash</p>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* ═══ RÉGLAGES AVANCÉS (audit améliorations) ═══ */}
-      <div className="px-5 mt-5">
+      {/* --- RÉGLAGES AVANCÉS (audit améliorations) --- */}
+      <div className="mb-5">
         <SettingsCard />
       </div>
 
-      {/* ═══ MENU ═══ */}
-      <div className="px-5 mt-5 space-y-5">
+      {/* --- MENU --- */}
+      <div className="space-y-5">
         {menuSections.map((section) => (
           <div key={section.title}>
-            <p className="text-[10px] text-slate-400 tracking-widest mb-2.5 px-1">{section.title}</p>
-            <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+            <SectionHeader title={section.title} />
+            <div className="bg-white rounded-3xl border border-black/[0.06] overflow-hidden shadow-[0_2px_12px_rgba(15,23,42,0.05)]">
               {section.items.map((item, i) => (
                 <button
                   key={item.label}
@@ -620,12 +632,12 @@ export function ProfilePage() {
                     i < section.items.length - 1 ? "border-b border-slate-50" : ""
                   }`}
                 >
-                  <div className={`w-9 h-9 bg-gradient-to-br ${item.gradient} rounded-xl flex items-center justify-center shadow-sm`}>
-                    <item.icon className="w-4 h-4 text-white" />
-                  </div>
-                  <div className="flex-1 text-left">
-                    <p className="text-sm text-slate-800">{item.label}</p>
-                    <p className="text-[10px] text-slate-400">{item.desc}</p>
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-2xl" style={{ background: "var(--m3-container)", color: "var(--m3-primary)" }}>
+                    <item.icon className="w-4 h-4" strokeWidth={2.2} />
+                  </span>
+                  <div className="flex-1 text-left min-w-0">
+                    <p className="text-[14px] font-medium text-slate-800">{item.label}</p>
+                    <p className="text-[11px] text-slate-400">{item.desc}</p>
                   </div>
                   <ChevronRight className="w-4 h-4 text-slate-300" />
                 </button>
@@ -636,27 +648,27 @@ export function ProfilePage() {
 
         {/* Support & Help */}
         <div>
-          <p className="text-[10px] text-slate-400 tracking-widest mb-2.5 px-1">AIDE</p>
-          <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+          <SectionHeader title="AIDE" />
+          <div className="bg-white rounded-3xl border border-black/[0.06] overflow-hidden shadow-[0_2px_12px_rgba(15,23,42,0.05)]">
             <button onClick={() => navigate("/app/support")} className="w-full flex items-center gap-3.5 px-4 py-3.5 hover:bg-slate-50 transition active:bg-slate-100 border-b border-slate-50">
-              <div className="w-9 h-9 bg-pink-400 rounded-xl flex items-center justify-center shadow-sm">
-                <HelpCircle className="w-4 h-4 text-white" />
-              </div>
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-2xl" style={{ background: "var(--m3-container)", color: "var(--m3-primary)" }}>
+                <HelpCircle className="w-4 h-4" strokeWidth={2.2} />
+              </span>
               <div className="flex-1 text-left">
-                <p className="text-sm text-slate-800">Centre d'aide</p>
-                <p className="text-[10px] text-slate-400">FAQ et support client</p>
+                <p className="text-[14px] font-medium text-slate-800">Centre d'aide</p>
+                <p className="text-[11px] text-slate-400">FAQ et support client</p>
               </div>
               <ChevronRight className="w-4 h-4 text-slate-300" />
             </button>
-            <button onClick={() => { navigator.clipboard?.writeText("IPPOO-2024-USR-DA"); toast.success("ID copie : IPPOO-2024-USR-DA"); }} className="w-full flex items-center gap-3.5 px-4 py-3.5 hover:bg-slate-50 transition active:bg-slate-100">
-              <div className="w-9 h-9 bg-slate-400 rounded-xl flex items-center justify-center shadow-sm">
-                <Copy className="w-4 h-4 text-white" />
+            <button disabled={userId === "—"} onClick={() => { navigator.clipboard?.writeText(userId); toast.success(`ID copié : ${userId}`); }} className="w-full flex items-center gap-3.5 px-4 py-3.5 hover:bg-slate-50 transition active:bg-slate-100 disabled:opacity-50">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-2xl" style={{ background: "var(--m3-container)", color: "var(--m3-primary)" }}>
+                <Copy className="w-4 h-4" strokeWidth={2.2} />
+              </span>
+              <div className="flex-1 text-left min-w-0">
+                <p className="text-[14px] font-medium text-slate-800">Mon ID utilisateur</p>
+                <p className="truncate text-[11px] text-slate-400">{userId}</p>
               </div>
-              <div className="flex-1 text-left">
-                <p className="text-sm text-slate-800">Mon ID utilisateur</p>
-                <p className="text-[10px] text-slate-400">IPPOO-2024-USR-DA</p>
-              </div>
-              <Copy className="w-4 h-4 text-slate-300" />
+              <Copy className="w-4 h-4 shrink-0 text-slate-300" />
             </button>
           </div>
         </div>
@@ -669,15 +681,15 @@ export function ProfilePage() {
 
         <button
           onClick={() => setActivePanel("logout")}
-          className="w-full flex items-center justify-center gap-2 text-red-500 py-3.5 rounded-2xl border-2 border-red-100 bg-red-50 hover:bg-red-100 transition active:scale-[0.98]"
+          className="w-full flex items-center justify-center gap-2 text-red-500 py-3.5 rounded-full border-2 border-red-100 bg-red-50 hover:bg-red-100 transition active:scale-[0.98]"
         >
           <LogOut className="w-4 h-4" /> Deconnexion
         </button>
       </div>
 
-      {/* ═══════════════ PANELS ═══════════════ */}
+      {/* --------------- PANELS --------------- */}
 
-      {/* ─── INFORMATIONS PERSONNELLES ─── */}
+      {/* --- INFORMATIONS PERSONNELLES --- */}
       <SlidePanel open={activePanel === "personal"} onClose={closePanel} title="Informations personnelles">
         <div className="relative w-24 h-24 rounded-2xl overflow-hidden mx-auto mb-6 shadow-sm">
           {avatarSrc ? (
@@ -730,7 +742,7 @@ export function ProfilePage() {
         <SaveButton onClick={handleSavePersonal} loading={saving} label="Enregistrer les modifications" />
       </SlidePanel>
 
-      {/* ─── ADRESSES FAVORITES ─── */}
+      {/* --- ADRESSES FAVORITES --- */}
       <SlidePanel open={activePanel === "addresses"} onClose={closePanel} title="Adresses favorites">
         <div className="space-y-3 mb-6">
           {addresses.map((addr) => (
@@ -804,7 +816,7 @@ export function ProfilePage() {
         </button>
       </SlidePanel>
 
-      {/* ─── DOCUMENTS ─── */}
+      {/* --- DOCUMENTS --- */}
       <SlidePanel open={activePanel === "documents"} onClose={closePanel} title="Mes documents">
         <div className="bg-blue-50 rounded-2xl p-4 mb-5 flex items-start gap-3">
           <Info className="w-5 h-5 text-[#1E6091] shrink-0 mt-0.5" />
@@ -865,7 +877,7 @@ export function ProfilePage() {
         )}
       </SlidePanel>
 
-      {/* ─── CODE PIN ─── */}
+      {/* --- CODE PIN --- */}
       <SlidePanel open={activePanel === "pin"} onClose={closePanel} title="Changer le code PIN">
         <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <Key className="w-7 h-7 text-emerald-600" />
@@ -890,7 +902,7 @@ export function ProfilePage() {
         <p className="text-[10px] text-slate-400 text-center mt-4">PIN oublie ? <button onClick={() => { toast("Code de verification envoye par SMS", { description: phone }); }} className="text-[#1E6091] underline">Reinitialiser par SMS</button></p>
       </SlidePanel>
 
-      {/* ─── BIOMETRIQUE ─── */}
+      {/* --- BIOMETRIQUE --- */}
       <SlidePanel open={activePanel === "biometric"} onClose={closePanel} title="Connexion biometrique">
         <div className={`w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-6 transition ${biometric ? "bg-violet-100" : "bg-violet-50"}`}>
           {biometricEnrolling ? (
@@ -942,7 +954,7 @@ export function ProfilePage() {
         )}
       </SlidePanel>
 
-      {/* ─── CONFIDENTIALITE ─── */}
+      {/* --- CONFIDENTIALITE --- */}
       <SlidePanel open={activePanel === "privacy"} onClose={closePanel} title="Confidentialite & securite">
         <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
           <Shield className="w-7 h-7 text-slate-600" />
@@ -985,7 +997,7 @@ export function ProfilePage() {
         </div>
       </SlidePanel>
 
-      {/* ─── APPARENCE (taille du texte) ─── */}
+      {/* --- APPARENCE (taille du texte) --- */}
       <SlidePanel open={activePanel === "darkmode"} onClose={closePanel} title="Apparence">
         <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
           <Type className="w-7 h-7 text-[#1E6091]" />
@@ -1015,24 +1027,33 @@ export function ProfilePage() {
         </div>
       </SlidePanel>
 
-      {/* ─── PARAMETRES ─── */}
+      {/* --- PARAMETRES --- */}
       <SlidePanel open={activePanel === "settings"} onClose={closePanel} title="Parametres">
         <SectionLabel>Langue de l'application</SectionLabel>
         <div className="grid grid-cols-3 gap-2 mb-6">
           {[
-            { code: "Francais", flag: "🇫🇷" },
-            { code: "English", flag: "🇬🇧" },
-            { code: "Fon", flag: "🇧🇯" },
-          ].map((lang) => (
-            <button
-              key={lang.code}
-              onClick={() => { setLanguage(lang.code); toast.success(`Langue: ${lang.code}`); }}
-              className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 transition text-sm ${language === lang.code ? "border-[#F77F00] bg-orange-50 text-[#F77F00]" : "border-slate-200 text-slate-600"}`}
-            >
-              <span className="text-lg">{lang.flag}</span>
-              <span className="text-xs">{lang.code}</span>
-            </button>
-          ))}
+            { code: "Francais", short: "FR" },
+            { code: "English", short: "EN" },
+            { code: "Fon", short: "FON" },
+          ].map((lang) => {
+            const active = language === lang.code;
+            return (
+              <button
+                key={lang.code}
+                onClick={() => { setLanguage(lang.code); toast.success(`Langue: ${lang.code}`); }}
+                className="flex flex-col items-center gap-1.5 py-3 rounded-2xl border-2 transition text-sm"
+                style={active
+                  ? { borderColor: "var(--m3-primary)", background: "var(--m3-container)", color: "var(--m3-primary)" }
+                  : { borderColor: "#e2e8f0", color: "#475569" }}
+              >
+                <span className="grid h-8 w-8 place-items-center rounded-full text-[12px] font-bold"
+                  style={active ? { background: "var(--m3-primary)", color: "var(--m3-on-primary)" } : { background: "#f1f5f9", color: "#64748b" }}>
+                  {lang.short}
+                </span>
+                <span className="text-xs">{lang.code}</span>
+              </button>
+            );
+          })}
         </div>
 
         <SectionLabel>Notifications push</SectionLabel>
@@ -1108,7 +1129,7 @@ export function ProfilePage() {
         )}
       </SlidePanel>
 
-      {/* ─── DECONNEXION ─── */}
+      {/* --- DECONNEXION --- */}
       <SlidePanel open={activePanel === "logout"} onClose={closePanel} title="Deconnexion">
         <div className="flex flex-col items-center py-8">
           <div className="w-20 h-20 bg-red-50 rounded-2xl flex items-center justify-center mb-6">
@@ -1132,7 +1153,7 @@ export function ProfilePage() {
         </div>
       </SlidePanel>
 
-      {/* ═══ PHOTO SOURCE PICKER ═══ */}
+      {/* --- PHOTO SOURCE PICKER --- */}
       {showPhotoMenu && (
         <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center">
           <div className="absolute inset-0 bg-black/40" onClick={() => setShowPhotoMenu(false)} />
@@ -1185,12 +1206,12 @@ export function ProfilePage() {
                 </div>
               </button>
 
-              {avatarSrc && avatarSrc !== (AVATARS["DA"] || "") && (
+              {avatarSrc && (
                 <button
                   onClick={() => {
-                    setAvatarSrc(AVATARS["DA"] || "");
+                    setAvatarSrc("");
                     setShowPhotoMenu(false);
-                    toast.success("Photo par défaut restaurée");
+                    toast.success("Photo supprimée");
                   }}
                   className="w-full flex items-center gap-4 bg-slate-50 rounded-2xl px-5 py-4 border border-slate-100 active:bg-slate-100 transition"
                 >
@@ -1198,8 +1219,8 @@ export function ProfilePage() {
                     <RotateCcw className="w-5 h-5 text-white" />
                   </div>
                   <div className="flex-1 text-left">
-                    <p className="text-sm text-slate-800">Restaurer la photo par défaut</p>
-                    <p className="text-[10px] text-slate-400">Revenir à la photo originale</p>
+                    <p className="text-sm text-slate-800">Supprimer la photo</p>
+                    <p className="text-[10px] text-slate-400">Afficher vos initiales à la place</p>
                   </div>
                 </button>
               )}
@@ -1212,7 +1233,7 @@ export function ProfilePage() {
         </div>
       )}
 
-      {/* ═══ CAMERA CAPTURE MODAL ═══ */}
+      {/* --- CAMERA CAPTURE MODAL --- */}
       {showCamera && (
         <div className="fixed inset-0 z-[70] bg-black flex flex-col">
           {/* Camera top bar */}
@@ -1315,6 +1336,6 @@ export function ProfilePage() {
           </div>
         </div>
       )}
-    </div>
+    </M3Page>
   );
 }

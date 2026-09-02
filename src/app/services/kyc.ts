@@ -1,9 +1,9 @@
 /**
- * KYC chauffeur IPPOO — vérification documents.
+ * KYC chauffeur IPPOO - vérification documents.
  *
  * Stratégie hybride :
  *  1. Côté client : extraction de champs basiques par regex sur le texte OCR
- *     (à brancher sur tesseract.js ou Google ML Kit — stub fourni).
+ *     (à brancher sur tesseract.js ou Google ML Kit - stub fourni).
  *  2. Côté serveur : vérification approfondie (Onfido / Smile ID Africa)
  *     déclenchée via /kyc/submit.
  */
@@ -24,7 +24,7 @@ export type OCRResult = {
   confidence: number;
 };
 
-/** OCR client — stub. Branchez tesseract.js : `import Tesseract from "tesseract.js"`. */
+/** OCR client - stub. Branchez tesseract.js : `import Tesseract from "tesseract.js"`. */
 export async function runOcr(_file: File): Promise<OCRResult> {
   logger.info("kyc.ocr.stub", { hint: "Brancher tesseract.js dans services/kyc.ts" });
   await new Promise((r) => setTimeout(r, 600));

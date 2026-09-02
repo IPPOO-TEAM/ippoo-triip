@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Maskable safe zone: main content fits within inner 72% -->
+  <rect width="512" height="512" rx="0" fill="#F77F00"/>
+  <!-- Inner rounded card for visual icon -->
+  <rect x="76" y="76" width="360" height="360" rx="72" fill="#1E6091"/>
+  <!-- TRIIP wordmark stylized - "I" letter mark -->
+  <rect x="160" y="140" width="192" height="40" rx="20" fill="white"/>
+  <rect x="236" y="140" width="40" height="232" rx="20" fill="white"/>
+  <rect x="160" y="332" width="192" height="40" rx="20" fill="white"/>
+  <!-- Accent dot -->
+  <circle cx="362" cy="156" r="22" fill="#F77F00"/>
+</svg>

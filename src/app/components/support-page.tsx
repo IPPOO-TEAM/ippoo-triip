@@ -4,13 +4,14 @@ import {
   ChevronLeft, ChevronRight, MessageSquare, Phone,
   AlertTriangle, FileText, Send, HelpCircle, X,
   Plus, Clock, Check, CheckCheck, Star, ChevronDown, Search,
-  Paperclip, ThumbsUp, ThumbsDown, Copy, Image, Mic, MicOff,
+  ThumbsUp, ThumbsDown, Copy, Image, Mic,
   Smile, Camera, MapPin, Volume2, Trash2, RotateCcw, Shield,
-  User, Headphones, Bot, Zap, ArrowDown
+  Headphones, Bot, ArrowDown
 } from "lucide-react";
 import { toast } from "sonner";
+import { M3Page, M3Card, M3Button, SectionHeader, EmptyState } from "./m3";
 
-/* ─── Types ─── */
+/* --- Types --- */
 interface ChatMessage {
   id: number;
   from: "user" | "bot" | "agent" | "system";
@@ -34,7 +35,7 @@ interface Ticket {
   messages: { from: string; text: string; date: string }[];
 }
 
-/* ─── Data ─── */
+/* --- Data --- */
 const faqItems = [
   { q: "Comment commander une course ?", a: "Depuis l'accueil, appuyez sur 'Course', choisissez votre départ et arrivée, sélectionnez un véhicule et confirmez. Un chauffeur sera assigné automatiquement.", category: "course" },
   { q: "Comment recharger mon IPPOO Cash ?", a: "Allez dans IPPOO Cash > Recharger, choisissez votre opérateur (MTN, Moov, Celtiis), entrez le montant et confirmez. Le solde est crédité instantanément.", category: "paiement" },
@@ -65,7 +66,7 @@ const initialTickets: Ticket[] = [
 
 const ticketCategories = ["Course", "Livraison", "Paiement", "Chauffeur", "Application", "Autre"];
 
-/* ─── Enhanced Bot Intelligence ─── */
+/* --- Enhanced Bot Intelligence --- */
 const botKnowledge: { keywords: string[]; response: string; followUp?: string[] }[] = [
   { keywords: ["bonjour", "salut", "hello", "bonsoir", "hey", "coucou"], response: "Bonjour ! Je suis l'assistant virtuel IPPOO. Comment puis-je vous aider aujourd'hui ?", followUp: ["Commander une course", "Problème de paiement", "Suivre ma livraison"] },
   { keywords: ["merci", "super", "parfait", "genial", "excellent"], response: "Je vous en prie ! Y a-t-il autre chose que je puisse faire pour vous ?", followUp: ["Non, c'est tout", "Oui, j'ai une question"] },
@@ -88,7 +89,7 @@ const botKnowledge: { keywords: string[]; response: string; followUp?: string[] 
 
 const EMOJIS: string[] = [];
 
-/* ─── Component ─── */
+/* --- Component --- */
 export function SupportPage() {
   const navigate = useNavigate();
   const [view, setView] = useState<"main" | "chat" | "tickets" | "newTicket" | "ticketDetail" | "faq">("main");
@@ -166,7 +167,7 @@ export function SupportPage() {
       }
     }
     return {
-      response: "Je ne suis pas sûr de comprendre votre demande. 🤔 Pourriez-vous reformuler ou choisir un sujet ci-dessous ? Si besoin, je peux vous mettre en relation avec un agent humain.",
+      response: "Je ne suis pas sûr de comprendre votre demande. Pourriez-vous reformuler ou choisir un sujet ci-dessous ? Si besoin, je peux vous mettre en relation avec un agent humain.",
       followUp: ["Parler à un agent", "Questions fréquentes", "Commander une course"],
       isAgentRequest: false,
     };
@@ -226,7 +227,7 @@ export function SupportPage() {
       setAgentConnected(true);
       setMessages(prev => [...prev, {
         id: Date.now(), from: "agent",
-        text: "Bonjour, je suis Ablawa du support IPPOO ! 😊 J'ai lu votre conversation avec l'assistant. Comment puis-je vous aider ?",
+        text: "Bonjour, je suis Ablawa du support IPPOO. J'ai lu votre conversation avec l'assistant. Comment puis-je vous aider ?",
         time: formatTime(),
       }]);
       setIsTyping(false);
@@ -240,7 +241,7 @@ export function SupportPage() {
     setIsRecording(true);
     setRecordTime(0);
     recordRef.current = setInterval(() => setRecordTime(t => t + 1), 1000);
-    toast("🎙 Enregistrement en cours...", { description: "Maintenez et relâchez pour envoyer" });
+    toast("Enregistrement en cours…", { description: "Maintenez et relâchez pour envoyer" });
   };
 
   const stopRecording = () => {
@@ -249,7 +250,7 @@ export function SupportPage() {
     if (recordTime < 1) { toast.error("Message trop court"); return; }
     const msgId = Date.now();
     const userMsg: ChatMessage = {
-      id: msgId, from: "user", text: "🎤 Message vocal", time: formatTime(), status: "sending",
+      id: msgId, from: "user", text: "Message vocal", time: formatTime(), status: "sending",
       attachment: { type: "voice", duration: recordTime },
     };
     setMessages(prev => [...prev, userMsg]);
@@ -306,7 +307,7 @@ export function SupportPage() {
 
   const markHelpful = (id: number, helpful: boolean) => {
     setMessages(prev => prev.map(m => m.id === id ? { ...m, helpful } : m));
-    toast.success(helpful ? "Merci pour votre retour ! 👍" : "Nous allons améliorer notre réponse");
+    toast.success(helpful ? "Merci pour votre retour !" : "Nous allons améliorer notre réponse");
   };
 
   // Delete message
@@ -357,117 +358,109 @@ export function SupportPage() {
 
   // Clear chat
   const clearChat = () => {
-    setMessages([{ id: Date.now(), from: "bot", text: "Conversation réinitialisée. Comment puis-je vous aider ? 😊", time: formatTime(), helpful: null }]);
+    setMessages([{ id: Date.now(), from: "bot", text: "Conversation réinitialisée. Comment puis-je vous aider ?", time: formatTime(), helpful: null }]);
     setAgentConnected(false);
     setChatRated(false);
     setDynamicSuggestions(["Commander une course", "Problème de paiement", "Suivre ma livraison", "Promotions en cours"]);
     toast("Conversation réinitialisée");
   };
 
-  /* ─── Status icon ─── */
+  /* --- Status icon --- */
   const StatusIcon = ({ status }: { status?: string }) => {
     if (!status) return null;
     if (status === "sending") return <Clock className="w-3 h-3 text-white/40" />;
     if (status === "sent") return <Check className="w-3 h-3 text-white/50" />;
     if (status === "delivered") return <CheckCheck className="w-3 h-3 text-white/50" />;
-    if (status === "read") return <CheckCheck className="w-3 h-3 text-[#2A9D8F]" />;
+    if (status === "read") return <CheckCheck className="w-3 h-3" style={{ color: "var(--m3-accent)" }} />;
     return null;
   };
 
-  /* ─── Render ─── */
-  return (
-    <div className="min-h-screen bg-white flex flex-col">
-      {/* Header */}
-      <div className="relative bg-amber-500 px-5 pt-14 pb-6 overflow-hidden rounded-b-[2rem] shrink-0">
-        <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
-        <div className="absolute -left-8 -bottom-8 w-32 h-32 bg-white/5 rounded-full blur-xl" />
-        <div className="relative z-10 flex items-center gap-3">
-          <button onClick={() => view === "main" ? navigate(-1) : setView("main")} className="w-10 h-10 bg-white/15 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/15 active:scale-90 transition">
-            <ChevronLeft className="w-5 h-5 text-white" />
-          </button>
-          <div className="flex-1">
-            <h2 className="text-white">
-              {view === "main" && "Support & Aide"}
-              {view === "chat" && (agentConnected ? "Ablawa · Support" : "Assistant IPPOO")}
-              {view === "tickets" && "Mes tickets"}
-              {view === "newTicket" && "Nouveau ticket"}
-              {view === "ticketDetail" && `Ticket #${selectedTicket?.id}`}
-              {view === "faq" && "Questions fréquentes"}
-            </h2>
-            <div className="flex items-center gap-1.5">
-              {view === "chat" && (
-                <span className={`w-2 h-2 rounded-full ${agentConnected ? "bg-emerald-400" : onlineStatus === "online" ? "bg-emerald-400" : "bg-amber-400"} shadow-sm`} />
-              )}
-              <p className="text-amber-100 text-xs">
-                {view === "main" && "Nous sommes là pour vous aider"}
-                {view === "chat" && (agentConnected ? "En ligne · Répond en ~2 min" : "En ligne · Réponse instantanée")}
-                {view === "tickets" && `${tickets.length} ticket${tickets.length > 1 ? "s" : ""}`}
-                {view === "newTicket" && "Décrivez votre problème"}
-                {view === "ticketDetail" && selectedTicket?.statusLabel}
-                {view === "faq" && `${faqItems.length} articles`}
-              </p>
-            </div>
-          </div>
-          {view === "chat" && (
-            <div className="flex gap-2">
-              <button onClick={clearChat} className="w-9 h-9 bg-white/15 rounded-xl flex items-center justify-center border border-white/15 active:scale-90 transition">
-                <RotateCcw className="w-4 h-4 text-white" />
-              </button>
-              {!agentConnected && (
-                <button onClick={requestAgent} className="w-9 h-9 bg-white/15 rounded-xl flex items-center justify-center border border-white/15 active:scale-90 transition">
-                  <Headphones className="w-4 h-4 text-white" />
-                </button>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
+  /* --- Render --- */
+  const headerTitle =
+    view === "main" ? "Support & Aide"
+    : view === "chat" ? (agentConnected ? "Ablawa · Support" : "Assistant IPPOO")
+    : view === "tickets" ? "Mes tickets"
+    : view === "newTicket" ? "Nouveau ticket"
+    : view === "ticketDetail" ? `Ticket #${selectedTicket?.id}`
+    : "Questions fréquentes";
+  const headerSubtitle =
+    view === "main" ? "Nous sommes là pour vous aider"
+    : view === "chat" ? (agentConnected ? "En ligne · Répond en ~2 min" : "En ligne · Réponse instantanée")
+    : view === "tickets" ? `${tickets.length} ticket${tickets.length > 1 ? "s" : ""}`
+    : view === "newTicket" ? "Décrivez votre problème"
+    : view === "ticketDetail" ? selectedTicket?.statusLabel
+    : `${faqItems.length} articles`;
+  const goBack = () => (view === "main" ? navigate(-1) : setView("main"));
 
-      {/* ═══ MAIN VIEW ═══ */}
+  const headerIcon =
+    view === "chat" ? Headphones
+    : view === "tickets" || view === "ticketDetail" ? FileText
+    : view === "faq" ? HelpCircle
+    : MessageSquare;
+
+  const trailing = view === "chat" ? (
+    <div className="flex gap-2">
+      <button onClick={clearChat} aria-label="Réinitialiser"
+        className="grid h-9 w-9 place-items-center rounded-full border border-white/25 bg-white/15 text-[var(--m3-on-primary)] backdrop-blur-md active:scale-90 transition">
+        <RotateCcw className="w-4 h-4" strokeWidth={2.2} />
+      </button>
+      {!agentConnected && (
+        <button onClick={requestAgent} aria-label="Parler à un agent"
+          className="grid h-9 w-9 place-items-center rounded-full border border-white/25 bg-white/15 text-[var(--m3-on-primary)] backdrop-blur-md active:scale-90 transition">
+          <Headphones className="w-4 h-4" strokeWidth={2.2} />
+        </button>
+      )}
+    </div>
+  ) : undefined;
+
+  return (
+    <M3Page title={headerTitle} subtitle={headerSubtitle} icon={headerIcon} back={false} trailing={trailing} dense>
+      {/* Back control (retour) */}
+      <button onClick={goBack}
+        className="mb-4 inline-flex items-center gap-1 rounded-full px-3 py-2 text-[13px] font-semibold active:scale-95 transition"
+        style={{ background: "var(--m3-container)", color: "var(--m3-on-container)" }}>
+        <ChevronLeft className="w-4 h-4" strokeWidth={2.4} />
+        {view === "main" ? "Retour" : "Support & Aide"}
+      </button>
+
+      {/* --- MAIN VIEW --- */}
       {view === "main" && (
-        <div className="px-5 py-5 space-y-5 flex-1">
+        <div className="space-y-5">
           <div className="grid grid-cols-2 gap-3">
             {[
-              { icon: MessageSquare, label: "Chat support", desc: "Réponse instantanée", gradient: "from-blue-500 to-indigo-600", shadow: "shadow-blue-500/20", action: () => setView("chat") },
-              { icon: Phone, label: "Appel urgence", desc: "+229 21 00 00 00", gradient: "from-rose-400 to-red-500", shadow: "shadow-red-500/20", action: () => { window.location.href = "tel:+22921000000"; } },
-              { icon: AlertTriangle, label: "Signaler", desc: "Créer un ticket", gradient: "from-orange-400 to-amber-500", shadow: "shadow-orange-500/20", action: () => setView("newTicket") },
-              { icon: FileText, label: "Mes tickets", desc: `${tickets.length} tickets`, gradient: "from-violet-500 to-purple-600", shadow: "shadow-violet-500/20", action: () => setView("tickets") },
+              { icon: MessageSquare, label: "Chat support", desc: "Réponse instantanée", action: () => setView("chat") },
+              { icon: Phone, label: "Appel urgence", desc: "+229 21 00 00 00", action: () => { window.location.href = "tel:+22921000000"; } },
+              { icon: AlertTriangle, label: "Signaler", desc: "Créer un ticket", action: () => setView("newTicket") },
+              { icon: FileText, label: "Mes tickets", desc: `${tickets.length} tickets`, action: () => setView("tickets") },
             ].map((item, i) => (
-              <button key={i} onClick={item.action}
-                className="flex items-center gap-3 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm active:scale-[0.98] transition text-left">
-                <div className={`w-10 h-10 bg-gradient-to-br ${item.gradient} rounded-xl flex items-center justify-center shadow-sm ${item.shadow} shrink-0`}>
-                  <item.icon className="w-5 h-5 text-white" />
+              <M3Card key={i} onClick={item.action} delay={0.04 * i} className="flex items-center gap-3">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl"
+                  style={{ background: "var(--m3-container)", color: "var(--m3-primary)" }}>
+                  <item.icon className="w-5 h-5" strokeWidth={2.2} />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-[13px] font-semibold text-slate-800 truncate">{item.label}</p>
+                  <p className="text-[11px] text-slate-400 truncate">{item.desc}</p>
                 </div>
-                <div>
-                  <p className="text-sm text-slate-800">{item.label}</p>
-                  <p className="text-[10px] text-slate-400">{item.desc}</p>
-                </div>
-              </button>
+              </M3Card>
             ))}
           </div>
 
           {/* FAQ preview */}
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <HelpCircle className="w-4 h-4 text-blue-500" />
-                <h3 className="title-gradient">Questions fréquentes</h3>
-              </div>
-              <button onClick={() => setView("faq")} className="text-xs text-blue-500 flex items-center gap-1">
-                Voir tout <ChevronRight className="w-3 h-3" />
-              </button>
-            </div>
+            <SectionHeader title="Questions fréquentes" icon={HelpCircle}
+              action={<button onClick={() => setView("faq")} className="text-[12px] font-semibold flex items-center gap-1" style={{ color: "var(--m3-primary)" }}>Voir tout <ChevronRight className="w-3 h-3" /></button>} />
             <div className="space-y-2">
               {faqItems.slice(0, 4).map((item, i) => (
-                <div key={i} className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+                <div key={i} className="bg-white rounded-2xl border border-black/[0.06] overflow-hidden shadow-[0_2px_12px_rgba(15,23,42,0.05)]">
                   <button onClick={() => setOpenFaq(openFaq === i ? null : i)} className="w-full flex items-center justify-between px-4 py-3.5 active:bg-slate-50 transition">
-                    <span className="text-sm text-left text-slate-700">{item.q}</span>
+                    <span className="text-[13px] text-left text-slate-700">{item.q}</span>
                     <ChevronRight className={`w-4 h-4 text-slate-300 transition-transform shrink-0 ml-2 ${openFaq === i ? "rotate-90" : ""}`} />
                   </button>
                   {openFaq === i && (
                     <div className="px-4 pb-4">
-                      <div className="bg-blue-50 rounded-xl p-3 border border-blue-100">
-                        <p className="text-xs text-blue-600 leading-relaxed">{item.a}</p>
+                      <div className="rounded-xl p-3" style={{ background: "var(--m3-container)", color: "var(--m3-on-container)" }}>
+                        <p className="text-[12px] leading-relaxed">{item.a}</p>
                       </div>
                     </div>
                   )}
@@ -478,53 +471,48 @@ export function SupportPage() {
 
           {/* Tickets preview */}
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="title-gradient">Tickets récents</h3>
-              <button onClick={() => setView("newTicket")} className="text-xs bg-orange-50 text-orange-600 px-3 py-1.5 rounded-full flex items-center gap-1">
-                <Plus className="w-3 h-3" /> Nouveau
-              </button>
-            </div>
+            <SectionHeader title="Tickets récents" icon={FileText}
+              action={<button onClick={() => setView("newTicket")} className="text-[12px] font-semibold px-3 py-1.5 rounded-full flex items-center gap-1" style={{ background: "var(--m3-container)", color: "var(--m3-on-container)" }}><Plus className="w-3 h-3" /> Nouveau</button>} />
             <div className="space-y-2.5">
-              {tickets.slice(0, 2).map(t => (
-                <button key={t.id} onClick={() => { setSelectedTicket(t); setView("ticketDetail"); }}
-                  className="w-full bg-white rounded-2xl p-4 border border-slate-100 flex items-center justify-between shadow-sm active:bg-slate-50 transition text-left">
+              {tickets.slice(0, 2).map((t, i) => (
+                <M3Card key={t.id} onClick={() => { setSelectedTicket(t); setView("ticketDetail"); }} delay={0.04 * i} className="flex items-center justify-between">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-slate-800 truncate">#{t.id} - {t.subject}</p>
-                    <p className="text-[10px] text-slate-400 mt-0.5">{t.category} · {t.date}</p>
+                    <p className="text-[13px] font-semibold text-slate-800 truncate">#{t.id} - {t.subject}</p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">{t.category} · {t.date}</p>
                   </div>
                   <span className={`text-[10px] px-2.5 py-1 rounded-full shrink-0 ml-2 ${t.statusColor}`}>{t.statusLabel}</span>
-                </button>
+                </M3Card>
               ))}
             </div>
           </div>
 
           {/* Contact info */}
-          <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
-            <p className="text-xs text-slate-500 mb-2">Horaires du support</p>
-            <div className="flex items-center gap-2 text-sm text-slate-700 mb-1">
-              <Clock className="w-4 h-4 text-slate-400" />
+          <M3Card tonal>
+            <p className="text-[12px] font-semibold mb-2">Horaires du support</p>
+            <div className="flex items-center gap-2 text-[13px] mb-1">
+              <Clock className="w-4 h-4 opacity-60" />
               <span>Lun-Sam : 07h00 - 22h00</span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-slate-700 mb-1">
-              <Phone className="w-4 h-4 text-slate-400" />
-              <a href="tel:+22921000000" className="text-[#1E6091] underline">+229 21 00 00 00</a>
+            <div className="flex items-center gap-2 text-[13px] mb-1">
+              <Phone className="w-4 h-4 opacity-60" />
+              <a href="tel:+22921000000" className="underline">+229 21 00 00 00</a>
             </div>
-            <div className="flex items-center gap-2 text-sm text-slate-700">
-              <MessageSquare className="w-4 h-4 text-slate-400" />
-              <a href="mailto:support@ippoo.app" className="text-[#1E6091] underline">support@ippoo.app</a>
+            <div className="flex items-center gap-2 text-[13px]">
+              <MessageSquare className="w-4 h-4 opacity-60" />
+              <a href="mailto:support@ippoo.app" className="underline">support@ippoo.app</a>
             </div>
-          </div>
+          </M3Card>
         </div>
       )}
 
-      {/* ═══ CHAT VIEW ═══ */}
+      {/* --- CHAT VIEW --- */}
       {view === "chat" && (
-        <div className="flex flex-col flex-1 relative">
+        <div className="flex flex-col relative rounded-3xl overflow-hidden border border-black/[0.06] bg-white shadow-[0_2px_12px_rgba(15,23,42,0.05)]" style={{ height: "calc(100dvh - 12rem)" }}>
           {/* Chat messages */}
-          <div ref={chatContainerRef} onScroll={handleChatScroll} className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-gradient-to-b from-slate-50 to-white">
+          <div ref={chatContainerRef} onScroll={handleChatScroll} className="flex-1 overflow-y-auto px-3 py-4 space-y-3" style={{ background: "var(--m3-container)" }}>
             {/* Date separator */}
             <div className="flex items-center justify-center">
-              <span className="text-[10px] text-slate-400 bg-white px-3 py-1 rounded-full border border-slate-100 shadow-sm">Aujourd'hui</span>
+              <span className="text-[10px] text-slate-500 bg-white px-3 py-1 rounded-full border border-black/[0.06] shadow-sm">Aujourd'hui</span>
             </div>
 
             {messages.map((m) => (
@@ -540,10 +528,9 @@ export function SupportPage() {
                   <div className={`flex ${m.from === "user" ? "justify-end" : "justify-start"} gap-2`}>
                     {/* Avatar for bot/agent */}
                     {m.from !== "user" && (
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-1 ${
-                        m.from === "agent" ? "bg-amber-400" : "bg-blue-500"
-                      }`}>
-                        {m.from === "agent" ? <Headphones className="w-4 h-4 text-white" /> : <Bot className="w-4 h-4 text-white" />}
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-1"
+                        style={{ background: m.from === "agent" ? "var(--m3-accent)" : "var(--m3-primary)", color: "#fff" }}>
+                        {m.from === "agent" ? <Headphones className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                       </div>
                     )}
 
@@ -566,14 +553,12 @@ export function SupportPage() {
 
                       {/* Bubble */}
                       <div
-                        className={`px-4 py-3 text-sm whitespace-pre-line ${
+                        className={`px-4 py-3 text-[13px] whitespace-pre-line ${
                           m.from === "user"
-                            ? "bg-[#1E6091]/85 text-white rounded-2xl rounded-br-md shadow-sm shadow-[#1E6091]/20"
-                            : m.from === "agent"
-                            ? "bg-white border border-amber-200 text-slate-700 rounded-2xl rounded-bl-md shadow-sm"
-                            : "bg-white border border-slate-100 text-slate-700 rounded-2xl rounded-bl-md shadow-sm"
+                            ? "text-white rounded-2xl rounded-br-md shadow-sm"
+                            : "bg-white border border-black/[0.06] text-slate-700 rounded-2xl rounded-bl-md shadow-sm"
                         }`}
-                        onDoubleClick={() => m.from !== "user" && addReaction(m.id, "❤️")}
+                        style={m.from === "user" ? { background: "var(--m3-primary)", boxShadow: "0 6px 16px -8px var(--m3-primary)" } : undefined}
                       >
                         {/* Voice attachment */}
                         {m.attachment?.type === "voice" && (
@@ -669,12 +654,11 @@ export function SupportPage() {
             {/* Typing indicator */}
             {isTyping && (
               <div className="flex gap-2">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                  agentConnected ? "bg-amber-400" : "bg-blue-500"
-                }`}>
-                  {agentConnected ? <Headphones className="w-4 h-4 text-white" /> : <Bot className="w-4 h-4 text-white" />}
+                <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+                  style={{ background: agentConnected ? "var(--m3-accent)" : "var(--m3-primary)", color: "#fff" }}>
+                  {agentConnected ? <Headphones className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                 </div>
-                <div className="bg-white border border-slate-100 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
+                <div className="bg-white border border-black/[0.06] rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
                   <div className="flex gap-1">
                     {[0, 1, 2].map(i => (
                       <div key={i} className="w-2 h-2 bg-slate-300 rounded-full animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
@@ -744,7 +728,7 @@ export function SupportPage() {
                   { icon: Camera, label: "Photo", color: "from-blue-500 to-indigo-600", action: () => sendAttachment("image") },
                   { icon: Image, label: "Galerie", color: "from-violet-500 to-purple-600", action: () => sendAttachment("image") },
                   { icon: MapPin, label: "Position", color: "from-emerald-500 to-green-600", action: () => sendAttachment("location") },
-                  { icon: FileText, label: "Document", color: "from-orange-400 to-amber-500", action: () => { toast("📄 Sélection de document..."); setShowAttach(false); } },
+                  { icon: FileText, label: "Document", color: "from-orange-400 to-amber-500", action: () => { toast("Sélection de document…"); setShowAttach(false); } },
                 ].map(item => (
                   <button key={item.label} onClick={item.action} className="flex flex-col items-center gap-1.5 active:scale-90 transition">
                     <div className={`w-12 h-12 bg-gradient-to-br ${item.color} rounded-2xl flex items-center justify-center shadow-sm`}>
@@ -789,7 +773,7 @@ export function SupportPage() {
                 className={`w-10 h-10 rounded-2xl flex items-center justify-center transition shrink-0 ${showAttach ? "bg-blue-50 text-blue-500" : "bg-slate-50 text-slate-400"}`}>
                 <Plus className="w-5 h-5" />
               </button>
-              <div className="flex-1 flex items-end bg-slate-50 rounded-2xl border border-slate-200 focus-within:border-[#1E6091]/50 transition overflow-hidden">
+              <div className="flex-1 flex items-end bg-slate-50 rounded-2xl border border-slate-200 focus-within:border-[var(--m3-primary)] transition overflow-hidden">
                 <input
                   ref={inputRef}
                   value={chatMsg}
@@ -806,8 +790,9 @@ export function SupportPage() {
               </div>
               {chatMsg.trim() ? (
                 <button onClick={() => sendChat()}
-                  className="w-10 h-10 bg-[#1E6091]/85 rounded-2xl flex items-center justify-center shadow-sm shadow-[#1E6091]/25 active:scale-90 transition shrink-0">
-                  <Send className="w-4 h-4 text-white" />
+                  className="w-10 h-10 rounded-2xl flex items-center justify-center active:scale-90 transition shrink-0"
+                  style={{ background: "var(--m3-primary)", color: "#fff", boxShadow: "0 6px 16px -8px var(--m3-primary)" }}>
+                  <Send className="w-4 h-4" />
                 </button>
               ) : (
                 <button
@@ -837,136 +822,131 @@ export function SupportPage() {
         </div>
       )}
 
-      {/* ═══ FAQ VIEW ═══ */}
+      {/* --- FAQ VIEW --- */}
       {view === "faq" && (
-        <div className="px-5 py-5 flex-1 space-y-4">
-          <div className="flex items-center gap-2 bg-slate-50 rounded-2xl px-4 py-2.5 border border-slate-100 focus-within:border-blue-400 transition">
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 bg-slate-50 rounded-2xl px-4 py-2.5 border border-slate-200 focus-within:border-[var(--m3-primary)] transition">
             <Search className="w-4 h-4 text-slate-400" />
             <input placeholder="Rechercher dans la FAQ..." value={faqSearch} onChange={e => setFaqSearch(e.target.value)}
               className="flex-1 bg-transparent outline-none text-sm" />
             {faqSearch && <button onClick={() => setFaqSearch("")}><X className="w-4 h-4 text-slate-300" /></button>}
           </div>
-          {filteredFaq.length === 0 && (
-            <div className="text-center py-12">
-              <HelpCircle className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-              <p className="text-sm text-slate-400">Aucun résultat pour "{faqSearch}"</p>
-              <button onClick={() => setView("chat")} className="text-xs text-blue-500 mt-2">Poser la question au chat</button>
-            </div>
-          )}
-          <div className="space-y-2">
-            {filteredFaq.map((item, i) => (
-              <div key={i} className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
-                <button onClick={() => setOpenFaq(openFaq === i ? null : i)} className="w-full flex items-center justify-between px-4 py-3.5 active:bg-slate-50 transition">
-                  <span className="text-sm text-left text-slate-700 flex-1">{item.q}</span>
-                  <div className="flex items-center gap-2 shrink-0 ml-2">
-                    <span className="text-[10px] bg-slate-50 text-slate-400 px-2 py-0.5 rounded-full">{item.category}</span>
-                    <ChevronDown className={`w-4 h-4 text-slate-300 transition-transform ${openFaq === i ? "rotate-180" : ""}`} />
-                  </div>
-                </button>
-                {openFaq === i && (
-                  <div className="px-4 pb-4">
-                    <div className="bg-blue-50 rounded-xl p-3 border border-blue-100">
-                      <p className="text-xs text-blue-600 leading-relaxed">{item.a}</p>
+          {filteredFaq.length === 0 ? (
+            <EmptyState icon={HelpCircle} title={`Aucun résultat pour "${faqSearch}"`}
+              action={<M3Button variant="tonal" icon={MessageSquare} onClick={() => setView("chat")}>Poser la question au chat</M3Button>} />
+          ) : (
+            <div className="space-y-2">
+              {filteredFaq.map((item, i) => (
+                <div key={i} className="bg-white rounded-2xl border border-black/[0.06] overflow-hidden shadow-[0_2px_12px_rgba(15,23,42,0.05)]">
+                  <button onClick={() => setOpenFaq(openFaq === i ? null : i)} className="w-full flex items-center justify-between px-4 py-3.5 active:bg-slate-50 transition">
+                    <span className="text-[13px] text-left text-slate-700 flex-1">{item.q}</span>
+                    <div className="flex items-center gap-2 shrink-0 ml-2">
+                      <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "var(--m3-container)", color: "var(--m3-on-container)" }}>{item.category}</span>
+                      <ChevronDown className={`w-4 h-4 text-slate-300 transition-transform ${openFaq === i ? "rotate-180" : ""}`} />
                     </div>
-                    <button onClick={() => { navigator.clipboard?.writeText(`${item.q}\n${item.a}`); toast.success("Copié !"); }}
-                      className="flex items-center gap-1 text-[10px] text-slate-400 mt-2 px-1">
-                      <Copy className="w-3 h-3" /> Copier la réponse
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ═══ TICKETS LIST ═══ */}
-      {view === "tickets" && (
-        <div className="px-5 py-5 flex-1 space-y-4">
-          <button onClick={() => setView("newTicket")}
-            className="w-full flex items-center justify-center gap-2 bg-orange-400 text-black py-3.5 rounded-2xl shadow-sm shadow-orange-400/25 active:scale-[0.98] transition">
-            <Plus className="w-4 h-4" /> Créer un nouveau ticket
-          </button>
-          {tickets.length === 0 && (
-            <div className="text-center py-12">
-              <FileText className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-              <p className="text-sm text-slate-400">Aucun ticket</p>
+                  </button>
+                  {openFaq === i && (
+                    <div className="px-4 pb-4">
+                      <div className="rounded-xl p-3" style={{ background: "var(--m3-container)", color: "var(--m3-on-container)" }}>
+                        <p className="text-[12px] leading-relaxed">{item.a}</p>
+                      </div>
+                      <button onClick={() => { navigator.clipboard?.writeText(`${item.q}\n${item.a}`); toast.success("Copié !"); }}
+                        className="flex items-center gap-1 text-[10px] text-slate-400 mt-2 px-1">
+                        <Copy className="w-3 h-3" /> Copier la réponse
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           )}
-          <div className="space-y-2.5">
-            {tickets.map(t => (
-              <button key={t.id} onClick={() => { setSelectedTicket(t); setView("ticketDetail"); }}
-                className="w-full bg-white rounded-2xl p-4 border border-slate-100 shadow-sm active:bg-slate-50 transition text-left">
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm text-slate-800">#{t.id} - {t.subject}</p>
-                  <span className={`text-[10px] px-2.5 py-1 rounded-full ${t.statusColor}`}>{t.statusLabel}</span>
-                </div>
-                <div className="flex items-center gap-3 text-[10px] text-slate-400">
-                  <span>{t.category}</span>
-                  <span>{t.date}</span>
-                  <span>{t.messages.length} message{t.messages.length > 1 ? "s" : ""}</span>
-                </div>
-              </button>
-            ))}
-          </div>
         </div>
       )}
 
-      {/* ═══ NEW TICKET ═══ */}
+      {/* --- TICKETS LIST --- */}
+      {view === "tickets" && (
+        <div className="space-y-4">
+          <M3Button icon={Plus} onClick={() => setView("newTicket")}>Créer un nouveau ticket</M3Button>
+          {tickets.length === 0 ? (
+            <EmptyState icon={FileText} title="Aucun ticket" description="Vos demandes de support apparaîtront ici." />
+          ) : (
+            <div className="space-y-2.5">
+              {tickets.map((t, i) => (
+                <M3Card key={t.id} onClick={() => { setSelectedTicket(t); setView("ticketDetail"); }} delay={0.04 * i}>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-[13px] font-semibold text-slate-800">#{t.id} - {t.subject}</p>
+                    <span className={`text-[10px] px-2.5 py-1 rounded-full ${t.statusColor}`}>{t.statusLabel}</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-[11px] text-slate-400">
+                    <span>{t.category}</span>
+                    <span>{t.date}</span>
+                    <span>{t.messages.length} message{t.messages.length > 1 ? "s" : ""}</span>
+                  </div>
+                </M3Card>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* --- NEW TICKET --- */}
       {view === "newTicket" && (
-        <div className="px-5 py-5 flex-1 space-y-4">
+        <div className="space-y-4">
           <div>
             <label className="text-[10px] text-slate-400 uppercase tracking-wider mb-1.5 block">Sujet</label>
             <input value={newTicketSubject} onChange={e => setNewTicketSubject(e.target.value)} placeholder="Décrivez brièvement le problème"
-              className="w-full bg-slate-50 rounded-2xl px-4 py-3.5 text-sm border border-slate-100 outline-none focus:border-orange-400" />
+              className="w-full bg-slate-50 rounded-2xl px-4 py-3.5 text-sm border border-slate-200 outline-none focus:border-[var(--m3-primary)]" />
           </div>
           <div>
             <label className="text-[10px] text-slate-400 uppercase tracking-wider mb-1.5 block">Catégorie</label>
             <div className="flex flex-wrap gap-2">
-              {ticketCategories.map(cat => (
-                <button key={cat} onClick={() => setNewTicketCategory(cat)}
-                  className={`px-3.5 py-2 rounded-xl text-xs transition border-2 ${newTicketCategory === cat ? "border-orange-400 bg-orange-50 text-orange-600" : "border-slate-100 text-slate-500 bg-white"}`}>
-                  {cat}
-                </button>
-              ))}
+              {ticketCategories.map(cat => {
+                const active = newTicketCategory === cat;
+                return (
+                  <button key={cat} onClick={() => setNewTicketCategory(cat)}
+                    className="px-3.5 py-2 rounded-full text-[12px] font-medium transition"
+                    style={active
+                      ? { background: "var(--m3-primary)", color: "var(--m3-on-primary)" }
+                      : { background: "var(--m3-container)", color: "var(--m3-on-container)" }}>
+                    {cat}
+                  </button>
+                );
+              })}
             </div>
           </div>
           <div>
             <label className="text-[10px] text-slate-400 uppercase tracking-wider mb-1.5 block">Description</label>
             <textarea value={newTicketDesc} onChange={e => setNewTicketDesc(e.target.value)} placeholder="Donnez-nous le maximum de détails : numéro de course, date, montant..."
-              rows={4} className="w-full bg-slate-50 rounded-2xl px-4 py-3.5 text-sm border border-slate-100 outline-none focus:border-orange-400 resize-none" />
+              rows={4} className="w-full bg-slate-50 rounded-2xl px-4 py-3.5 text-sm border border-slate-200 outline-none focus:border-[var(--m3-primary)] resize-none" />
           </div>
-          <button onClick={handleNewTicket}
-            className="w-full bg-orange-400 text-black py-3.5 rounded-2xl shadow-sm shadow-orange-400/25 active:scale-[0.98] transition flex items-center justify-center gap-2">
-            <Send className="w-4 h-4" /> Envoyer le ticket
-          </button>
+          <M3Button icon={Send} onClick={handleNewTicket}>Envoyer le ticket</M3Button>
         </div>
       )}
 
-      {/* ═══ TICKET DETAIL ═══ */}
+      {/* --- TICKET DETAIL --- */}
       {view === "ticketDetail" && selectedTicket && (
-        <div className="flex flex-col flex-1">
+        <div className="flex flex-col rounded-3xl overflow-hidden border border-black/[0.06] bg-white shadow-[0_2px_12px_rgba(15,23,42,0.05)]" style={{ height: "calc(100dvh - 12rem)" }}>
           <div className="px-5 py-4 border-b border-slate-100 shrink-0">
             <div className="flex items-center justify-between mb-1">
-              <p className="text-sm text-slate-800">{selectedTicket.subject}</p>
+              <p className="text-[14px] font-semibold text-slate-800">{selectedTicket.subject}</p>
               <span className={`text-[10px] px-2.5 py-1 rounded-full ${selectedTicket.statusColor}`}>{selectedTicket.statusLabel}</span>
             </div>
-            <p className="text-[10px] text-slate-400">{selectedTicket.category} · {selectedTicket.date} · #{selectedTicket.id}</p>
+            <p className="text-[11px] text-slate-400">{selectedTicket.category} · {selectedTicket.date} · #{selectedTicket.id}</p>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3 bg-slate-50">
+          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3" style={{ background: "var(--m3-container)" }}>
             {selectedTicket.messages.map((msg, i) => (
               <div key={i} className={`flex ${msg.from === "Vous" ? "justify-end" : "justify-start"} gap-2`}>
                 {msg.from !== "Vous" && (
-                  <div className="w-8 h-8 rounded-full bg-amber-400 flex items-center justify-center shrink-0 mt-1">
-                    <Headphones className="w-4 h-4 text-white" />
+                  <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-1" style={{ background: "var(--m3-accent)", color: "#fff" }}>
+                    <Headphones className="w-4 h-4" />
                   </div>
                 )}
-                <div className={`max-w-[75%] px-4 py-3 text-sm rounded-2xl ${
+                <div className={`max-w-[75%] px-4 py-3 text-[13px] rounded-2xl ${
                   msg.from === "Vous"
-                    ? "bg-[#1E6091]/85 text-white rounded-br-md shadow-sm shadow-[#1E6091]/20"
-                    : "bg-white border border-slate-100 text-slate-700 rounded-bl-md shadow-sm"
-                }`}>
+                    ? "text-white rounded-br-md shadow-sm"
+                    : "bg-white border border-black/[0.06] text-slate-700 rounded-bl-md shadow-sm"
+                }`} style={msg.from === "Vous" ? { background: "var(--m3-primary)", boxShadow: "0 6px 16px -8px var(--m3-primary)" } : undefined}>
                   {msg.from !== "Vous" && <p className="text-[10px] text-slate-400 mb-1">{msg.from}</p>}
                   {msg.text}
                   <p className={`text-[9px] mt-1 ${msg.from === "Vous" ? "text-white/50" : "text-slate-400"}`}>{msg.date}</p>
@@ -978,10 +958,11 @@ export function SupportPage() {
           {selectedTicket.status !== "closed" && (
             <div className="px-4 py-2.5 flex gap-2 shrink-0 bg-white border-t border-slate-100">
               <input value={ticketReply} onChange={e => setTicketReply(e.target.value)} onKeyDown={e => e.key === "Enter" && handleTicketReply()}
-                placeholder="Répondre..." className="flex-1 bg-slate-50 rounded-2xl px-4 py-2.5 text-sm outline-none border border-slate-200 focus:border-[#1E6091]/50" />
+                placeholder="Répondre..." className="flex-1 bg-slate-50 rounded-2xl px-4 py-2.5 text-sm outline-none border border-slate-200 focus:border-[var(--m3-primary)]" />
               <button onClick={handleTicketReply}
-                className={`w-10 h-10 rounded-2xl flex items-center justify-center transition ${ticketReply.trim() ? "bg-[#1E6091]/85 shadow-sm shadow-[#1E6091]/20" : "bg-slate-100"}`}>
-                <Send className={`w-4 h-4 ${ticketReply.trim() ? "text-white" : "text-slate-400"}`} />
+                className="w-10 h-10 rounded-2xl flex items-center justify-center transition"
+                style={ticketReply.trim() ? { background: "var(--m3-primary)", color: "#fff" } : { background: "#f1f5f9", color: "#94a3b8" }}>
+                <Send className="w-4 h-4" />
               </button>
             </div>
           )}
@@ -1004,6 +985,6 @@ export function SupportPage() {
           )}
         </div>
       )}
-    </div>
+    </M3Page>
   );
 }

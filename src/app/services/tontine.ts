@@ -1,5 +1,5 @@
 /**
- * Tontines covoiturage IPPOO — adapter le concept africain de la tontine
+ * Tontines covoiturage IPPOO - adapter le concept africain de la tontine
  * au covoiturage récurrent (trajets domicile-travail à plusieurs).
  *
  * Logique : N membres cotisent au pot commun chaque cycle.

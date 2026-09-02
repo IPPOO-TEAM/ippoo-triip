@@ -1,4 +1,4 @@
-/* ─── Utilitaires partagés IPPOO ─── */
+/* --- Utilitaires partagés IPPOO --- */
 
 /** Géolocalisation réelle via navigator.geolocation */
 export function getGPSPosition(
@@ -93,7 +93,7 @@ export function formatDateFr(date = new Date()): string {
   return `${date.getDate().toString().padStart(2, "0")} ${months[date.getMonth()]} ${date.getFullYear()} à ${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}`;
 }
 
-/* ─── Installation PWA (Progressive Web App) ─── */
+/* --- Installation PWA (Progressive Web App) --- */
 
 /** Événement natif d'installation mis en cache dès qu'il est émis par le navigateur */
 let deferredInstallPrompt: any = null;
@@ -185,7 +185,7 @@ export function ensureWebManifest(iconUrl: string) {
 }
 
 /**
- * Enregistre un service worker minimal (best-effort) — critère requis par
+ * Enregistre un service worker minimal (best-effort) - critère requis par
  * Chrome/Android pour proposer l'installation native. Silencieux si l'env. le refuse.
  */
 export async function ensureServiceWorker() {
@@ -198,7 +198,7 @@ export async function ensureServiceWorker() {
     const blob = new Blob([swCode], { type: "text/javascript" });
     await navigator.serviceWorker.register(URL.createObjectURL(blob));
   } catch {
-    /* Environnement sans service worker — l'installation native peut rester indisponible */
+    /* Environnement sans service worker - l'installation native peut rester indisponible */
   }
 }
 

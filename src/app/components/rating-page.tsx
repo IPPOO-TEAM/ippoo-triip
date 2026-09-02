@@ -7,11 +7,12 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { ProfileAvatar } from "./profile-avatar";
+import { useAppStore } from "../store/app-store";
 import logoImg from "../../imports/IPPOO_Transport_&_Logistique-1.png";
 
 const RATING_IMG = "https://images.unsplash.com/photo-1661871853503-5246c7205e68?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhZnJpY2FuJTIwcGVvcGxlJTIwcmF0aW5nJTIwcmV2aWV3JTIwc3RhcnMlMjBtb2JpbGV8ZW58MXx8fHwxNzc1OTE3NDI5fDA&ixlib=rb-4.1.0&q=80&w=1080";
 
-/* ─── Types ─── */
+/* --- Types --- */
 interface ClientRating {
   id: number;
   clientName: string;
@@ -36,18 +37,10 @@ interface PendingRating {
   date: string;
 }
 
-/* ─── Mock Data ─── */
-const clientRatings: ClientRating[] = [
-  { id: 1, clientName: "Dossou Ahouandjinou", clientInitials: "DA", date: "10 Avr 2026", rideType: "Course moto", punctuality: 5, behavior: 5, infoAccuracy: 4, overall: 4.7, comment: "Client très ponctuel et courtois", driverName: "Hounkpatin Akotchayé", driverInitials: "HA" },
-  { id: 2, clientName: "Dossou Ahouandjinou", clientInitials: "DA", date: "08 Avr 2026", rideType: "Livraison", punctuality: 3, behavior: 5, infoAccuracy: 2, overall: 3.3, comment: "Adresse incorrecte, a fallu appeler pour trouver", driverName: "Gbètoho Bokossa", driverInitials: "GB" },
-  { id: 3, clientName: "Dossou Ahouandjinou", clientInitials: "DA", date: "05 Avr 2026", rideType: "Course voiture", punctuality: 4, behavior: 4, infoAccuracy: 5, overall: 4.3, comment: "RAS, bon client", driverName: "Sessinou Adéchian", driverInitials: "SA" },
-  { id: 4, clientName: "Dossou Ahouandjinou", clientInitials: "DA", date: "02 Avr 2026", rideType: "Course moto", punctuality: 5, behavior: 5, infoAccuracy: 5, overall: 5.0, comment: "Excellent, toujours prêt à l'heure", driverName: "Hounkpatin Akotchayé", driverInitials: "HA" },
-];
+/* Aucune donnée codée en dur : les évaluations réelles se remplissent au fil des courses. */
+const clientRatings: ClientRating[] = [];
 
-const pendingRatings: PendingRating[] = [
-  { id: 10, clientName: "Aïdatou Tokpanou", clientInitials: "AT", rideType: "Course moto", route: "Dantokpa → Calavi", date: "11 Avr 2026" },
-  { id: 11, clientName: "Fifamè Dossou", clientInitials: "FD", rideType: "Livraison", route: "Gbégamey → Akpakpa", date: "11 Avr 2026" },
-];
+const pendingRatings: PendingRating[] = [];
 
 const criteria = [
   { key: "punctuality", label: "Ponctualité", icon: Clock },
@@ -57,6 +50,9 @@ const criteria = [
 
 export function RatingPage() {
   const navigate = useNavigate();
+  const { state } = useAppStore();
+  const userName = state.user?.fullName ?? "";
+  const userInitials = (userName.split(" ").map((p) => p[0]).filter(Boolean).slice(0, 2).join("") || "•").toUpperCase();
   const [parallaxY, setParallaxY] = useState(0);
   const [activeRating, setActiveRating] = useState<number | null>(null);
   const [scores, setScores] = useState<Record<string, number>>({ punctuality: 0, behavior: 0, infoAccuracy: 0 });
@@ -74,10 +70,11 @@ export function RatingPage() {
   }, []);
 
   // Compute user average
-  const avgRating = clientRatings.reduce((a, r) => a + r.overall, 0) / clientRatings.length;
-  const avgPunct = clientRatings.reduce((a, r) => a + r.punctuality, 0) / clientRatings.length;
-  const avgBehav = clientRatings.reduce((a, r) => a + r.behavior, 0) / clientRatings.length;
-  const avgInfo = clientRatings.reduce((a, r) => a + r.infoAccuracy, 0) / clientRatings.length;
+  const ratingCount = clientRatings.length || 0;
+  const avgRating = ratingCount ? clientRatings.reduce((a, r) => a + r.overall, 0) / ratingCount : 0;
+  const avgPunct = ratingCount ? clientRatings.reduce((a, r) => a + r.punctuality, 0) / ratingCount : 0;
+  const avgBehav = ratingCount ? clientRatings.reduce((a, r) => a + r.behavior, 0) / ratingCount : 0;
+  const avgInfo = ratingCount ? clientRatings.reduce((a, r) => a + r.infoAccuracy, 0) / ratingCount : 0;
 
   const handleSubmitRating = () => {
     if (Object.values(scores).some(s => s === 0)) { toast.error("Notez tous les critères"); return; }
@@ -124,7 +121,7 @@ export function RatingPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 pb-6">
-      {/* ── Header ── */}
+      {/* -- Header -- */}
       <div className="relative overflow-hidden rounded-b-[2rem] shadow-sm">
         <img src={RATING_IMG} alt="" className="absolute inset-0 w-full h-[130%] object-cover will-change-transform" style={{ transform: `translateY(-${parallaxY}px) scale(${1 + parallaxY * 0.001})` }} />
         <div className="absolute inset-0 bg-gradient-to-b from-[#2A9D8F]/85 via-[#2A9D8F]/70 to-[#1E6091]/80" />
@@ -144,7 +141,7 @@ export function RatingPage() {
       </div>
 
       {activeRating !== null ? (
-        /* ── Rating Form ── */
+        /* -- Rating Form -- */
         (() => {
           const pending = pendingRatings.find(p => p.id === activeRating);
           if (!pending) return null;
@@ -205,9 +202,9 @@ export function RatingPage() {
           {/* Score global */}
           <div className="bg-white rounded-2xl p-5 shadow-md text-center">
             <div className="flex items-center justify-center gap-3 mb-3">
-              <ProfileAvatar initials="DA" size={56} />
+              <ProfileAvatar initials={userInitials} size={56} />
               <div className="text-left">
-                <p className="text-slate-800 text-sm">Dossou Ahouandjinou</p>
+                <p className="text-slate-800 text-sm">{userName || "Mon profil"}</p>
                 <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] mt-1 ${badge.color}`}>{badge.label}</span>
               </div>
             </div>
@@ -325,7 +322,7 @@ export function RatingPage() {
             </h3>
             {[
               "≥ 4.5/5 : Priorité d'attribution & bonus IPPOO CASH",
-              "3.0 – 4.4/5 : Service standard",
+              "3.0 - 4.4/5 : Service standard",
               "< 3.0/5 : Pré-paiement obligatoire, attribution retardée",
               "Annulations abusives : restrictions temporaires",
             ].map((r, i) => (

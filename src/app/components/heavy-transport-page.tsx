@@ -1,11 +1,11 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router";
-import { ChevronLeft, Shield, Users, ChevronRight, Navigation, MapPin, Truck, Check, Calendar, Clock, MessageSquare, Image as ImageIcon, Camera } from "lucide-react";
-import { AfricanPattern } from "./icons";
+import { Shield, Users, ChevronRight, Navigation, MapPin, Truck, Check, Calendar, Camera } from "lucide-react";
 import { toast } from "sonner";
 import { getGPSPosition } from "./utils";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { usePlatformConfig, findOffer } from "../store/platform-config";
+import { M3Page, M3Card, M3Button, SectionHeader } from "./m3";
 
 const HEAVY_IMG = "https://images.unsplash.com/photo-1757454122792-147411c3c695?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhZnJpY2FuJTIwdHJ1Y2slMjBjYXJnbyUyMG1vdmluZyUyMGxvZ2lzdGljc3xlbnwxfHx8fDE3NzU5MTY0NTh8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral";
 
@@ -13,9 +13,9 @@ const HEAVY_IMG = "https://images.unsplash.com/photo-1757454122792-147411c3c695?
 const HEAVY_REF_BASE = 5000;
 
 const vehiclesBase = [
-  { id: "pickup", Icon: Truck, label: "Pickup", desc: "Petits déménagements", basePrice: 5000, gradient: "from-blue-500 to-indigo-600", accent: "border-blue-400" },
-  { id: "tricycle", Icon: Truck, label: "Tricycle cargo", desc: "Marchandises moyennes", basePrice: 3500, gradient: "from-cyan-500 to-teal-600", accent: "border-cyan-400" },
-  { id: "camionnette", Icon: Truck, label: "Camionnette", desc: "Gros volumes", basePrice: 8000, gradient: "from-orange-400 to-rose-500", accent: "border-orange-400" },
+  { id: "pickup", Icon: Truck, label: "Pickup", desc: "Petits déménagements", basePrice: 5000 },
+  { id: "tricycle", Icon: Truck, label: "Tricycle cargo", desc: "Marchandises moyennes", basePrice: 3500 },
+  { id: "camionnette", Icon: Truck, label: "Camionnette", desc: "Gros volumes", basePrice: 8000 },
 ];
 
 export function HeavyTransportPage() {
@@ -40,13 +40,6 @@ export function HeavyTransportPage() {
   const [ordering, setOrdering] = useState(false);
   const [gpsLoading, setGpsLoading] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
-  const [parallaxY, setParallaxY] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => setParallaxY(window.scrollY * 0.4);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   const selectedVehicle = vehicles.find(v => v.id === selected)!;
   const total = selectedVehicle.basePrice + (labor ? 2000 : 0) + (insurance ? 500 : 0);
@@ -81,229 +74,209 @@ export function HeavyTransportPage() {
     setTimeout(() => navigate("/app/tracking"), 1500);
   };
 
+  const hero = (
+    <div className="relative h-24 overflow-hidden rounded-3xl">
+      <ImageWithFallback src={HEAVY_IMG} alt="" className="absolute inset-0 h-full w-full object-cover" />
+      <div className="absolute inset-0" style={{ background: "linear-gradient(120deg, var(--m3-primary), transparent)" }} />
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-white">
-      <div className="relative overflow-hidden rounded-b-[2rem] shadow-sm">
-        <ImageWithFallback src={HEAVY_IMG} alt="" className="absolute inset-0 w-full h-[130%] object-cover will-change-transform" style={{ transform: `translateY(-${parallaxY}px) scale(${1 + parallaxY * 0.001})` }} />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#D62828]/85 via-[#D62828]/70 to-[#F77F00]/75" />
-        <div className="absolute -right-10 -top-10 w-48 h-48 bg-[#E9C46A]/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-36 h-36 bg-[#D62828]/20 rounded-full -ml-16 -mb-10 blur-3xl" />
-        <div className="relative z-10 px-5 pt-14 pb-8 flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="w-10 h-10 bg-white/15 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/15">
-            <ChevronLeft className="w-5 h-5 text-white" />
-          </button>
-          <div>
-            <h2 className="text-white">Transport de biens</h2>
-            <p className="text-red-100 text-xs">Déménagement & gros colis</p>
-          </div>
-        </div>
+    <M3Page title="Transport de biens" subtitle="Déménagement & gros colis" icon={Truck} hero={hero}>
+      {/* Type de véhicule */}
+      <SectionHeader title="Type de véhicule" icon={Truck} />
+      <div className="space-y-2.5">
+        {vehicles.map((v, i) => {
+          const isSelected = selected === v.id;
+          return (
+            <M3Card
+              key={v.id}
+              delay={0.04 * i}
+              onClick={() => setSelected(v.id)}
+              className="flex items-center gap-4"
+              style={isSelected ? { borderColor: "var(--m3-primary)", borderWidth: 2 } : undefined}
+            >
+              <div className="grid h-12 w-12 place-items-center rounded-2xl" style={isSelected ? { background: "var(--m3-primary)", color: "var(--m3-on-primary)" } : { background: "#f1f5f9", color: "#94a3b8" }}>
+                {isSelected ? <Check className="h-5 w-5" strokeWidth={2.5} /> : <v.Icon className="h-5 w-5" strokeWidth={1.8} />}
+              </div>
+              <div className="flex-1 text-left">
+                <p className="text-sm font-semibold text-slate-800">{v.label}</p>
+                <p className="text-xs text-slate-400">{v.desc}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-slate-600" style={{ fontFamily: "'Space Grotesk', monospace" }}>{v.basePrice.toLocaleString()} F</p>
+                <p className="text-[10px] text-slate-400">base</p>
+              </div>
+            </M3Card>
+          );
+        })}
       </div>
 
-      <div className="px-5 py-5 space-y-5">
-        {/* Vehicle type */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
-          <label className="text-sm text-slate-500 mb-3 block">Type de véhicule</label>
+      {/* Itinéraire */}
+      <SectionHeader title="Itinéraire" icon={MapPin} />
+      <M3Card>
+        <div className="relative pl-8">
+          <div className="absolute left-3 top-5 bottom-5 w-[2px] rounded-full" style={{ background: "var(--m3-primary)" }} />
+          <div className="absolute left-[6px] top-3.5 h-3 w-3 rounded-full border-2 border-white" style={{ background: "var(--m3-accent)" }} />
+          <div className="absolute left-[6px] bottom-3.5 h-3 w-3 rounded-full border-2 border-white" style={{ background: "var(--m3-primary)" }} />
           <div className="space-y-2.5">
-            {vehicles.map((v) => {
-              const isSelected = selected === v.id;
-              return (
-                <button
-                  key={v.id}
-                  onClick={() => setSelected(v.id)}
-                  className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-all ${
-                    isSelected ? `${v.accent} bg-slate-50` : "border-transparent bg-slate-50/50 hover:bg-slate-50"
-                  }`}
-                >
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${isSelected ? `bg-gradient-to-br ${v.gradient} shadow-sm` : "bg-gray-100"}`}>
-                    {isSelected ? <Check className="w-5 h-5 text-white" strokeWidth={2.5} /> : <v.Icon className="w-5 h-5 text-gray-400" strokeWidth={1.8} />}
-                  </div>
-                  <div className="text-left flex-1">
-                    <p className="text-sm text-slate-800">{v.label}</p>
-                    <p className="text-xs text-slate-400">{v.desc}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm text-slate-600" style={{ fontFamily: "'Space Grotesk', monospace" }}>{v.basePrice.toLocaleString()} F</p>
-                    <p className="text-[10px] text-slate-400">base</p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Addresses */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
-          <label className="text-sm text-slate-500 mb-3 block">Itinéraire</label>
-          <div className="relative pl-8">
-            <div className="absolute left-3 top-5 bottom-5 w-[2px] bg-emerald-400 rounded-full" />
-            <div className="absolute left-[6px] top-3.5 w-3 h-3 rounded-full bg-emerald-400 shadow-md shadow-emerald-400/40 border-2 border-white" />
-            <div className="absolute left-[6px] bottom-3.5 w-3 h-3 rounded-full bg-red-500 shadow-md shadow-red-500/40 border-2 border-white" />
-            <div className="space-y-2.5">
-              <div className="flex items-center gap-2 bg-slate-50 rounded-2xl px-4 py-3 border border-slate-100 focus-within:border-emerald-300 transition">
-                <input placeholder="Adresse de chargement" value={pickupAddr} onChange={(e) => setPickupAddr(e.target.value)} className="flex-1 bg-transparent outline-none text-sm" />
-                <button onClick={handleGPS} disabled={gpsLoading} className="shrink-0">
-                  {gpsLoading
-                    ? <div className="w-4 h-4 border-2 border-emerald-300 border-t-emerald-500 rounded-full animate-spin" />
-                    : <Navigation className="w-4 h-4 text-emerald-500" />
-                  }
-                </button>
-              </div>
-              <div className="flex items-center gap-2 bg-slate-50 rounded-2xl px-4 py-3 border border-slate-100 focus-within:border-red-300 transition">
-                <input placeholder="Adresse de livraison" value={deliveryAddr} onChange={(e) => setDeliveryAddr(e.target.value)} className="flex-1 bg-transparent outline-none text-sm" />
-                <MapPin className="w-4 h-4 text-red-500" />
-              </div>
+            <div className="flex items-center gap-2 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 transition focus-within:border-[var(--m3-primary)]">
+              <input placeholder="Adresse de chargement" value={pickupAddr} onChange={(e) => setPickupAddr(e.target.value)} className="flex-1 bg-transparent text-sm outline-none" />
+              <button onClick={handleGPS} disabled={gpsLoading} className="shrink-0">
+                {gpsLoading
+                  ? <div className="h-4 w-4 rounded-full border-2 border-[var(--m3-primary)]/30 border-t-[var(--m3-primary)] animate-spin" />
+                  : <Navigation className="h-4 w-4 text-[var(--m3-primary)]" />
+                }
+              </button>
+            </div>
+            <div className="flex items-center gap-2 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 transition focus-within:border-[var(--m3-primary)]">
+              <input placeholder="Adresse de livraison" value={deliveryAddr} onChange={(e) => setDeliveryAddr(e.target.value)} className="flex-1 bg-transparent text-sm outline-none" />
+              <MapPin className="h-4 w-4 text-[var(--m3-primary)]" />
             </div>
           </div>
         </div>
+      </M3Card>
 
-        {/* Description & photo */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm space-y-3">
-          <label className="text-sm text-slate-500">Details du chargement</label>
-          <textarea
-            placeholder="Décrivez les biens à transporter (meubles, cartons, électroménager...)"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={2}
-            className="w-full bg-slate-50 rounded-2xl px-4 py-3 border border-slate-100 text-sm outline-none focus:border-rose-300 resize-none"
-          />
-          <input
-            ref={photoInputRef}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            className="hidden"
-            onChange={handlePhotoChange}
-          />
-          <button
-            onClick={() => photoTaken ? (setPhotoTaken(false), setPhotoPreview(null)) : photoInputRef.current?.click()}
-            className={`w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-sm border-2 border-dashed transition ${photoTaken ? "border-emerald-300 bg-emerald-50 text-emerald-600" : "border-slate-200 text-slate-500 hover:bg-slate-50"}`}
-          >
-            {photoTaken ? (
-              photoPreview
-                ? <><img src={photoPreview} className="w-8 h-8 rounded-lg object-cover" alt="" /> Photo ajoutée, Changer</>
-                : <><Check className="w-4 h-4" /> Photo ajoutée, Supprimer</>
-            ) : (
-              <><Camera className="w-4 h-4" /> Ajouter une photo (optionnel)</>
-            )}
-          </button>
-        </div>
-
-        {/* Schedule */}
+      {/* Détails du chargement */}
+      <SectionHeader title="Details du chargement" icon={Camera} />
+      <M3Card className="space-y-3">
+        <textarea
+          placeholder="Décrivez les biens à transporter (meubles, cartons, électroménager...)"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          rows={2}
+          className="w-full resize-none rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-[var(--m3-primary)]"
+        />
+        <input
+          ref={photoInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          className="hidden"
+          onChange={handlePhotoChange}
+        />
         <button
-          onClick={() => setScheduled(!scheduled)}
-          className={`w-full flex items-center gap-3 p-4 rounded-2xl border-2 transition bg-white ${scheduled ? "border-amber-400 bg-amber-50" : "border-transparent"}`}
+          onClick={() => photoTaken ? (setPhotoTaken(false), setPhotoPreview(null)) : photoInputRef.current?.click()}
+          className={`flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed py-3 text-sm transition ${photoTaken ? "border-emerald-300 bg-emerald-50 text-emerald-600" : "border-slate-200 text-slate-500 hover:bg-slate-50"}`}
         >
-          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${scheduled ? "bg-amber-400 shadow-sm" : "bg-slate-100"}`}>
-            <Calendar className={`w-5 h-5 ${scheduled ? "text-white" : "text-slate-400"}`} />
-          </div>
-          <div className="text-left flex-1">
-            <p className="text-sm text-slate-800">Programmer le transport</p>
-            <p className="text-xs text-slate-400">{scheduled ? "Date et heure définies" : "Maintenant par défaut"}</p>
-          </div>
-          <ToggleCircle active={scheduled} />
-        </button>
-        {scheduled && (
-          <div className="flex gap-2.5">
-            <input type="date" value={scheduleDate} onChange={(e) => setScheduleDate(e.target.value)} className="flex-1 bg-white text-sm rounded-2xl px-4 py-3 border border-slate-200 outline-none focus:border-amber-400" />
-            <input type="time" value={scheduleTime} onChange={(e) => setScheduleTime(e.target.value)} className="flex-1 bg-white text-sm rounded-2xl px-4 py-3 border border-slate-200 outline-none focus:border-amber-400" />
-          </div>
-        )}
-
-        {/* Options */}
-        <div className="space-y-2.5">
-          <button
-            onClick={() => setLabor(!labor)}
-            className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-all bg-white ${
-              labor ? "border-emerald-400" : "border-transparent"
-            }`}
-          >
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${labor ? "bg-emerald-500 shadow-sm shadow-green-500/25" : "bg-slate-100"}`}>
-              <Users className={`w-5 h-5 ${labor ? "text-white" : "text-slate-400"}`} />
-            </div>
-            <div className="text-left flex-1">
-              <div className="flex items-center gap-2">
-                <p className="text-sm text-slate-800">Main-d'œuvre</p>
-                <span className="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full">+2 000 F</span>
-              </div>
-              <p className="text-xs text-slate-400">Aide au chargement / déchargement</p>
-            </div>
-            <ToggleCircle active={labor} />
-          </button>
-
-          <button
-            onClick={() => setInsurance(!insurance)}
-            className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-all bg-white ${
-              insurance ? "border-violet-400" : "border-transparent"
-            }`}
-          >
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${insurance ? "bg-violet-500 shadow-sm shadow-violet-500/25" : "bg-slate-100"}`}>
-              <Shield className={`w-5 h-5 ${insurance ? "text-white" : "text-slate-400"}`} />
-            </div>
-            <div className="text-left flex-1">
-              <div className="flex items-center gap-2">
-                <p className="text-sm text-slate-800">Assurance transport</p>
-                <span className="text-[10px] bg-violet-50 text-violet-600 px-2 py-0.5 rounded-full">+500 F</span>
-              </div>
-              <p className="text-xs text-slate-400">Protection de vos biens</p>
-            </div>
-            <ToggleCircle active={insurance} />
-          </button>
-        </div>
-
-        {/* Payment timing */}
-        <div className="flex gap-2.5">
-          <button
-            onClick={() => setPayTime("before")}
-            className={`flex-1 py-3.5 rounded-2xl text-sm transition-all ${
-              payTime === "before" ? "bg-blue-500 text-white shadow-sm shadow-blue-500/20" : "bg-white text-slate-600 border border-slate-100"
-            }`}
-          >
-            Avant la course
-          </button>
-          <button
-            onClick={() => setPayTime("after")}
-            className={`flex-1 py-3.5 rounded-2xl text-sm transition-all ${
-              payTime === "after" ? "bg-blue-500 text-white shadow-sm shadow-blue-500/20" : "bg-white text-slate-600 border border-slate-100"
-            }`}
-          >
-            Après livraison
-          </button>
-        </div>
-
-        {/* Total */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-100 space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="text-slate-400">Transport ({selectedVehicle.label})</span>
-            <span className="text-slate-800" style={{ fontFamily: "'Space Grotesk', monospace" }}>{selectedVehicle.basePrice.toLocaleString()} F</span>
-          </div>
-          {labor && <div className="flex justify-between text-sm"><span className="text-slate-400">Main-d'œuvre</span><span className="text-slate-800" style={{ fontFamily: "'Space Grotesk', monospace" }}>2 000 F</span></div>}
-          {insurance && <div className="flex justify-between text-sm"><span className="text-slate-400">Assurance</span><span className="text-slate-800" style={{ fontFamily: "'Space Grotesk', monospace" }}>500 F</span></div>}
-          <div className="flex justify-between border-t border-slate-100 pt-3 mt-2">
-            <span className="text-slate-800">Total</span>
-            <span className="text-emerald-500 text-lg" style={{ fontFamily: "'Space Grotesk', monospace" }}>{total.toLocaleString()} FCFA</span>
-          </div>
-        </div>
-
-        <button
-          onClick={handleOrder}
-          disabled={ordering}
-          className={`w-full bg-rose-500 text-white py-4 rounded-2xl flex items-center justify-center gap-2 shadow-sm shadow-red-500/25 transition-transform ${ordering ? "opacity-70 scale-[0.98]" : "active:scale-[0.98]"}`}
-        >
-          {ordering ? (
-            <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Confirmation...</>
+          {photoTaken ? (
+            photoPreview
+              ? <><img src={photoPreview} className="h-8 w-8 rounded-lg object-cover" alt="" /> Photo ajoutée, Changer</>
+              : <><Check className="h-4 w-4" /> Photo ajoutée, Supprimer</>
           ) : (
-            <>Commander <ChevronRight className="w-4 h-4" /></>
+            <><Camera className="h-4 w-4" /> Ajouter une photo (optionnel)</>
           )}
         </button>
+      </M3Card>
+
+      {/* Programmer */}
+      <SectionHeader title="Planification" icon={Calendar} />
+      <M3Card
+        onClick={() => setScheduled(!scheduled)}
+        className="flex items-center gap-3"
+        style={scheduled ? { borderColor: "var(--m3-primary)", borderWidth: 2 } : undefined}
+      >
+        <div className="grid h-10 w-10 place-items-center rounded-xl" style={scheduled ? { background: "var(--m3-primary)", color: "var(--m3-on-primary)" } : { background: "#f1f5f9", color: "#94a3b8" }}>
+          <Calendar className="h-5 w-5" />
+        </div>
+        <div className="flex-1 text-left">
+          <p className="text-sm font-semibold text-slate-800">Programmer le transport</p>
+          <p className="text-xs text-slate-400">{scheduled ? "Date et heure définies" : "Maintenant par défaut"}</p>
+        </div>
+        <ToggleCircle active={scheduled} />
+      </M3Card>
+      {scheduled && (
+        <div className="mt-2.5 flex gap-2.5">
+          <input type="date" value={scheduleDate} onChange={(e) => setScheduleDate(e.target.value)} className="flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-[var(--m3-primary)]" />
+          <input type="time" value={scheduleTime} onChange={(e) => setScheduleTime(e.target.value)} className="flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-[var(--m3-primary)]" />
+        </div>
+      )}
+
+      {/* Options */}
+      <SectionHeader title="Options" icon={Shield} />
+      <div className="space-y-2.5">
+        <M3Card
+          onClick={() => setLabor(!labor)}
+          className="flex items-center gap-4"
+          style={labor ? { borderColor: "var(--m3-primary)", borderWidth: 2 } : undefined}
+        >
+          <div className="grid h-10 w-10 place-items-center rounded-xl" style={labor ? { background: "var(--m3-primary)", color: "var(--m3-on-primary)" } : { background: "#f1f5f9", color: "#94a3b8" }}>
+            <Users className="h-5 w-5" />
+          </div>
+          <div className="flex-1 text-left">
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-semibold text-slate-800">Main-d'œuvre</p>
+              <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ background: "var(--m3-container)", color: "var(--m3-primary)" }}>+2 000 F</span>
+            </div>
+            <p className="text-xs text-slate-400">Aide au chargement / déchargement</p>
+          </div>
+          <ToggleCircle active={labor} />
+        </M3Card>
+
+        <M3Card
+          onClick={() => setInsurance(!insurance)}
+          className="flex items-center gap-4"
+          style={insurance ? { borderColor: "var(--m3-primary)", borderWidth: 2 } : undefined}
+        >
+          <div className="grid h-10 w-10 place-items-center rounded-xl" style={insurance ? { background: "var(--m3-primary)", color: "var(--m3-on-primary)" } : { background: "#f1f5f9", color: "#94a3b8" }}>
+            <Shield className="h-5 w-5" />
+          </div>
+          <div className="flex-1 text-left">
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-semibold text-slate-800">Assurance transport</p>
+              <span className="rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ background: "var(--m3-container)", color: "var(--m3-primary)" }}>+500 F</span>
+            </div>
+            <p className="text-xs text-slate-400">Protection de vos biens</p>
+          </div>
+          <ToggleCircle active={insurance} />
+        </M3Card>
       </div>
-    </div>
+
+      {/* Paiement */}
+      <div className="mt-4 flex gap-2.5">
+        <button
+          onClick={() => setPayTime("before")}
+          className="flex-1 rounded-full py-3.5 text-sm font-semibold transition"
+          style={payTime === "before" ? { background: "var(--m3-primary)", color: "var(--m3-on-primary)" } : { background: "#fff", color: "#475569", border: "1px solid #e2e8f0" }}
+        >
+          Avant la course
+        </button>
+        <button
+          onClick={() => setPayTime("after")}
+          className="flex-1 rounded-full py-3.5 text-sm font-semibold transition"
+          style={payTime === "after" ? { background: "var(--m3-primary)", color: "var(--m3-on-primary)" } : { background: "#fff", color: "#475569", border: "1px solid #e2e8f0" }}
+        >
+          Après livraison
+        </button>
+      </div>
+
+      {/* Total */}
+      <M3Card tonal className="mt-4 space-y-2">
+        <div className="flex justify-between text-sm">
+          <span className="opacity-70">Transport ({selectedVehicle.label})</span>
+          <span style={{ fontFamily: "'Space Grotesk', monospace" }}>{selectedVehicle.basePrice.toLocaleString()} F</span>
+        </div>
+        {labor && <div className="flex justify-between text-sm"><span className="opacity-70">Main-d'œuvre</span><span style={{ fontFamily: "'Space Grotesk', monospace" }}>2 000 F</span></div>}
+        {insurance && <div className="flex justify-between text-sm"><span className="opacity-70">Assurance</span><span style={{ fontFamily: "'Space Grotesk', monospace" }}>500 F</span></div>}
+        <div className="mt-2 flex justify-between border-t border-current/10 pt-3">
+          <span className="font-semibold">Total</span>
+          <span className="text-lg font-bold" style={{ fontFamily: "'Space Grotesk', monospace" }}>{total.toLocaleString()} FCFA</span>
+        </div>
+      </M3Card>
+
+      <div className="mt-5">
+        <M3Button onClick={handleOrder} disabled={ordering} icon={ordering ? undefined : ChevronRight}>
+          {ordering ? "Confirmation..." : "Commander"}
+        </M3Button>
+      </div>
+    </M3Page>
   );
 }
 
 function ToggleCircle({ active }: { active: boolean }) {
   return (
-    <div className={`w-5 h-5 rounded-full border-2 transition-all ${active ? "bg-blue-500 border-blue-500" : "border-slate-300"}`}>
-      {active && <svg width="20" height="20" viewBox="0 0 20 20"><path d="M5 10L9 14L15 6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>}
+    <div className="grid h-5 w-5 place-items-center rounded-full border-2 transition-all" style={active ? { background: "var(--m3-primary)", borderColor: "var(--m3-primary)" } : { borderColor: "#cbd5e1" }}>
+      {active && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
     </div>
   );
 }

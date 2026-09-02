@@ -13,7 +13,7 @@ import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { AfricanPattern } from "./icons";
 import { boldBrand } from "./brand-text";
 
-/* ─── Photos africaines réelles (fournies) ─── */
+/* --- Photos africaines réelles (fournies) --- */
 import photoMoto from "../../imports/photo_4_2026-06-26_14-18-37.jpg";
 import photoDriver from "../../imports/photo_5_2026-06-26_14-18-37.jpg";
 import photoTravel from "../../imports/photo_14_2026-06-26_14-18-38.jpg";
@@ -25,7 +25,7 @@ import photoMerchant from "../../imports/photo_9_2026-06-26_14-18-38.jpg";
 import photoAirport from "../../imports/photo_15_2026-06-26_14-18-38.jpg";
 import photoWarehouse from "../../imports/photo_8_2026-06-26_14-18-38.jpg";
 
-/* ─── Photos nouvelles (voyages & gestion d'objets) ─── */
+/* --- Photos nouvelles (voyages & gestion d'objets) --- */
 import photoTripStudents from "../../imports/photo_12_2026-06-26_14-29-33.jpg";
 import photoTripFamily from "../../imports/photo_4_2026-06-26_14-29-33.jpg";
 import photoTripBusiness from "../../imports/photo_8_2026-06-26_14-29-33.jpg";
@@ -36,7 +36,7 @@ import photoBagsCheck from "../../imports/photo_14_2026-06-26_14-29-33.jpg";
 import photoBagsLuggage from "../../imports/photo_15_2026-06-26_14-29-33.jpg";
 import photoBagsTraveller from "../../imports/photo_14_2026-06-26_14-18-38-1.jpg";
 
-/* ─── Marketplace & boutique mode ─── */
+/* --- Marketplace & boutique mode --- */
 import photoMarketplace from "../../imports/photo_2_2026-06-26_14-45-04.jpg";
 import photoLuxe from "../../imports/photo_8_2026-06-26_14-45-04.jpg";
 import {
@@ -580,7 +580,7 @@ function CategoryTitle({ cat }: { cat: Category }) {
 export function ServicesCatalog({ onCta }: { onCta: () => void }) {
   return (
     <>
-      {/* En-tête général — texte intégral verbatim */}
+      {/* En-tête général - texte intégral verbatim */}
       <section id="services" className="relative overflow-hidden bg-gradient-to-b from-[#1E6091]/8 via-white to-[#2A9D8F]/8 py-16 md:py-20">
         <div aria-hidden className="absolute inset-0 text-[#1E6091]"><AfricanPattern opacity={0.05} /></div>
         <div
@@ -660,7 +660,7 @@ export function ServicesCatalog({ onCta }: { onCta: () => void }) {
               <CategoryTitle cat={cat} />
             </motion.header>
 
-            {/* Blocs alternés — image à côté du texte, hiérarchie claire */}
+            {/* Blocs alternés - image à côté du texte, hiérarchie claire */}
             <div className="space-y-14 md:space-y-20">
               {cat.services.map((s, i) => {
                 const imgRight = i % 2 === 1;
@@ -670,7 +670,7 @@ export function ServicesCatalog({ onCta }: { onCta: () => void }) {
                     key={s.title}
                     className="grid md:grid-cols-2 gap-6 md:gap-10 lg:gap-14 items-center"
                   >
-                    {/* Image — affichée en entier, non rognée */}
+                    {/* Image - affichée en entier, non rognée */}
                     <motion.div
                       className={imgRight ? "md:order-2" : ""}
                       initial={{ opacity: 0, x: imgRight ? 60 : -60 }}
@@ -684,7 +684,7 @@ export function ServicesCatalog({ onCta }: { onCta: () => void }) {
                       </div>
                     </motion.div>
 
-                    {/* Texte — badge › titre › slogan › paragraphes › CTA */}
+                    {/* Texte - badge › titre › slogan › paragraphes › CTA */}
                     <motion.div
                       className={imgRight ? "md:order-1" : ""}
                       initial={{ opacity: 0, x: imgRight ? -60 : 60 }}
@@ -735,7 +735,7 @@ export function ServicesCatalog({ onCta }: { onCta: () => void }) {
         </section>
       ))}
 
-      {/* Pourquoi choisir IPPOO TRIIP ? — verbatim */}
+      {/* Pourquoi choisir IPPOO TRIIP ? - verbatim */}
       <section className="relative overflow-hidden bg-gradient-to-br from-[#1E6091] to-[#2A9D8F] py-16 md:py-20">
         <div aria-hidden className="absolute inset-0 text-white"><AfricanPattern opacity={0.07} /></div>
         <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 w-80 h-80 rounded-full blur-[110px] opacity-25" style={{ background: "#F77F00" }} />

@@ -1,5 +1,5 @@
 /**
- * Traductions IPPOO — 4 langues : Français (par défaut), Fon, Yoruba, English.
+ * Traductions IPPOO - 4 langues : Français (par défaut), Fon, Yoruba, English.
  * Fon et Yoruba sont les langues majoritaires au Bénin.
  *
  * Source des traductions : équipe locale Cotonou (à valider linguistiquement).

@@ -13,7 +13,7 @@
 import { useEffect, type RefObject } from "react";
 import { useLocation, useNavigationType } from "react-router";
 
-const STORAGE_KEY = "ippoo_scroll_positions_v1";
+const STORAGE_KEY = "ippoo_triip_scroll_positions_v1";
 
 function loadPositions(): Record<string, number> {
   try {
@@ -27,7 +27,7 @@ function savePositions(positions: Record<string, number>) {
   try {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(positions));
   } catch {
-    /* quota — ignoré */
+    /* quota - ignoré */
   }
 }
 
@@ -42,12 +42,12 @@ export function useScrollRestoration(ref: RefObject<HTMLElement | null>) {
     if (!el) return;
 
     if (navType === "POP") {
-      // Retour navigateur — restaurer la position d'avant
+      // Retour navigateur - restaurer la position d'avant
       const positions = loadPositions();
       const saved = positions[location.key];
       el.scrollTo({ top: typeof saved === "number" ? saved : 0, left: 0, behavior: "auto" });
     } else {
-      // Nouvelle navigation — repartir du haut
+      // Nouvelle navigation - repartir du haut
       el.scrollTo({ top: 0, left: 0, behavior: "auto" });
     }
 

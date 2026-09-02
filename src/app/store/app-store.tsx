@@ -1,5 +1,5 @@
 /**
- * Store applicatif IPPOO — Context + useReducer + sélecteurs.
+ * Store applicatif IPPOO - Context + useReducer + sélecteurs.
  * Remplace la prolifération de localStorage / useState dispersés.
  */
 import {
@@ -33,9 +33,9 @@ const initial: AppState = {
   wallet: null,
   notifications: [],
   activeRide: null,
-  language: (localStorage.getItem("ippoo_lang") as Language) || "fr",
-  theme: (localStorage.getItem("ippoo_theme") as Theme) || "light",
-  lowDataMode: localStorage.getItem("ippoo_low_data") === "1",
+  language: (localStorage.getItem("ippoo_triip_lang") as Language) || "fr",
+  theme: (localStorage.getItem("ippoo_triip_theme") as Theme) || "light",
+  lowDataMode: localStorage.getItem("ippoo_triip_low_data") === "1",
   online: typeof navigator === "undefined" ? true : navigator.onLine,
   hydrated: false,
 };
@@ -70,14 +70,14 @@ function reducer(s: AppState, a: Action): AppState {
       };
     case "SET_ACTIVE_RIDE": return { ...s, activeRide: a.ride };
     case "SET_LANGUAGE":
-      localStorage.setItem("ippoo_lang", a.language);
+      localStorage.setItem("ippoo_triip_lang", a.language);
       return { ...s, language: a.language };
     case "SET_THEME":
-      localStorage.setItem("ippoo_theme", a.theme);
+      localStorage.setItem("ippoo_triip_theme", a.theme);
       document.documentElement.dataset.theme = a.theme;
       return { ...s, theme: a.theme };
     case "SET_LOW_DATA":
-      localStorage.setItem("ippoo_low_data", a.on ? "1" : "0");
+      localStorage.setItem("ippoo_triip_low_data", a.on ? "1" : "0");
       document.documentElement.dataset.lowData = a.on ? "1" : "0";
       return { ...s, lowDataMode: a.on };
     case "SET_ONLINE": return { ...s, online: a.online };
@@ -91,7 +91,16 @@ type Ctx = {
   logout: () => Promise<void>;
 };
 
-const AppCtx = createContext<Ctx | null>(null);
+// Singleton global : évite qu'un rechargement à chaud (HMR) ou une double
+// évaluation du module ne crée deux contextes distincts, ce qui casserait
+// l'appariement Provider/consumer (« useAppStore doit être utilisé dans
+// <AppStoreProvider> » alors que le Provider est bien présent).
+const globalScope = globalThis as unknown as {
+  __ippooTriipAppCtx?: React.Context<Ctx | null>;
+};
+const AppCtx: React.Context<Ctx | null> =
+  globalScope.__ippooTriipAppCtx ??
+  (globalScope.__ippooTriipAppCtx = createContext<Ctx | null>(null));
 
 export function AppStoreProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initial);

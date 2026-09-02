@@ -10,10 +10,10 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "motion/react";
 import logoImg from "../../imports/IPPOO_Transport_&_Logistique-1.png";
 
-/* ─── Images ─── */
+/* --- Images --- */
 const ROTATION_IMG = "https://images.unsplash.com/photo-1623930376524-ead3734be423?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb3RvcmN5Y2xlJTIwcGFya2VkJTIwYWZyaWNhbiUyMHN0cmVldHxlbnwxfHx8fDE3NzU5MjM1OTl8MA&ixlib=rb-4.1.0&q=80&w=1080";
 
-/* ─── Avatars locataires ─── */
+/* --- Avatars locataires --- */
 const TENANT_AVATARS: Record<string, string> = {
   "AK": "https://images.unsplash.com/photo-1690564971527-b21f5b939dff?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxibGFjayUyMG1hbiUyMG1vdG9yY3ljbGUlMjByaWRlciUyMHBvcnRyYWl0fGVufDF8fHx8MTc3NTkxNTExNXww&ixlib=rb-4.1.0&q=80&w=400",
   "KD": "https://images.unsplash.com/photo-1668752600261-e56e7f3780b6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhZnJpY2FuJTIwbWFuJTIwcHJvZmVzc2lvbmFsJTIwcG9ydHJhaXQlMjBoZWFkc2hvdHxlbnwxfHx8fDE3NzU5MjM1OTl8MA&ixlib=rb-4.1.0&q=80&w=400",
@@ -21,7 +21,7 @@ const TENANT_AVATARS: Record<string, string> = {
   "YG": "https://images.unsplash.com/photo-1597384708133-af8b03bb1287?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxibGFjayUyMG1hbiUyMHBvcnRyYWl0JTIwY2FzdWFsJTIweY9uclMgYXZyaWNhufGVufDF8fHx8MTc3NTkxNTExM3ww&ixlib=rb-4.1.0&q=80&w=400",
 };
 
-/* ─── Types ─── */
+/* --- Types --- */
 interface Tenant {
   id: string;
   initials: string;
@@ -60,7 +60,7 @@ interface Declaration {
   timestamp?: string;
 }
 
-/* ─── Mock Data ─── */
+/* --- Mock Data --- */
 const VEHICLE = {
   model: "TVS Apache 200",
   plate: "AB-1234-RB",
@@ -89,7 +89,7 @@ const rotationCycle: RotationWeek[] = [
 
 type TabType = "planning" | "declaration" | "restitution" | "scores";
 
-/* ─── Avatar Helper ─── */
+/* --- Avatar Helper --- */
 function TenantAvatar({ initials, size = 40 }: { initials: string; size?: number }) {
   const src = TENANT_AVATARS[initials];
   return (
@@ -105,7 +105,7 @@ function TenantAvatar({ initials, size = 40 }: { initials: string; size?: number
   );
 }
 
-/* ─── Score Badge ─── */
+/* --- Score Badge --- */
 function ScoreBadge({ score }: { score: number }) {
   const color = score >= 80 ? "text-emerald-500" : score >= 60 ? "text-amber-500" : "text-red-500";
   const bg = score >= 80 ? "bg-emerald-50" : score >= 60 ? "bg-amber-50" : "bg-red-50";
@@ -116,7 +116,7 @@ function ScoreBadge({ score }: { score: number }) {
   );
 }
 
-/* ─── Checklist Item ─── */
+/* --- Checklist Item --- */
 function CheckItem({ label, checked, onToggle }: { label: string; checked: boolean; onToggle: () => void }) {
   return (
     <button onClick={onToggle} className="flex items-center gap-3 py-2.5 border-b border-slate-100 last:border-0 w-full text-left">
@@ -128,7 +128,7 @@ function CheckItem({ label, checked, onToggle }: { label: string; checked: boole
   );
 }
 
-/* ────────────────────────────────────── MAIN ─────────────────────────────────── */
+/* -------------------------------------- MAIN ----------------------------------- */
 export function LOARotationPage() {
   const navigate = useNavigate();
   const [parallaxY, setParallaxY] = useState(0);
@@ -204,7 +204,7 @@ export function LOARotationPage() {
 
   return (
     <div ref={scrollRef} className="min-h-screen bg-slate-50 pb-6 overflow-y-auto" style={{ height: "100vh" }}>
-      {/* ── Header ── */}
+      {/* -- Header -- */}
       <div className="relative overflow-hidden rounded-b-[2rem] shadow-sm">
         <img src={ROTATION_IMG} alt="" className="absolute inset-0 w-full h-[130%] object-cover will-change-transform" style={{ transform: `translateY(-${parallaxY}px) scale(${1 + parallaxY * 0.001})` }} />
         <div className="absolute inset-0 bg-gradient-to-b from-[#1E6091]/85 via-[#1E6091]/70 to-[#2A9D8F]/80" />
@@ -235,7 +235,7 @@ export function LOARotationPage() {
         </div>
       </div>
 
-      {/* ── Tabs ── */}
+      {/* -- Tabs -- */}
       <div className="px-5 mt-4">
         <div className="flex bg-white rounded-2xl p-1 shadow-sm">
           {tabs.map(t => (
@@ -251,7 +251,7 @@ export function LOARotationPage() {
         </div>
       </div>
 
-      {/* ── Notifications ── */}
+      {/* -- Notifications -- */}
       {notifications.filter(n => !n.read).length > 0 && tab === "planning" && (
         <div className="px-5 mt-4 space-y-2">
           {notifications.filter(n => !n.read).map(n => (
@@ -271,7 +271,7 @@ export function LOARotationPage() {
         </div>
       )}
 
-      {/* ── Tab Content ── */}
+      {/* -- Tab Content -- */}
       <div className="px-5 mt-4">
         <AnimatePresence mode="wait">
           {tab === "planning" && (
@@ -458,7 +458,7 @@ export function LOARotationPage() {
                   }`}
                 >
                   <Upload className="w-4 h-4" />
-                  {declInsurance ? "Attestation téléchargée ✓" : "Télécharger attestation d'assurance"}
+                  {declInsurance ? "Attestation téléchargée" : "Télécharger attestation d'assurance"}
                 </button>
               </div>
 
@@ -541,7 +541,7 @@ export function LOARotationPage() {
                 }`}
               >
                 <FileCheck className="w-4 h-4" />
-                {declStatus === "validated" ? "Déclaration validée ✓" :
+                {declStatus === "validated" ? "Déclaration validée" :
                  declStatus === "pending" ? "En attente de validation..." :
                  "Soumettre la déclaration préalable"}
               </button>

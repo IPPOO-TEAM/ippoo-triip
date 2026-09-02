@@ -1,5 +1,5 @@
 /**
- * Mode hors-ligne IPPOO — file de synchronisation persistée dans IndexedDB.
+ * Mode hors-ligne IPPOO - file de synchronisation persistée dans IndexedDB.
  * Critique pour le marché béninois (réseau 2G/3G instable).
  *
  * Usage :
@@ -9,7 +9,7 @@
 import { logger } from "./logger";
 import { api } from "../api/client";
 
-const DB_NAME = "ippoo_offline";
+const DB_NAME = "ippoo_triip_offline";
 const DB_VERSION = 1;
 const STORE = "queue";
 
@@ -110,7 +110,7 @@ export function installOfflineSync() {
   setTimeout(() => flushQueue(), 2000);
 }
 
-/* ──── Cache générique (lecture seule) ──── */
+/* ---- Cache générique (lecture seule) ---- */
 const CACHE_STORE = "cache";
 
 async function openCacheDb(): Promise<IDBDatabase> {

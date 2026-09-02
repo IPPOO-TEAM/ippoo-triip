@@ -8,7 +8,7 @@
  */
 import { useSyncExternalStore } from "react";
 
-export type PushType = "info" | "promo" | "success" | "alert";
+export type PushType = "info" | "promo" | "success" | "alert" | "system" | "ride" | "payment" | "sos";
 export type PushTarget = "all" | "clients" | "drivers";
 
 export interface PushNotif {
@@ -20,8 +20,8 @@ export interface PushNotif {
   createdAt: number;
 }
 
-const FEED_KEY = "ippoo_push_feed";
-const SEEN_KEY = "ippoo_push_seen";
+const FEED_KEY = "ippoo_triip_push_feed";
+const SEEN_KEY = "ippoo_triip_push_seen";
 const MAX = 30;
 
 function load(): PushNotif[] {
@@ -78,6 +78,35 @@ export function broadcastPush(p: {
   return notif;
 }
 
+/**
+ * Injecte une notification reçue en TEMPS RÉEL (Realtime broadcast) dans le
+ * flux, SANS persister en localStorage. Le broadcast Supabase atteint déjà
+ * chaque onglet/appareil indépendamment : persister ici déclencherait un
+ * doublon via l'événement `storage` sur les autres onglets du même appareil.
+ * Déduplique par id si fourni.
+ */
+export function ingestPush(p: {
+  id?: string;
+  title: string;
+  body: string;
+  type?: PushType;
+  target?: PushTarget;
+}): PushNotif {
+  const id = p.id ?? newId();
+  if (feed.some((n) => n.id === id)) return feed[0];
+  const notif: PushNotif = {
+    id,
+    title: p.title,
+    body: p.body,
+    type: p.type ?? "info",
+    target: p.target ?? "all",
+    createdAt: Date.now(),
+  };
+  feed = [notif, ...feed].slice(0, MAX);
+  emit();
+  return notif;
+}
+
 export function getPushFeed(): PushNotif[] {
   return feed;
 }
@@ -94,7 +123,7 @@ export function usePushFeed(): PushNotif[] {
   return useSyncExternalStore(subscribe, getPushFeed, getPushFeed);
 }
 
-/* ── Suivi des notifications déjà affichées (pour ne pas les rejouer) ── */
+/* -- Suivi des notifications déjà affichées (pour ne pas les rejouer) -- */
 export function getSeenIds(): Set<string> {
   try {
     return new Set(JSON.parse(localStorage.getItem(SEEN_KEY) || "[]"));
@@ -113,7 +142,7 @@ export function markSeen(id: string) {
   }
 }
 
-/* ── Synchronisation inter-onglets / inter-espaces ── */
+/* -- Synchronisation inter-onglets / inter-espaces -- */
 if (typeof window !== "undefined") {
   window.addEventListener("storage", (e) => {
     if (e.key === FEED_KEY) {

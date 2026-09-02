@@ -1,10 +1,10 @@
 import { useNavigate, useParams } from "react-router";
-import { ArrowLeft, Calendar, CheckCircle, Share2, Clock, Sparkles, Users, Copy } from "lucide-react";
+import { Calendar, CheckCircle, Share2, Clock, Sparkles, Users } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
-import { AfricanPattern } from "./icons";
 import { promoSlides } from "./home-page";
 import type { PromoSlide } from "./home-page";
 import { toast } from "sonner";
+import { M3Page, SectionHeader, M3Card, M3Button } from "./m3";
 
 export function PromoDetailPage() {
   const navigate = useNavigate();
@@ -13,25 +13,21 @@ export function PromoDetailPage() {
 
   if (!promo) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-white px-5">
-        <p className="text-gray-500 mb-4">Promotion introuvable</p>
-        <button
-          onClick={() => navigate("/app")}
-          className="bg-[#F77F00] text-black px-6 py-3 rounded-xl"
-        >
-          Retour a l'accueil
-        </button>
+      <div className="flex min-h-screen flex-col items-center justify-center bg-white px-5">
+        <p className="mb-4 text-slate-500">Promotion introuvable</p>
+        <div className="w-full max-w-xs">
+          <M3Button onClick={() => navigate("/app")}>Retour a l'accueil</M3Button>
+        </div>
       </div>
     );
   }
 
   const isPartner = promo.type === "partner";
   const title = isPartner ? promo.label : promo.title;
-  const gradient = isPartner ? "from-gray-800 to-gray-900" : (promo.gradient ?? "from-[#F77F00] to-[#E9C46A]");
 
   const badgeConfig: Record<string, { bg: string }> = {
-    Nouveau: { bg: "bg-[#2A9D8F]" },
-    Limité: { bg: "bg-[#D62828]" },
+    Nouveau: { bg: "bg-emerald-500" },
+    Limité: { bg: "bg-rose-600" },
   };
 
   const handleShare = async () => {
@@ -50,134 +46,99 @@ export function PromoDetailPage() {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero */}
-      <div className="relative h-56 overflow-hidden">
-        <ImageWithFallback
-          src={promo.image}
-          alt={title ?? ""}
-          className="w-full h-full object-cover"
-        />
-        {!isPartner && (
-          <div className={`absolute inset-0 bg-gradient-to-t ${gradient} opacity-60`} />
-        )}
-        {isPartner && (
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-        )}
-
-        {/* Top bar */}
-        <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-4 pt-12">
-          <button
-            onClick={() => navigate(-1)}
-            className="w-10 h-10 bg-black/30 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20"
-          >
-            <ArrowLeft className="w-5 h-5 text-white" strokeWidth={1.8} />
-          </button>
-          <button
-            onClick={handleShare}
-            className="w-10 h-10 bg-black/30 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20 active:scale-90 transition"
-          >
-            <Share2 className="w-5 h-5 text-white" strokeWidth={1.8} />
-          </button>
-        </div>
-
-        {/* Bottom info overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-5">
-          <div className="flex items-center gap-2 mb-2">
-            {isPartner && (
-              <span className="bg-white/20 backdrop-blur-sm text-white text-[10px] px-2.5 py-1 rounded-full border border-white/15">
-                Partenaire
-              </span>
-            )}
-            {promo.profileTarget && (
-              <span className="bg-white/20 backdrop-blur-sm text-white text-[10px] px-2.5 py-1 rounded-full border border-white/15 flex items-center gap-1">
-                <Users className="w-3 h-3" /> {promo.profileTarget}
-              </span>
-            )}
-            {promo.badge && (
-              <span className={`${badgeConfig[promo.badge].bg} text-white text-[10px] px-2.5 py-1 rounded-full shadow-sm`}>
-                {promo.badge}
-              </span>
-            )}
-          </div>
-          <h2 className="text-white drop-shadow-sm">{title}</h2>
-          {!isPartner && promo.subtitle && (
-            <p className="text-white/80 text-sm mt-1">{promo.subtitle}</p>
+  const Hero = (
+    <div className="relative overflow-hidden rounded-3xl">
+      <ImageWithFallback src={promo.image} alt={title ?? ""} className="h-40 w-full object-cover" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 p-4">
+        <div className="mb-2 flex flex-wrap items-center gap-2">
+          {isPartner && (
+            <span className="rounded-full border border-white/15 bg-white/20 px-2.5 py-1 text-[10px] text-white backdrop-blur-sm">Partenaire</span>
+          )}
+          {promo.profileTarget && (
+            <span className="flex items-center gap-1 rounded-full border border-white/15 bg-white/20 px-2.5 py-1 text-[10px] text-white backdrop-blur-sm">
+              <Users className="h-3 w-3" /> {promo.profileTarget}
+            </span>
+          )}
+          {promo.badge && (
+            <span className={`${badgeConfig[promo.badge]?.bg ?? "bg-slate-600"} rounded-full px-2.5 py-1 text-[10px] text-white shadow-sm`}>{promo.badge}</span>
           )}
         </div>
-      </div>
-
-      {/* Content */}
-      <div className="px-5 -mt-4 relative z-10">
-        <div className="bg-white rounded-2xl shadow-sm shadow-gray-200/60 p-5 border border-gray-100">
-          {/* Validity */}
-          <div className="flex items-center gap-3 mb-5 bg-amber-50 p-3.5 rounded-2xl border border-amber-100">
-            <div className="w-10 h-10 bg-amber-400 rounded-xl flex items-center justify-center shadow-md shadow-amber-400/30">
-              <Calendar className="w-5 h-5 text-white" strokeWidth={1.8} />
-            </div>
-            <div>
-              <p className="text-xs text-amber-600">Valable jusqu'au</p>
-              <p className="text-sm text-gray-800">{promo.validUntil}</p>
-            </div>
-          </div>
-
-          {/* Description */}
-          <div className="mb-5">
-            <div className="flex items-center gap-2 mb-3">
-              <Sparkles className="w-4 h-4 text-[#F77F00]" strokeWidth={1.8} />
-              <h3 className="title-gradient">Description</h3>
-            </div>
-            <p className="text-sm text-gray-600 leading-relaxed">{promo.description}</p>
-          </div>
-
-          {/* Conditions */}
-          <div className="mb-5">
-            <div className="flex items-center gap-2 mb-3">
-              <CheckCircle className="w-4 h-4 text-[#2A9D8F]" strokeWidth={1.8} />
-              <h3 className="title-gradient">Conditions</h3>
-            </div>
-            <div className="space-y-2.5">
-              {promo.conditions?.map((c, i) => (
-                <div key={i} className="flex items-start gap-2.5 bg-gray-50 p-3 rounded-xl">
-                  <div className="w-5 h-5 bg-[#2A9D8F]/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Clock className="w-3 h-3 text-[#2A9D8F]" strokeWidth={2} />
-                  </div>
-                  <p className="text-sm text-gray-600">{c}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* CTA */}
-        <button
-          onClick={() => {
-            if (!isPartner && promo.cta) {
-              // Navigate to the relevant service
-              const serviceMap: Record<string, string> = {
-                "Profiter": "/book-ride",
-                "Commander": "/delivery",
-                "Découvrir": "/carpool",
-                "Recharger": "/wallet",
-                "S'inscrire": "/book-ride",
-                "Activer": "/delivery",
-                "Souscrire": "/book-ride",
-                "Rejoindre": "/support",
-                "Vérifier": "/profile",
-                "Essayer": "/book-ride",
-                "Réserver": "/carpool",
-              };
-              navigate(serviceMap[promo.cta] || "/");
-            } else {
-              navigate("/app");
-            }
-          }}
-          className="w-full mt-5 mb-8 bg-[#F77F00] text-black py-4 rounded-2xl shadow-sm shadow-orange-400/30 active:scale-[0.98] transition-transform"
-        >
-          {isPartner ? "En savoir plus" : promo.cta ?? "Profiter de l'offre"}
-        </button>
+        <h2 className="text-lg font-bold text-white drop-shadow-sm" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{title}</h2>
+        {!isPartner && promo.subtitle && <p className="mt-0.5 text-sm text-white/80">{promo.subtitle}</p>}
       </div>
     </div>
   );
+
+  const serviceMap: Record<string, string> = {
+    "Profiter": "/book-ride", "Commander": "/delivery", "Découvrir": "/carpool",
+    "Recharger": "/wallet", "S'inscrire": "/book-ride", "Activer": "/delivery",
+    "Souscrire": "/book-ride", "Rejoindre": "/support", "Vérifier": "/profile",
+    "Essayer": "/book-ride", "Réserver": "/carpool",
+  };
+
+  return (
+    <M3Page
+      title="Offre"
+      subtitle="Details de la promotion"
+      icon={Sparkles}
+      hero={Hero}
+      trailing={
+        <button
+          onClick={handleShare}
+          aria-label="Partager"
+          className="grid h-9 w-9 place-items-center rounded-full border border-white/25 bg-white/15 text-[var(--m3-on-primary)] backdrop-blur-md transition active:scale-90"
+        >
+          <Share2 className="h-5 w-5" strokeWidth={2} />
+        </button>
+      }
+    >
+      <div className="mx-auto max-w-md space-y-4">
+        <M3Card tonal>
+          <div className="flex items-center gap-3">
+            <div className="grid h-10 w-10 place-items-center rounded-xl text-[var(--m3-on-primary)]" style={{ background: "var(--m3-primary)" }}>
+              <Calendar className="h-5 w-5" strokeWidth={1.8} />
+            </div>
+            <div>
+              <p className="text-xs opacity-70">Valable jusqu'au</p>
+              <p className="text-sm font-semibold">{promo.validUntil}</p>
+            </div>
+          </div>
+        </M3Card>
+
+        <M3Card delay={0.05}>
+          <SectionHeader title="Description" icon={Sparkles} />
+          <p className="text-sm leading-relaxed text-slate-600">{promo.description}</p>
+        </M3Card>
+
+        {promo.conditions && promo.conditions.length > 0 && (
+          <M3Card delay={0.1}>
+            <SectionHeader title="Conditions" icon={CheckCircle} />
+            <div className="space-y-2.5">
+              {promo.conditions.map((c, i) => (
+                <div key={i} className="flex items-start gap-2.5 rounded-xl bg-slate-50 p-3">
+                  <div className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full" style={{ background: "var(--m3-container)", color: "var(--m3-primary)" }}>
+                    <Clock className="h-3 w-3" strokeWidth={2} />
+                  </div>
+                  <p className="text-sm text-slate-600">{c}</p>
+                </div>
+              ))}
+            </div>
+          </M3Card>
+        )}
+
+        <M3Button
+          icon={Sparkles}
+          onClick={() => {
+            if (!isPartner && promo.cta) navigate(serviceMap[promo.cta] || "/");
+            else navigate("/app");
+          }}
+        >
+          {isPartner ? "En savoir plus" : promo.cta ?? "Profiter de l'offre"}
+        </M3Button>
+      </div>
+    </M3Page>
+  );
 }
+
+export default PromoDetailPage;

@@ -1,23 +1,23 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router";
 import {
-  ChevronLeft, Camera, User, Phone, Zap, Clock, ChevronRight,
-  FileText, Box, AlertTriangle, Weight, MapPin, Navigation, Check, X
+  Camera, User, Phone, Zap, Clock, ChevronRight,
+  FileText, Box, AlertTriangle, Weight, MapPin, Navigation, Check, X, PackageCheck
 } from "lucide-react";
-import { AfricanPattern } from "./icons";
 import { toast } from "sonner";
 import { getGPSPosition } from "./utils";
 import { usePlatformConfig, findOffer } from "../store/platform-config";
 import deliveryHeaderImg from "figma:asset/c3680b506d82e1e5ee8aa062c6524415e9f21293.png";
+import { M3Page, M3Card, M3Button, SectionHeader } from "./m3";
 
 /** Base de référence (prix « paquet standard ») servant à mettre la grille à l'échelle. */
 const DELIVERY_REF_BASE = 1500;
 
 const parcelTypes = [
-  { id: "document", icon: FileText, label: "Document", weight: "< 1 kg", gradient: "from-blue-500 to-indigo-600", shadow: "shadow-blue-500/25", lightBg: "bg-blue-50", lightColor: "text-blue-600", accent: "border-blue-400" },
-  { id: "paquet", icon: Box, label: "Paquet", weight: "1-5 kg", gradient: "from-orange-400 to-orange-600", shadow: "shadow-orange-500/25", lightBg: "bg-orange-50", lightColor: "text-orange-600", accent: "border-orange-400" },
-  { id: "fragile", icon: AlertTriangle, label: "Fragile", weight: "1-10 kg", gradient: "from-amber-400 to-amber-600", shadow: "shadow-amber-500/25", lightBg: "bg-amber-50", lightColor: "text-amber-600", accent: "border-amber-400" },
-  { id: "lourd", icon: Weight, label: "Lourd", weight: "10-30 kg", gradient: "from-rose-400 to-red-500", shadow: "shadow-red-500/25", lightBg: "bg-red-50", lightColor: "text-red-600", accent: "border-red-400" },
+  { id: "document", icon: FileText, label: "Document", weight: "< 1 kg" },
+  { id: "paquet", icon: Box, label: "Paquet", weight: "1-5 kg" },
+  { id: "fragile", icon: AlertTriangle, label: "Fragile", weight: "1-10 kg" },
+  { id: "lourd", icon: Weight, label: "Lourd", weight: "10-30 kg" },
 ];
 
 const pricingMap: Record<string, Record<string, number>> = {
@@ -42,13 +42,6 @@ export function DeliveryPage() {
   const [ordering, setOrdering] = useState(false);
   const [gpsLoading, setGpsLoading] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
-  const [parallaxY, setParallaxY] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => setParallaxY(window.scrollY * 0.4);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   // Tarifs pilotés par le back office : la grille est mise à l'échelle selon le
   // prix de départ de l'offre « Livraison » défini par l'admin.
@@ -95,252 +88,222 @@ export function DeliveryPage() {
     setTimeout(() => navigate("/app/tracking"), 1500);
   };
 
+  const hero = (
+    <div className="relative h-24 overflow-hidden rounded-3xl">
+      <img src={deliveryHeaderImg} alt="" className="absolute inset-0 h-full w-full object-cover" />
+      <div className="absolute inset-0" style={{ background: "linear-gradient(120deg, var(--m3-primary), transparent)" }} />
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <div className="relative overflow-hidden rounded-b-[2rem] shadow-sm">
-        <img src={deliveryHeaderImg} alt="" className="absolute inset-0 w-full h-[130%] object-cover will-change-transform" style={{ transform: `translateY(-${parallaxY}px) scale(${1 + parallaxY * 0.001})` }} />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#F77F00]/85 via-[#F77F00]/70 to-[#E9C46A]/80" />
-        <div className="absolute -right-10 -top-10 w-48 h-48 bg-white/15 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-36 h-36 bg-[#D62828]/15 rounded-full -ml-16 -mb-10 blur-3xl" />
-        <div className="relative z-10 px-5 pt-14 pb-8 flex items-center gap-3">
-          <button onClick={() => navigate(-1)} className="w-10 h-10 bg-white/15 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/15">
-            <ChevronLeft className="w-5 h-5 text-white" />
-          </button>
-          <div>
-            <h2 className="text-white">Livraison / Colis</h2>
-            <p className="text-orange-100 text-xs">Envoyez vos colis en toute securite</p>
-          </div>
-        </div>
+    <M3Page title="Livraison / Colis" subtitle="Envoyez vos colis en toute securite" icon={PackageCheck} hero={hero}>
+      {/* Type de colis */}
+      <SectionHeader title="Type de colis" icon={Box} />
+      <div className="grid grid-cols-4 gap-2.5">
+        {parcelTypes.map((t, i) => {
+          const isSelected = parcelType === t.id;
+          return (
+            <M3Card
+              key={t.id}
+              delay={0.04 * i}
+              onClick={() => setParcelType(t.id)}
+              className="!p-3 flex flex-col items-center gap-2"
+              style={isSelected ? { borderColor: "var(--m3-primary)", borderWidth: 2 } : undefined}
+            >
+              <div
+                className="grid h-10 w-10 place-items-center rounded-xl"
+                style={isSelected ? { background: "var(--m3-primary)", color: "var(--m3-on-primary)" } : { background: "#f1f5f9", color: "#94a3b8" }}
+              >
+                <t.icon className="h-4 w-4" />
+              </div>
+              <span className="text-[11px] font-medium text-slate-700">{t.label}</span>
+              <span className="text-[9px] text-slate-400">{t.weight}</span>
+            </M3Card>
+          );
+        })}
       </div>
 
-      <div className="px-5 py-5 space-y-5">
-        {/* Parcel type */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
-          <label className="text-sm text-slate-500 mb-3 block">Type de colis</label>
-          <div className="grid grid-cols-4 gap-2.5">
-            {parcelTypes.map((t) => {
-              const isSelected = parcelType === t.id;
-              return (
-                <button
-                  key={t.id}
-                  onClick={() => setParcelType(t.id)}
-                  className={`flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all ${
-                    isSelected ? `${t.accent} ${t.lightBg}` : "border-transparent bg-slate-50"
-                  }`}
-                >
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isSelected ? `bg-gradient-to-br ${t.gradient} shadow-sm ${t.shadow}` : "bg-slate-100"}`}>
-                    <t.icon className={`w-4 h-4 ${isSelected ? "text-white" : "text-slate-400"}`} />
-                  </div>
-                  <span className="text-[11px]">{t.label}</span>
-                  <span className="text-[9px] text-slate-400">{t.weight}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+      {/* Photo */}
+      <input
+        ref={photoInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={handlePhotoChange}
+      />
+      <button
+        onClick={handleTakePhoto}
+        className={`mt-4 flex w-full flex-col items-center gap-2 rounded-3xl border-2 border-dashed p-6 transition ${
+          photoTaken ? "border-emerald-300 bg-emerald-50/40" : "border-[var(--m3-primary)]/40 bg-white hover:bg-[var(--m3-container)]/30"
+        }`}
+      >
+        {photoTaken ? (
+          <>
+            {photoPreview && (
+              <img src={photoPreview} alt="Colis" className="mb-1 h-24 w-24 rounded-2xl object-cover shadow-md" />
+            )}
+            {!photoPreview && (
+              <div className="grid h-14 w-14 place-items-center rounded-2xl bg-emerald-400 text-white shadow-sm">
+                <Check className="h-6 w-6" />
+              </div>
+            )}
+            <span className="text-sm font-semibold text-emerald-600">Photo du colis prise</span>
+            <span className="text-[10px] text-slate-400">Appuyez pour changer</span>
+          </>
+        ) : (
+          <>
+            <div className="grid h-14 w-14 place-items-center rounded-2xl shadow-sm" style={{ background: "var(--m3-primary)", color: "var(--m3-on-primary)" }}>
+              <Camera className="h-6 w-6" />
+            </div>
+            <span className="text-sm text-slate-500">Prendre une photo du colis</span>
+            <span className="text-[10px] font-semibold text-[var(--m3-primary)]">Obligatoire</span>
+          </>
+        )}
+      </button>
 
-        {/* Photo */}
-        {/* Hidden camera input */}
-        <input
-          ref={photoInputRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          className="hidden"
-          onChange={handlePhotoChange}
+      {/* Description */}
+      <SectionHeader title="Description (optionnel)" icon={FileText} />
+      <M3Card>
+        <textarea
+          placeholder="Ex: Carton contenant des vetements..."
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          rows={2}
+          className="w-full resize-none rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-[var(--m3-primary)]"
         />
-        <button
-          onClick={handleTakePhoto}
-          className={`w-full border-2 border-dashed rounded-2xl p-6 flex flex-col items-center gap-2 transition ${
-            photoTaken
-              ? "border-emerald-300 bg-emerald-50/30"
-              : "border-orange-200 bg-white hover:bg-orange-50/30"
-          }`}
-        >
-          {photoTaken ? (
-            <>
-              {photoPreview && (
-                <img src={photoPreview} alt="Colis" className="w-24 h-24 object-cover rounded-2xl mb-1 shadow-md" />
-              )}
-              {!photoPreview && (
-                <div className="w-14 h-14 bg-emerald-400 rounded-2xl flex items-center justify-center shadow-sm shadow-green-500/25">
-                  <Check className="w-6 h-6 text-white" />
-                </div>
-              )}
-              <span className="text-sm text-emerald-600">Photo du colis prise ✓</span>
-              <span className="text-[10px] text-slate-400">Appuyez pour changer</span>
-            </>
-          ) : (
-            <>
-              <div className="w-14 h-14 bg-orange-400 rounded-2xl flex items-center justify-center shadow-sm shadow-orange-500/25">
-                <Camera className="w-6 h-6 text-white" />
-              </div>
-              <span className="text-sm text-slate-500">Prendre une photo du colis</span>
-              <span className="text-[10px] text-orange-500">Obligatoire</span>
-            </>
-          )}
-        </button>
+      </M3Card>
 
-        {/* Description */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
-          <label className="text-sm text-slate-500 mb-2 block">Description du colis (optionnel)</label>
-          <textarea
-            placeholder="Ex: Carton contenant des vetements..."
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={2}
-            className="w-full bg-slate-50 rounded-2xl px-4 py-3 border border-slate-100 text-sm outline-none focus:border-orange-300 resize-none"
-          />
-        </div>
-
-        {/* Addresses */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
-          <label className="text-sm text-slate-500 mb-3 block">Itineraire</label>
-          <div className="relative pl-8">
-            <div className="absolute left-3 top-5 bottom-5 w-[2px] bg-emerald-400 rounded-full" />
-            <div className="absolute left-[6px] top-3.5 w-3 h-3 rounded-full bg-emerald-400 shadow-md shadow-emerald-400/40 border-2 border-white" />
-            <div className="absolute left-[6px] bottom-3.5 w-3 h-3 rounded-full bg-orange-500 shadow-md shadow-orange-500/40 border-2 border-white" />
-            <div className="space-y-2.5">
-              <div className="flex items-center gap-2 bg-slate-50 rounded-2xl px-4 py-3 border border-slate-100 focus-within:border-emerald-300 transition">
-                <input
-                  placeholder="Adresse de recuperation"
-                  value={pickupAddress}
-                  onChange={(e) => setPickupAddress(e.target.value)}
-                  className="flex-1 bg-transparent outline-none text-sm"
-                />
-                {pickupAddress ? (
-                  <button onClick={() => setPickupAddress("")}><X className="w-4 h-4 text-slate-300" /></button>
-                ) : (
-                  <button
-                    onClick={handleGPS}
-                    disabled={gpsLoading}
-                    className="shrink-0"
-                  >
-                    {gpsLoading
-                      ? <div className="w-4 h-4 border-2 border-emerald-300 border-t-emerald-500 rounded-full animate-spin" />
-                      : <Navigation className="w-4 h-4 text-emerald-500" />
-                    }
-                  </button>
-                )}
-              </div>
-              <div className="flex items-center gap-2 bg-slate-50 rounded-2xl px-4 py-3 border border-slate-100 focus-within:border-orange-300 transition">
-                <input
-                  placeholder="Adresse de livraison"
-                  value={deliveryAddress}
-                  onChange={(e) => setDeliveryAddress(e.target.value)}
-                  className="flex-1 bg-transparent outline-none text-sm"
-                />
-                {deliveryAddress ? (
-                  <button onClick={() => setDeliveryAddress("")}><X className="w-4 h-4 text-slate-300" /></button>
-                ) : (
-                  <MapPin className="w-4 h-4 text-orange-500" />
-                )}
-              </div>
+      {/* Itineraire */}
+      <SectionHeader title="Itineraire" icon={MapPin} />
+      <M3Card>
+        <div className="relative pl-8">
+          <div className="absolute left-3 top-5 bottom-5 w-[2px] rounded-full" style={{ background: "var(--m3-primary)" }} />
+          <div className="absolute left-[6px] top-3.5 h-3 w-3 rounded-full border-2 border-white" style={{ background: "var(--m3-accent)" }} />
+          <div className="absolute left-[6px] bottom-3.5 h-3 w-3 rounded-full border-2 border-white" style={{ background: "var(--m3-primary)" }} />
+          <div className="space-y-2.5">
+            <div className="flex items-center gap-2 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 transition focus-within:border-[var(--m3-primary)]">
+              <input
+                placeholder="Adresse de recuperation"
+                value={pickupAddress}
+                onChange={(e) => setPickupAddress(e.target.value)}
+                className="flex-1 bg-transparent text-sm outline-none"
+              />
+              {pickupAddress ? (
+                <button onClick={() => setPickupAddress("")}><X className="h-4 w-4 text-slate-300" /></button>
+              ) : (
+                <button onClick={handleGPS} disabled={gpsLoading} className="shrink-0">
+                  {gpsLoading
+                    ? <div className="h-4 w-4 rounded-full border-2 border-[var(--m3-primary)]/30 border-t-[var(--m3-primary)] animate-spin" />
+                    : <Navigation className="h-4 w-4 text-[var(--m3-primary)]" />
+                  }
+                </button>
+              )}
+            </div>
+            <div className="flex items-center gap-2 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 transition focus-within:border-[var(--m3-primary)]">
+              <input
+                placeholder="Adresse de livraison"
+                value={deliveryAddress}
+                onChange={(e) => setDeliveryAddress(e.target.value)}
+                className="flex-1 bg-transparent text-sm outline-none"
+              />
+              {deliveryAddress ? (
+                <button onClick={() => setDeliveryAddress("")}><X className="h-4 w-4 text-slate-300" /></button>
+              ) : (
+                <MapPin className="h-4 w-4 text-[var(--m3-primary)]" />
+              )}
             </div>
           </div>
         </div>
+      </M3Card>
 
-        {/* Recipient */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm space-y-2.5">
-          <label className="text-sm text-slate-500">Destinataire</label>
-          <div className="flex items-center gap-3 bg-slate-50 rounded-2xl px-4 py-3 border border-slate-100 focus-within:border-violet-300 transition">
-            <User className="w-4 h-4 text-violet-500" />
-            <input placeholder="Nom du destinataire" value={recipientName} onChange={(e) => setRecipientName(e.target.value)} className="flex-1 bg-transparent outline-none text-sm" />
-          </div>
-          <div className="flex items-center gap-3 bg-slate-50 rounded-2xl px-4 py-3 border border-slate-100 focus-within:border-violet-300 transition">
-            <Phone className="w-4 h-4 text-violet-500" />
-            <input placeholder="Telephone du destinataire" type="tel" value={recipientPhone} onChange={(e) => setRecipientPhone(e.target.value)} className="flex-1 bg-transparent outline-none text-sm" />
-          </div>
+      {/* Destinataire */}
+      <SectionHeader title="Destinataire" icon={User} />
+      <M3Card className="space-y-2.5">
+        <div className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 transition focus-within:border-[var(--m3-primary)]">
+          <User className="h-4 w-4 text-[var(--m3-primary)]" />
+          <input placeholder="Nom du destinataire" value={recipientName} onChange={(e) => setRecipientName(e.target.value)} className="flex-1 bg-transparent text-sm outline-none" />
         </div>
-
-        {/* Delivery type */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm">
-          <label className="text-sm text-slate-500 mb-3 block">Type de livraison</label>
-          <div className="grid grid-cols-2 gap-2.5">
-            <button
-              onClick={() => setDeliveryType("express")}
-              className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all ${
-                deliveryType === "express" ? "border-orange-400 bg-orange-50" : "border-transparent bg-slate-50"
-              }`}
-            >
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${deliveryType === "express" ? "bg-orange-400 shadow-sm shadow-orange-500/25" : "bg-slate-100"}`}>
-                <Zap className={`w-5 h-5 ${deliveryType === "express" ? "text-white" : "text-slate-400"}`} />
-              </div>
-              <div className="text-left">
-                <p className="text-sm">Express</p>
-                <p className="text-[10px] text-slate-400">30-60 min</p>
-              </div>
-            </button>
-            <button
-              onClick={() => setDeliveryType("standard")}
-              className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all ${
-                deliveryType === "standard" ? "border-blue-400 bg-blue-50" : "border-transparent bg-slate-50"
-              }`}
-            >
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${deliveryType === "standard" ? "bg-blue-500 shadow-sm shadow-blue-500/25" : "bg-slate-100"}`}>
-                <Clock className={`w-5 h-5 ${deliveryType === "standard" ? "text-white" : "text-slate-400"}`} />
-              </div>
-              <div className="text-left">
-                <p className="text-sm">Standard</p>
-                <p className="text-[10px] text-slate-400">2-4 heures</p>
-              </div>
-            </button>
-          </div>
+        <div className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 transition focus-within:border-[var(--m3-primary)]">
+          <Phone className="h-4 w-4 text-[var(--m3-primary)]" />
+          <input placeholder="Telephone du destinataire" type="tel" value={recipientPhone} onChange={(e) => setRecipientPhone(e.target.value)} className="flex-1 bg-transparent text-sm outline-none" />
         </div>
+      </M3Card>
 
-        {/* Who pays */}
-        <div className="flex gap-2.5">
-          <button
-            onClick={() => setPayer("me")}
-            className={`flex-1 py-3.5 rounded-2xl text-sm transition-all ${
-              payer === "me" ? "bg-blue-500 text-white shadow-sm shadow-blue-500/25" : "bg-white text-slate-600 border border-slate-100"
-            }`}
-          >
-            Moi (expediteur)
-          </button>
-          <button
-            onClick={() => setPayer("dest")}
-            className={`flex-1 py-3.5 rounded-2xl text-sm transition-all ${
-              payer === "dest" ? "bg-blue-500 text-white shadow-sm shadow-blue-500/25" : "bg-white text-slate-600 border border-slate-100"
-            }`}
-          >
-            Destinataire
-          </button>
-        </div>
-
-        {/* Price summary */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-100 space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="text-slate-400">Type: {selectedType.label}</span>
-            <span className="text-slate-600">{selectedType.weight}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-slate-400">Livraison {deliveryType === "express" ? "Express" : "Standard"}</span>
-            <span className="text-slate-600">{deliveryType === "express" ? "30-60 min" : "2-4h"}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-slate-400">Paiement par</span>
-            <span className="text-slate-600">{payer === "me" ? "Expediteur" : "Destinataire"}</span>
-          </div>
-          <div className="flex justify-between border-t border-slate-100 pt-3 mt-2">
-            <span className="text-slate-800">Prix estime</span>
-            <span className="text-emerald-500 text-lg" style={{ fontFamily: "'Space Grotesk', monospace" }}>{price.toLocaleString()} FCFA</span>
-          </div>
-        </div>
-
-        <button
-          onClick={handleOrder}
-          disabled={ordering}
-          className={`w-full bg-orange-400 text-white py-4 rounded-2xl flex items-center justify-center gap-2 shadow-sm shadow-orange-500/25 transition-transform ${ordering ? "opacity-70 scale-[0.98]" : "active:scale-[0.98]"}`}
+      {/* Type de livraison */}
+      <SectionHeader title="Type de livraison" icon={Zap} />
+      <div className="grid grid-cols-2 gap-2.5">
+        <M3Card
+          onClick={() => setDeliveryType("express")}
+          className="flex items-center gap-3"
+          style={deliveryType === "express" ? { borderColor: "var(--m3-primary)", borderWidth: 2 } : undefined}
         >
-          {ordering ? (
-            <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Envoi en cours...</>
-          ) : (
-            <>Envoyer le colis <ChevronRight className="w-4 h-4" /></>
-          )}
+          <div className="grid h-10 w-10 place-items-center rounded-xl" style={deliveryType === "express" ? { background: "var(--m3-primary)", color: "var(--m3-on-primary)" } : { background: "#f1f5f9", color: "#94a3b8" }}>
+            <Zap className="h-5 w-5" />
+          </div>
+          <div className="text-left">
+            <p className="text-sm font-semibold">Express</p>
+            <p className="text-[10px] text-slate-400">30-60 min</p>
+          </div>
+        </M3Card>
+        <M3Card
+          onClick={() => setDeliveryType("standard")}
+          className="flex items-center gap-3"
+          style={deliveryType === "standard" ? { borderColor: "var(--m3-primary)", borderWidth: 2 } : undefined}
+        >
+          <div className="grid h-10 w-10 place-items-center rounded-xl" style={deliveryType === "standard" ? { background: "var(--m3-primary)", color: "var(--m3-on-primary)" } : { background: "#f1f5f9", color: "#94a3b8" }}>
+            <Clock className="h-5 w-5" />
+          </div>
+          <div className="text-left">
+            <p className="text-sm font-semibold">Standard</p>
+            <p className="text-[10px] text-slate-400">2-4 heures</p>
+          </div>
+        </M3Card>
+      </div>
+
+      {/* Payeur */}
+      <div className="mt-4 flex gap-2.5">
+        <button
+          onClick={() => setPayer("me")}
+          className="flex-1 rounded-full py-3.5 text-sm font-semibold transition"
+          style={payer === "me" ? { background: "var(--m3-primary)", color: "var(--m3-on-primary)" } : { background: "#fff", color: "#475569", border: "1px solid #e2e8f0" }}
+        >
+          Moi (expediteur)
+        </button>
+        <button
+          onClick={() => setPayer("dest")}
+          className="flex-1 rounded-full py-3.5 text-sm font-semibold transition"
+          style={payer === "dest" ? { background: "var(--m3-primary)", color: "var(--m3-on-primary)" } : { background: "#fff", color: "#475569", border: "1px solid #e2e8f0" }}
+        >
+          Destinataire
         </button>
       </div>
-    </div>
+
+      {/* Récap */}
+      <M3Card tonal className="mt-4 space-y-2">
+        <div className="flex justify-between text-sm">
+          <span className="opacity-70">Type: {selectedType.label}</span>
+          <span>{selectedType.weight}</span>
+        </div>
+        <div className="flex justify-between text-sm">
+          <span className="opacity-70">Livraison {deliveryType === "express" ? "Express" : "Standard"}</span>
+          <span>{deliveryType === "express" ? "30-60 min" : "2-4h"}</span>
+        </div>
+        <div className="flex justify-between text-sm">
+          <span className="opacity-70">Paiement par</span>
+          <span>{payer === "me" ? "Expediteur" : "Destinataire"}</span>
+        </div>
+        <div className="mt-2 flex justify-between border-t border-current/10 pt-3">
+          <span className="font-semibold">Prix estime</span>
+          <span className="text-lg font-bold" style={{ fontFamily: "'Space Grotesk', monospace" }}>{price.toLocaleString()} FCFA</span>
+        </div>
+      </M3Card>
+
+      <div className="mt-5">
+        <M3Button onClick={handleOrder} disabled={ordering} icon={ordering ? undefined : ChevronRight}>
+          {ordering ? "Envoi en cours..." : "Envoyer le colis"}
+        </M3Button>
+      </div>
+    </M3Page>
   );
 }

@@ -12,7 +12,7 @@ import { BrandLogo } from "./brand-logo";
 import { ServicesCatalog } from "./services-catalog";
 import { usePlatformConfig } from "../store/platform-config";
 
-/* ─── Local Images ─── */
+/* --- Local Images --- */
 import imgCovoiturage from "../../imports/Covoiturage-Côte-d-Ivoire-770x460.jpg";
 import imgLivreur from "../../imports/sourire-male-africain-courrier-livreur-messager-devant-voiture-livraison-colis_73622-995-1280x720-1.jpg";
 import imgCamion from "../../imports/camion-decharge-fourgon-transporte-boites-demenage-maison_265022-109728.jpg";
@@ -23,7 +23,7 @@ import imgHandoff from "../../imports/images_-_2026-04-10T164424.655.jpeg";
 import imgDelivery from "../../imports/images_-_2026-04-10T164336.787.jpeg";
 import imgArticle from "../../imports/article3-1.jpg";
 
-/* ─── Logos partenaires (sourcés depuis Wikimedia Commons) ─── */
+/* --- Logos partenaires (sourcés depuis Wikimedia Commons) --- */
 import logoMtn from "../../imports/partner-mtn.png";
 import logoMoov from "../../imports/partner-moov.png";
 import logoSobebra from "../../imports/partner-sobebra.png";
@@ -31,7 +31,7 @@ import logoGlo from "../../imports/partner-glo.png";
 import logoEcobank from "../../imports/partner-ecobank.png";
 import logoUba from "../../imports/partner-uba.png";
 
-/* ─── Images ─── */
+/* --- Images --- */
 const IMG_HERO = "https://images.unsplash.com/photo-1765475467677-579353b25ce0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3ZXN0JTIwYWZyaWNhJTIwYWVyaWFsJTIwY2l0eSUyMHZpZXd8ZW58MXx8fHwxNzc1OTI2OTkxfDA&ixlib=rb-4.1.0&q=80&w=1080";
 const IMG_MOTO = "https://images.unsplash.com/photo-1766087124181-0677409b73eb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhZnJpY2FuJTIwY2l0eSUyMG1vdG9yY3ljbGUlMjB0YXhpJTIwdHJhbnNwb3J0fGVufDF8fHx8MTc3NTkyNjk4OXww&ixlib=rb-4.1.0&q=80&w=1080";
 const IMG_DELIVERY = "https://images.unsplash.com/photo-1579240593479-de65b968a01a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkZWxpdmVyeSUyMGNvdXJpZXIlMjBwYWNrYWdlJTIwYWZyaWNhbiUyMHN0cmVldHxlbnwxfHx8fDE3NzU5MjY5OTB8MA&ixlib=rb-4.1.0&q=80&w=1080";
@@ -39,7 +39,7 @@ const IMG_APP = "https://images.unsplash.com/photo-1553448056-b6146f67f31c?crop=
 const IMG_CARPOOL = "https://images.unsplash.com/photo-1708347456816-f4d28505c855?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYXJwb29sJTIwcGFzc2VuZ2VycyUyMGhhcHB5JTIwYWZyaWNhbnxlbnwxfHx8fDE3NzU5MjY5OTF8MA&ixlib=rb-4.1.0&q=80&w=1080";
 const IMG_TRUCK = "https://images.unsplash.com/photo-1738507869660-b44ea20ab037?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cnVjayUyMGxvZ2lzdGljcyUyMGNhcmdvJTIwYWZyaWNhbiUyMHJvYWR8ZW58MXx8fHwxNzc1OTI2OTkxfDA&ixlib=rb-4.1.0&q=80&w=1080";
 
-/* ─── Data ─── */
+/* --- Data --- */
 const stats = [
   { value: "150K+", label: "Utilisateurs actifs", icon: Users },
   { value: "2M+", label: "Courses effectuées", icon: Bike },
@@ -94,7 +94,7 @@ const partners = [
   { name: "UBA", logo: logoUba },
 ];
 
-/* ─── Réseaux sociaux (icônes de marque SVG officielles) ─── */
+/* --- Réseaux sociaux (icônes de marque SVG officielles) --- */
 const socials = [
   {
     name: "WhatsApp",
@@ -128,7 +128,7 @@ const socials = [
   },
 ];
 
-/* ─── Component ─── */
+/* --- Component --- */
 export function LandingPage() {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -168,7 +168,7 @@ export function LandingPage() {
   return (
     <div ref={scrollRef} className="min-h-screen bg-white overflow-y-auto" style={{ height: "100vh" }}>
 
-      {/* ═══════════ NAVBAR ═══════════ */}
+      {/* ----------- NAVBAR ----------- */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
         <div className="max-w-6xl mx-auto px-5 md:px-8 flex items-center justify-between h-16">
           <BrandLogo height={28} plain />
@@ -214,7 +214,7 @@ export function LandingPage() {
         )}
       </nav>
 
-      {/* ═══════════ HERO ═══════════ */}
+      {/* ----------- HERO ----------- */}
       <section className="relative min-h-[100vh] md:min-h-[90vh] flex items-center overflow-hidden">
         <ImageWithFallback
           src={IMG_HERO}
@@ -237,7 +237,7 @@ export function LandingPage() {
             </h1>
 
             <p className="text-white/80 text-sm md:text-base mb-8 max-w-lg" style={{ lineHeight: 1.7 }}>
-              IPPOO TRIIP réunit l'ensemble des formules et moyens sécurisés pour vos livraisons diverses, le transport de biens, d'équipements et le convoyage de vos marchandises : taxi auto et moto, le coursing pour vos livraisons de colis rapides, les commandes groupées, vos déplacements et covoiturage toutes distances, ainsi que le fret maritime et aérien — selon vos besoins professionnels et particuliers.
+              IPPOO TRIIP réunit l'ensemble des formules et moyens sécurisés pour vos livraisons diverses, le transport de biens, d'équipements et le convoyage de vos marchandises : taxi auto et moto, le coursing pour vos livraisons de colis rapides, les commandes groupées, vos déplacements et covoiturage toutes distances, ainsi que le fret maritime et aérien - selon vos besoins professionnels et particuliers.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3">
@@ -275,7 +275,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ═══════════ À PROPOS ═══════════ */}
+      {/* ----------- À PROPOS ----------- */}
       <section id="apropos" data-animate className="py-16 md:py-24 bg-slate-50">
         <div className={`max-w-4xl mx-auto px-5 md:px-8 text-center transition-all duration-700 ${isVisible("apropos") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
           <div className="inline-flex items-center gap-2 bg-[#E9C46A] rounded-full px-4 py-2 mb-4">
@@ -310,10 +310,10 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ═══════════ SERVICES — CATALOGUE COMPLET ═══════════ */}
+      {/* ----------- SERVICES - CATALOGUE COMPLET ----------- */}
       <ServicesCatalog onCta={() => navigate("/login")} />
 
-      {/* ═══════════ HOW IT WORKS ═══════════ */}
+      {/* ----------- HOW IT WORKS ----------- */}
       <section id="comment" data-animate className="py-16 md:py-24 bg-slate-50">
         <div className={`max-w-6xl mx-auto px-5 md:px-8 transition-all duration-700 ${isVisible("comment") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
           <div className="text-center mb-12 md:mb-16">
@@ -372,7 +372,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ═══════════ FEATURES ═══════════ */}
+      {/* ----------- FEATURES ----------- */}
       <section id="fonctionnalités" data-animate className="py-16 md:py-24 bg-white">
         <div className={`max-w-6xl mx-auto px-5 md:px-8 transition-all duration-700 ${isVisible("fonctionnalités") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
           <div className="text-center mb-12 md:mb-16">
@@ -403,7 +403,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ═══════════ TESTIMONIALS ═══════════ */}
+      {/* ----------- TESTIMONIALS ----------- */}
       <section id="témoignages" data-animate className="py-16 md:py-24 bg-slate-50">
         <div className={`max-w-6xl mx-auto px-5 md:px-8 transition-all duration-700 ${isVisible("témoignages") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
           <div className="text-center mb-12 md:mb-16">
@@ -442,7 +442,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ═══════════ PARTNERS ═══════════ */}
+      {/* ----------- PARTNERS ----------- */}
       <section data-animate id="partenaires" className="py-12 md:py-16 bg-white border-t border-slate-100">
         <div className={`max-w-6xl mx-auto px-5 md:px-8 transition-all duration-700 ${isVisible("partenaires") ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
           <p className="text-center text-slate-400 text-xs mb-8">Nos partenaires de confiance</p>
@@ -463,7 +463,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ═══════════ CTA FINAL ═══════════ */}
+      {/* ----------- CTA FINAL ----------- */}
       <section data-animate id="cta" className="py-16 md:py-24 bg-gradient-to-br from-[#1E6091] to-[#2A9D8F] relative overflow-hidden">
         <div className="absolute -right-20 -top-20 w-80 h-80 bg-[#F77F00]/15 rounded-full blur-[100px]" />
         <div className="absolute -left-20 -bottom-20 w-60 h-60 bg-[#E9C46A]/15 rounded-full blur-[80px]" />
@@ -502,7 +502,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ═══════════ FOOTER ═══════════ */}
+      {/* ----------- FOOTER ----------- */}
       <footer id="contact" className="bg-slate-900 text-white">
         {/* Bande blanche avec le logo centré */}
         <div className="bg-white py-6 flex justify-center">

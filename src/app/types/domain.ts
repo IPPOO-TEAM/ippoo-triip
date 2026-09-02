@@ -1,10 +1,10 @@
 /**
- * Schéma de domaine centralisé IPPOO — validé par Zod
+ * Schéma de domaine centralisé IPPOO - validé par Zod
  * Toutes les entités métier de l'application transitent par ces schémas.
  */
 import { z } from "zod";
 
-/* ──────────── Identifiants & primitives ──────────── */
+/* ------------ Identifiants & primitives ------------ */
 export const IdSchema = z.string().min(1);
 export const PhoneBJSchema = z
   .string()
@@ -16,7 +16,7 @@ export const GeoPointSchema = z.object({
   label: z.string().optional(),
 });
 
-/* ──────────── Utilisateur ──────────── */
+/* ------------ Utilisateur ------------ */
 export const UserRoleSchema = z.enum(["client", "driver", "admin"]);
 export const KycStatusSchema = z.enum(["pending", "verified", "rejected"]);
 
@@ -25,15 +25,17 @@ export const UserSchema = z.object({
   role: UserRoleSchema,
   fullName: z.string().min(2),
   phone: PhoneBJSchema,
-  email: z.string().email().optional(),
-  avatarUrl: z.string().url().optional(),
+  // Tolérant aux null renvoyés par Postgres (convertis en undefined).
+  email: z.string().email().nullish().transform((v) => v ?? undefined),
+  avatarUrl: z.string().url().nullish().transform((v) => v ?? undefined),
   city: z.string().default("Cotonou"),
   language: z.enum(["fr", "fon", "yor", "en"]).default("fr"),
   kycStatus: KycStatusSchema.default("pending"),
-  createdAt: z.string().datetime(),
+  // Accepte les timestamps Postgres ("2026-09-02 12:34:56+00") comme l'ISO strict.
+  createdAt: z.string(),
 });
 
-/* ──────────── Chauffeur ──────────── */
+/* ------------ Chauffeur ------------ */
 export const VehicleTypeSchema = z.enum(["moto", "tricycle", "car", "van", "truck"]);
 
 export const DriverProfileSchema = UserSchema.extend({
@@ -47,7 +49,7 @@ export const DriverProfileSchema = UserSchema.extend({
   currentLocation: GeoPointSchema.optional(),
 });
 
-/* ──────────── Service / Course ──────────── */
+/* ------------ Service / Course ------------ */
 export const ServiceTypeSchema = z.enum([
   "taxi_moto",
   "delivery",
@@ -83,7 +85,7 @@ export const RideSchema = z.object({
   notes: z.string().optional(),
 });
 
-/* ──────────── Paiement & Wallet ──────────── */
+/* ------------ Paiement & Wallet ------------ */
 export const PaymentMethodSchema = z.enum([
   "mtn_momo",
   "moov_money",
@@ -130,7 +132,7 @@ export const WalletSchema = z.object({
   currency: z.literal("XOF").default("XOF"),
 });
 
-/* ──────────── Notification ──────────── */
+/* ------------ Notification ------------ */
 export const NotificationSchema = z.object({
   id: IdSchema,
   userId: IdSchema,
@@ -142,7 +144,7 @@ export const NotificationSchema = z.object({
   metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
-/* ──────────── Auth ──────────── */
+/* ------------ Auth ------------ */
 export const AuthTokensSchema = z.object({
   accessToken: z.string(),
   refreshToken: z.string(),
@@ -155,7 +157,7 @@ export const LoginRequestSchema = z.object({
   otp: z.string().length(6).optional(),
 });
 
-/* ──────────── Évènements de course (timeline) ──────────── */
+/* ------------ Évènements de course (timeline) ------------ */
 export const RideEventSchema = z.object({
   id: IdSchema,
   rideId: IdSchema,
@@ -165,7 +167,7 @@ export const RideEventSchema = z.object({
   location: GeoPointSchema.optional(),
 });
 
-/* ──────────── Parrainage ──────────── */
+/* ------------ Parrainage ------------ */
 export const ReferralStatusSchema = z.enum(["pending", "registered", "rewarded"]);
 
 export const ReferralSchema = z.object({
@@ -188,7 +190,7 @@ export const ReferralSummarySchema = z.object({
   referrals: z.array(ReferralSchema),
 });
 
-/* ──────────── Commande groupée ──────────── */
+/* ------------ Commande groupée ------------ */
 export const GroupOrderStatusSchema = z.enum([
   "open",
   "locked",
@@ -217,7 +219,7 @@ export const GroupOrderSchema = z.object({
   createdAt: z.string().datetime(),
 });
 
-/* ──────────── Covoiturage ──────────── */
+/* ------------ Covoiturage ------------ */
 export const CarpoolTripSchema = z.object({
   id: IdSchema,
   driverId: IdSchema,
@@ -232,7 +234,7 @@ export const CarpoolTripSchema = z.object({
   createdAt: z.string().datetime(),
 });
 
-/* ──────────── Fret aérien ──────────── */
+/* ------------ Fret aérien ------------ */
 export const AirFreightStatusSchema = z.enum([
   "quoted",
   "booked",
@@ -254,7 +256,7 @@ export const AirFreightShipmentSchema = z.object({
   createdAt: z.string().datetime(),
 });
 
-/* ──────────── Statistiques admin ──────────── */
+/* ------------ Statistiques admin ------------ */
 export const AdminStatsSchema = z.object({
   usersTotal: z.number().int().nonnegative(),
   driversOnline: z.number().int().nonnegative(),
@@ -267,7 +269,7 @@ export const AdminStatsSchema = z.object({
   revenue7d: z.array(z.object({ day: z.string(), amountXOF: MoneyXOFSchema })),
 });
 
-/* ──────────── Réponse paginée générique ──────────── */
+/* ------------ Réponse paginée générique ------------ */
 export function paginated<T extends z.ZodTypeAny>(item: T) {
   return z.object({
     items: z.array(item),
@@ -277,7 +279,7 @@ export function paginated<T extends z.ZodTypeAny>(item: T) {
   });
 }
 
-/* ──────────── Types exportés ──────────── */
+/* ------------ Types exportés ------------ */
 export type User = z.infer<typeof UserSchema>;
 export type UserRole = z.infer<typeof UserRoleSchema>;
 export type DriverProfile = z.infer<typeof DriverProfileSchema>;
