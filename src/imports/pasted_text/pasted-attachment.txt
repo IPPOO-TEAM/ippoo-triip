@@ -1,0 +1,205 @@
+2026-09-02T13:14:43.807Z	Initializing build environment...
+2026-09-02T13:14:46.560Z	Success: Finished initializing build environment
+2026-09-02T13:14:51.037Z	Cloning repository...
+2026-09-02T13:14:52.995Z	No build output detected to cache. Skipping.
+2026-09-02T13:14:52.995Z	No dependencies detected to cache. Skipping.
+2026-09-02T13:14:52.999Z	Detected the following tools from environment: bun@1.2.15, nodejs@24.18.0
+2026-09-02T13:14:53.002Z	Installing project dependencies: bun install
+2026-09-02T13:14:53.453Z	bun install v1.2.15 (df017990)
+2026-09-02T13:14:53.467Z	Resolving dependencies
+2026-09-02T13:14:58.869Z	Resolved, downloaded and extracted [1700]
+2026-09-02T13:14:58.871Z	warn: incorrect peer dependency "react@18.3.1"
+2026-09-02T13:14:58.872Z	
+2026-09-02T13:14:58.872Z	warn: incorrect peer dependency "react-dom@18.3.1"
+2026-09-02T13:14:58.872Z	
+2026-09-02T13:14:58.872Z	warn: incorrect peer dependency "react@18.3.1"
+2026-09-02T13:14:58.872Z	
+2026-09-02T13:14:58.872Z	warn: incorrect peer dependency "react-dom@18.3.1"
+2026-09-02T13:15:01.231Z	Saved lockfile
+2026-09-02T13:15:01.231Z	
+2026-09-02T13:15:01.231Z	+ @tailwindcss/vite@4.1.12 (v4.3.3 available)
+2026-09-02T13:15:01.231Z	+ @vitejs/plugin-react@4.7.0 (v6.1.1 available)
+2026-09-02T13:15:01.232Z	+ tailwindcss@4.1.12 (v4.3.3 available)
+2026-09-02T13:15:01.232Z	+ vite@6.3.5 (v8.2.2 available)
+2026-09-02T13:15:01.232Z	+ @emotion/react@11.14.0
+2026-09-02T13:15:01.232Z	+ @emotion/styled@11.14.1
+2026-09-02T13:15:01.232Z	+ @mui/icons-material@7.3.5 (v9.4.0 available)
+2026-09-02T13:15:01.232Z	+ @mui/material@7.3.5 (v9.4.0 available)
+2026-09-02T13:15:01.233Z	+ @popperjs/core@2.11.8
+2026-09-02T13:15:01.235Z	+ @radix-ui/react-accordion@1.2.3 (v1.2.20 available)
+2026-09-02T13:15:01.235Z	+ @radix-ui/react-alert-dialog@1.1.6 (v1.1.23 available)
+2026-09-02T13:15:01.241Z	+ @radix-ui/react-aspect-ratio@1.1.2 (v1.1.15 available)
+2026-09-02T13:15:01.241Z	+ @radix-ui/react-avatar@1.1.3 (v1.2.6 available)
+2026-09-02T13:15:01.242Z	+ @radix-ui/react-checkbox@1.1.4 (v1.3.11 available)
+2026-09-02T13:15:01.242Z	+ @radix-ui/react-collapsible@1.1.3 (v1.1.20 available)
+2026-09-02T13:15:01.242Z	+ @radix-ui/react-context-menu@2.2.6 (v2.3.7 available)
+2026-09-02T13:15:01.242Z	+ @radix-ui/react-dialog@1.1.6 (v1.1.23 available)
+2026-09-02T13:15:01.242Z	+ @radix-ui/react-dropdown-menu@2.1.6 (v2.1.24 available)
+2026-09-02T13:15:01.242Z	+ @radix-ui/react-hover-card@1.1.6 (v1.1.23 available)
+2026-09-02T13:15:01.242Z	+ @radix-ui/react-label@2.1.2 (v2.1.15 available)
+2026-09-02T13:15:01.242Z	+ @radix-ui/react-menubar@1.1.6 (v1.1.24 available)
+2026-09-02T13:15:01.242Z	+ @radix-ui/react-navigation-menu@1.2.5 (v1.2.22 available)
+2026-09-02T13:15:01.243Z	+ @radix-ui/react-popover@1.1.6 (v1.1.23 available)
+2026-09-02T13:15:01.243Z	+ @radix-ui/react-progress@1.1.2 (v1.1.16 available)
+2026-09-02T13:15:01.243Z	+ @radix-ui/react-radio-group@1.2.3 (v1.4.7 available)
+2026-09-02T13:15:01.243Z	+ @radix-ui/react-scroll-area@1.2.3 (v1.2.18 available)
+2026-09-02T13:15:01.244Z	+ @radix-ui/react-select@2.1.6 (v2.3.7 available)
+2026-09-02T13:15:01.244Z	+ @radix-ui/react-separator@1.1.2 (v1.1.15 available)
+2026-09-02T13:15:01.244Z	+ @radix-ui/react-slider@1.2.3 (v1.4.7 available)
+2026-09-02T13:15:01.244Z	+ @radix-ui/react-slot@1.1.2 (v1.3.3 available)
+2026-09-02T13:15:01.244Z	+ @radix-ui/react-switch@1.1.3 (v1.3.7 available)
+2026-09-02T13:15:01.244Z	+ @radix-ui/react-tabs@1.1.3 (v1.1.21 available)
+2026-09-02T13:15:01.244Z	+ @radix-ui/react-toggle@1.1.2 (v1.1.18 available)
+2026-09-02T13:15:01.245Z	+ @radix-ui/react-toggle-group@1.1.2 (v1.1.19 available)
+2026-09-02T13:15:01.245Z	+ @radix-ui/react-tooltip@1.1.8 (v1.2.16 available)
+2026-09-02T13:15:01.245Z	+ @supabase/supabase-js@2.113.0
+2026-09-02T13:15:01.245Z	+ @types/leaflet@1.9.22
+2026-09-02T13:15:01.246Z	+ canvas-confetti@1.9.4
+2026-09-02T13:15:01.246Z	+ class-variance-authority@0.7.1
+2026-09-02T13:15:01.246Z	+ clsx@2.1.1
+2026-09-02T13:15:01.246Z	+ cmdk@1.1.1
+2026-09-02T13:15:01.246Z	+ date-fns@3.6.0 (v4.4.0 available)
+2026-09-02T13:15:01.246Z	+ embla-carousel-react@8.6.0
+2026-09-02T13:15:01.246Z	+ firebase@12.18.0
+2026-09-02T13:15:01.246Z	+ input-otp@1.4.2 (v1.5.0 available)
+2026-09-02T13:15:01.246Z	+ leaflet@1.9.4
+2026-09-02T13:15:01.246Z	+ lucide-react@0.487.0 (v1.39.0 available)
+2026-09-02T13:15:01.247Z	+ motion@12.23.24 (v13.1.1 available)
+2026-09-02T13:15:01.247Z	+ next-themes@0.4.6
+2026-09-02T13:15:01.247Z	+ qrcode.react@4.2.0
+2026-09-02T13:15:01.247Z	+ react@18.3.1 (v19.2.8 available)
+2026-09-02T13:15:01.248Z	+ react-day-picker@8.10.1 (v10.0.1 available)
+2026-09-02T13:15:01.248Z	+ react-dnd@16.0.1
+2026-09-02T13:15:01.248Z	+ react-dnd-html5-backend@16.0.1
+2026-09-02T13:15:01.248Z	+ react-dom@18.3.1 (v19.2.8 available)
+2026-09-02T13:15:01.248Z	+ react-hook-form@7.55.0 (v7.87.0 available)
+2026-09-02T13:15:01.248Z	+ react-leaflet@5.0.0
+2026-09-02T13:15:01.248Z	+ react-popper@2.3.0
+2026-09-02T13:15:01.248Z	+ react-resizable-panels@2.1.7 (v4.12.3 available)
+2026-09-02T13:15:01.249Z	+ react-responsive-masonry@2.7.1 (v2.7.2 available)
+2026-09-02T13:15:01.249Z	+ react-router@7.13.0 (v8.3.1 available)
+2026-09-02T13:15:01.249Z	+ react-slick@0.31.0
+2026-09-02T13:15:01.249Z	+ recharts@2.15.2 (v3.10.1 available)
+2026-09-02T13:15:01.249Z	+ sonner@2.0.3 (v2.0.8 available)
+2026-09-02T13:15:01.249Z	+ tailwind-merge@3.2.0 (v3.6.0 available)
+2026-09-02T13:15:01.249Z	+ tw-animate-css@1.3.8 (v1.4.0 available)
+2026-09-02T13:15:01.249Z	+ vaul@1.1.2
+2026-09-02T13:15:01.250Z	+ zod@4.5.4
+2026-09-02T13:15:01.250Z	
+2026-09-02T13:15:01.250Z	391 packages installed [7.85s]
+2026-09-02T13:15:01.251Z	
+2026-09-02T13:15:01.251Z	Blocked 3 postinstalls. Run `bun pm untrusted` for details.
+2026-09-02T13:15:02.036Z	Executing user build command: npm run build
+2026-09-02T13:15:02.385Z	
+2026-09-02T13:15:02.386Z	> @figma/my-make-file@0.0.1 build
+2026-09-02T13:15:02.386Z	> vite build
+2026-09-02T13:15:02.386Z	
+2026-09-02T13:15:02.710Z	vite v6.3.5 building for production...
+2026-09-02T13:15:02.835Z	transforming...
+2026-09-02T13:15:08.228Z	node_modules/zod/v4/core/util.js (330:0): A comment
+2026-09-02T13:15:08.230Z	
+2026-09-02T13:15:08.230Z	"// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
+2026-09-02T13:15:08.230Z	
+2026-09-02T13:15:08.231Z	in "node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+2026-09-02T13:15:08.231Z	node_modules/zod/v4/core/regexes.js (70:0): A comment
+2026-09-02T13:15:08.232Z	
+2026-09-02T13:15:08.232Z	"/** Anchors a pattern source. The interpolation lives here rather than at the call site because
+2026-09-02T13:15:08.232Z	 * esbuild will not drop a `@__PURE__` call whose own argument interpolates a variable, but it
+2026-09-02T13:15:08.233Z	 * will drop `anchor(dateSource)`. Keeping it inline pinned `date` into every bundle. */"
+2026-09-02T13:15:08.233Z	
+2026-09-02T13:15:08.233Z	in "node_modules/zod/v4/core/regexes.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+2026-09-02T13:15:13.210Z	✓ 2915 modules transformed.
+2026-09-02T13:15:14.703Z	rendering chunks...
+2026-09-02T13:15:14.754Z	computing gzip size...
+2026-09-02T13:15:14.820Z	dist/index.html                                                                                      1.04 kB │ gzip:   0.52 kB
+2026-09-02T13:15:14.820Z	dist/assets/14935739fa73b965aaede2f60eb0bbdbd1c7e863-WSktNBbd.png                                    4.96 kB
+2026-09-02T13:15:14.821Z	dist/assets/partner-moov-BxlAuff0.png                                                                7.52 kB
+2026-09-02T13:15:14.821Z	dist/assets/partner-uba-KTLjYrDP.png                                                                10.39 kB
+2026-09-02T13:15:14.821Z	dist/assets/partner-mtn-CF3y0dT0.png                                                                15.86 kB
+2026-09-02T13:15:14.821Z	dist/assets/partner-ecobank-CK-1O3Gg.png                                                            16.11 kB
+2026-09-02T13:15:14.821Z	dist/assets/3f2d8a2ac15a62011777865c20df7623eb9a6c5a-CulLjRg-.png                                   24.29 kB
+2026-09-02T13:15:14.822Z	dist/assets/a6aef9ebfa4a801e5a4ed3ea72a27e7742e004a2-C3a3Sp6i.png                                   25.98 kB
+2026-09-02T13:15:14.822Z	dist/assets/49bbc2af7934a88ae90d8d0b94d2f7bf5816e590-4v9izeG4.png                                   37.28 kB
+2026-09-02T13:15:14.823Z	dist/assets/photo_9_2026-06-26_14-18-38-DesqS1K0.jpg                                                38.86 kB
+2026-09-02T13:15:14.823Z	dist/assets/e9e60f38f18b288d039778aec014b51cd42bd5dd-B8SidVpS.png                                   39.11 kB
+2026-09-02T13:15:14.824Z	dist/assets/photo_14_2026-06-26_14-18-38-C-XE8yD_.jpg                                               45.75 kB
+2026-09-02T13:15:14.824Z	dist/assets/photo_2_2026-06-26_14-45-04-DGRh4WLY.jpg                                                47.44 kB
+2026-09-02T13:15:14.824Z	dist/assets/photo_15_2026-06-26_14-29-33-BmEIe4Eq.jpg                                               47.72 kB
+2026-09-02T13:15:14.824Z	dist/assets/f60d348c0496558dfd06f3bbc96393ca6894322e-BLjlyjOP.png                                   57.57 kB
+2026-09-02T13:15:14.825Z	dist/assets/photo_1_2026-06-26_14-29-33-lJtukcTV.jpg                                                59.95 kB
+2026-09-02T13:15:14.825Z	dist/assets/5ee19081331bf15de3e3fd0a234d99bd14535efb-Db_GQb1k.png                                   60.08 kB
+2026-09-02T13:15:14.825Z	dist/assets/photo_16_2026-06-26_14-29-33-DtNobVmw.jpg                                               60.78 kB
+2026-09-02T13:15:14.825Z	dist/assets/IPPOO_Transport___Logistique-1-C2_DUcei.png                                             60.91 kB
+2026-09-02T13:15:14.826Z	dist/assets/photo_8_2026-06-26_14-18-38-xvLYG6bH.jpg                                                63.63 kB
+2026-09-02T13:15:14.826Z	dist/assets/photo_6_2026-06-26_14-18-38-CkrPPJWi.jpg                                                68.95 kB
+2026-09-02T13:15:14.826Z	dist/assets/photo_8_2026-06-26_14-29-33-CsgqIy0g.jpg                                                71.75 kB
+2026-09-02T13:15:14.827Z	dist/assets/photo_12_2026-06-26_14-29-33-Gl2cK8FP.jpg                                               74.45 kB
+2026-09-02T13:15:14.827Z	dist/assets/livreur-professionnel-qui-transporte-colis-verifie-adresse_308072-7052-CVKVMd8m.jpg     75.54 kB
+2026-09-02T13:15:14.827Z	dist/assets/photo_14_2026-06-26_14-29-33-BkpL6bLW.jpg                                               79.46 kB
+2026-09-02T13:15:14.827Z	dist/assets/partner-glo-BiKYuuio.png                                                                82.54 kB
+2026-09-02T13:15:14.828Z	dist/assets/photo_8_2026-06-26_14-45-04-Dv18Wowx.jpg                                                85.16 kB
+2026-09-02T13:15:14.828Z	dist/assets/photo_13_2026-06-26_14-18-38-B5CMSzT8.jpg                                               94.61 kB
+2026-09-02T13:15:14.828Z	dist/assets/d3cf1865f70a1246aa24618348f3561eac469995-mpxobvGM.png                                   97.36 kB
+2026-09-02T13:15:14.828Z	dist/assets/photo_13_2026-06-26_14-29-33-CapEf8ni.jpg                                              113.03 kB
+2026-09-02T13:15:14.828Z	dist/assets/9d0cf23d2d0e99e2bd749940c31f0b57927a27af-uxHHHU5f.png                                  115.35 kB
+2026-09-02T13:15:14.828Z	dist/assets/photo_5_2026-06-26_14-18-37-CtK8L4wy.jpg                                               116.32 kB
+2026-09-02T13:15:14.829Z	dist/assets/photo_3_2026-06-26_14-18-37-2pus331h.jpg                                               121.66 kB
+2026-09-02T13:15:14.829Z	dist/assets/photo_4_2026-06-26_14-18-37-teSG31WK.jpg                                               128.86 kB
+2026-09-02T13:15:14.829Z	dist/assets/photo_11_2026-06-26_14-18-38-BHCsiIKD.jpg                                              136.77 kB
+2026-09-02T13:15:14.838Z	dist/assets/6cc3d4905bdcc38a53430299260f13a383d87250-CzMBAY-R.png                                  138.46 kB
+2026-09-02T13:15:14.838Z	dist/assets/photo_4_2026-06-26_14-29-33-Bd1QtgJ_.jpg                                               147.61 kB
+2026-09-02T13:15:14.838Z	dist/assets/620d19867cc6907921f09e7413841397c1739486-DQAv3TdF.png                                  155.24 kB
+2026-09-02T13:15:14.838Z	dist/assets/triip_fav-1-DejhJA3K.jpg                                                               173.19 kB
+2026-09-02T13:15:14.838Z	dist/assets/ed96e139e3ae0a79c594fcabe325e0ca246fcf01-0XvVOkl2.png                                  195.91 kB
+2026-09-02T13:15:14.838Z	dist/assets/c3680b506d82e1e5ee8aa062c6524415e9f21293-DyCvtPka.png                                  200.18 kB
+2026-09-02T13:15:14.838Z	dist/assets/partner-sobebra-CxrqCuVr.png                                                           211.37 kB
+2026-09-02T13:15:14.839Z	dist/assets/288963912b5fda944bb64f5351d84e719432a851-Bumuu3vW.png                                  230.90 kB
+2026-09-02T13:15:14.839Z	dist/assets/index-CaMxaPha.css                                                                     204.58 kB │ gzip:  33.93 kB
+2026-09-02T13:15:14.839Z	dist/assets/index-DFNZTWyj.js                                                                    2,176.81 kB │ gzip: 585.91 kB
+2026-09-02T13:15:14.839Z	✓ built in 12.06s
+2026-09-02T13:15:14.839Z	
+2026-09-02T13:15:14.839Z	(!) Some chunks are larger than 500 kB after minification. Consider:
+2026-09-02T13:15:14.839Z	- Using dynamic import() to code-split the application
+2026-09-02T13:15:14.839Z	- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+2026-09-02T13:15:14.839Z	- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+2026-09-02T13:15:14.964Z	Success: Build command completed
+2026-09-02T13:15:17.419Z	Executing user deploy command: npx wrangler deploy
+2026-09-02T13:15:18.850Z	npm warn exec The following package was not found and will be installed: wrangler@4.128.0
+2026-09-02T13:15:27.809Z	
+2026-09-02T13:15:27.809Z	 ⛅️ wrangler 4.128.0
+2026-09-02T13:15:27.810Z	────────────────────
+2026-09-02T13:15:28.038Z	▲ [WARNING] It seems that you have run `wrangler deploy` on a Pages project, `wrangler pages deploy` should be used instead. Proceeding will likely produce unwanted results.
+2026-09-02T13:15:28.038Z	
+2026-09-02T13:15:28.039Z	
+2026-09-02T13:15:28.039Z	? Are you sure that you want to proceed?
+2026-09-02T13:15:28.039Z	🤖 Using fallback value in non-interactive context: yes
+2026-09-02T13:15:28.046Z	
+2026-09-02T13:15:28.046Z	Cloudflare collects anonymous telemetry about your usage of Wrangler. Learn more at https://github.com/cloudflare/workers-sdk/tree/main/packages/wrangler/telemetry.md
+2026-09-02T13:15:28.047Z	
+2026-09-02T13:15:28.049Z	✘ [ERROR] Missing entry-point to Worker script or to assets directory
+2026-09-02T13:15:28.049Z	
+2026-09-02T13:15:28.049Z	  
+2026-09-02T13:15:28.049Z	  If there is code to deploy, you can either:
+2026-09-02T13:15:28.049Z	  - Specify an entry-point to your Worker script via the command line (ex: `npx wrangler deploy src/index.ts`)
+2026-09-02T13:15:28.050Z	  - Or add the following to your "wrangler.toml" file:
+2026-09-02T13:15:28.050Z	  
+2026-09-02T13:15:28.050Z	  ```
+2026-09-02T13:15:28.050Z	  main = "src/index.ts"
+2026-09-02T13:15:28.050Z	  
+2026-09-02T13:15:28.050Z	  ```
+2026-09-02T13:15:28.050Z	  
+2026-09-02T13:15:28.050Z	  
+2026-09-02T13:15:28.050Z	  If are uploading a directory of assets, you can either:
+2026-09-02T13:15:28.050Z	  - Specify the path to the directory of assets via the command line: (ex: `npx wrangler deploy --assets=./dist`)
+2026-09-02T13:15:28.050Z	  - Or add the following to your "wrangler.toml" file:
+2026-09-02T13:15:28.051Z	  
+2026-09-02T13:15:28.051Z	  ```
+2026-09-02T13:15:28.051Z	  [assets]
+2026-09-02T13:15:28.051Z	  directory = "./dist"
+2026-09-02T13:15:28.051Z	  
+2026-09-02T13:15:28.051Z	  ```
+2026-09-02T13:15:28.051Z	  
+2026-09-02T13:15:28.051Z	
+2026-09-02T13:15:28.051Z	
+2026-09-02T13:15:28.274Z	🪵  Logs were written to "/opt/buildhome/.config/.wrangler/logs/wrangler-2026-09-02_13-15-27_450.log"
+2026-09-02T13:15:28.387Z	Failed: error occurred while running deploy command

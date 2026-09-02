@@ -1,8 +1,8 @@
-# Cloudflare Pages — configuration.
-# Utilisée par `wrangler pages deploy` et par l'intégration Git de Pages.
+# Cloudflare Pages — configuration projet.
+# Le déploiement via intégration Git (GitHub → Pages) n'exécute PAS wrangler
+# automatiquement : Pages lit juste le build output du dossier ci-dessous.
 name = "ippoo-triip"
 compatibility_date = "2026-09-02"
 
-# Dossier de sortie du build Vite (contient index.html, _redirects, _headers,
-# sw.js, firebase-messaging-sw.js, manifest.json, assets/, icons/).
+# Dossier de sortie Vite — utilisé par `wrangler pages deploy` en CLI local.
 pages_build_output_dir = "dist"
