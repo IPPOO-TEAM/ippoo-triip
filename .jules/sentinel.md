@@ -1,0 +1,4 @@
+## 2026-06-26 - Sanitization of Dynamic CSS Selectors and Variables in ChartStyle
+**Vulnerability:** Unsanitized user/config input (`id`, `key`, `color`) interpolated directly into a `<style>` tag via `dangerouslySetInnerHTML` in `ChartStyle` (`src/app/components/ui/chart.tsx`), exposing the application to CSS injection and potential XSS/data exfiltration.
+**Learning:** React components injecting inline `<style>` tags using raw string interpolation bypass React's default JSX string escaping. If property names or colors contain untrusted user inputs or dynamic parameters, attackers can break out of CSS rule scopes.
+**Prevention:** Always sanitize dynamic identifiers and values when generating dynamic CSS rules. Restrict identifiers using strict alphanumeric regex matches (`/[^a-zA-Z0-9-_]/g`) and sanitize CSS values by removing HTML tags, rule delimiters (`{}`, `;`, `<>`), and unsafe keywords (`url`, `expression`, `javascript`, `style`) recursively.
