@@ -1,0 +1,8 @@
+# Redirects SPA pour Cloudflare Pages
+/sw.js                   /sw.js                   200
+/firebase-messaging-sw.js /firebase-messaging-sw.js 200
+/manifest.json           /manifest.json           200
+/offline.html            /offline.html            200
+
+# Fallback SPA pour toutes les autres routes
+/*                       /index.html              200
