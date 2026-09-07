@@ -1,0 +1,4 @@
+## 2025-05-18 - Dynamic CSS Injection in ChartStyle Component
+**Vulnerability:** Unsanitized user/config input injected directly into inline dynamic CSS `<style>` elements via `dangerouslySetInnerHTML`.
+**Learning:** React UI components like shadcn's `ChartStyle` construct dynamic CSS custom properties from configuration objects. If chart keys, IDs, or theme colors contain malicious strings or characters like `;`, `}`, `</style>`, or `url()`, attackers can perform CSS injection or Reflected XSS.
+**Prevention:** Always sanitize dynamic CSS identifiers (IDs and keys) by removing non-alphanumeric/hyphen/underscore characters and sanitize dynamic CSS property values by stripping block delimiters, comment markers, backslashes, HTML tags, and unsafe CSS protocols (`url(`, `expression(`, `javascript:`).
