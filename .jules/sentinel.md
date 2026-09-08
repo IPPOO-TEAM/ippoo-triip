@@ -1,0 +1,4 @@
+## 2026-03-08 - Dynamic CSS Injection via dangerouslySetInnerHTML in Chart Component
+**Vulnerability:** Unsanitized user/dynamic configurations passed to `dangerouslySetInnerHTML` inside `ChartStyle` allowed potential CSS injection and break-out attacks via custom identifiers and CSS values.
+**Learning:** Even within UI component libraries (like shadcn/recharts wrappers), dynamic CSS generation using template strings can be exploited if identifiers/values are not strictly sanitized. Using basic search-and-replace can be bypassed by nested constructs.
+**Prevention:** Always sanitize dynamic CSS identifiers with strict regex `/[^a-zA-Z0-9-_]/g` and iteratively sanitize CSS values against delimiters (`{}`, `;`, comment markers, HTML tags) and unsafe tokens (`url(`, `expression(`, `javascript:`, `style`).
