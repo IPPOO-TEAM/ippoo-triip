@@ -1,0 +1,4 @@
+## 2026-06-26 - Dynamic CSS Injection via dangerouslySetInnerHTML in Chart Components
+**Vulnerability:** Untrusted identifiers and CSS variable values injected into `<style>` elements via `dangerouslySetInnerHTML` in the `ChartStyle` component permitted potential CSS injection and XSS breakout.
+**Learning:** React does not automatically sanitize raw CSS injected inside `<style>` tags via `dangerouslySetInnerHTML`, allowing malicious characters (`{`, `}`, `;`, `<script>`) or CSS keywords (`url(`, `javascript:`, `expression(`) to corrupt styling or execute script payloads if dynamic config contains user or external inputs.
+**Prevention:** Sanitize identifiers and custom property names with `/[^a-zA-Z0-9-_]/g` and CSS values by stripping HTML tags, comment markers, delimiters (`{};<>`), and iteratively stripping unsafe tokens (`url(`, `javascript:`, `expression(`, `style`) before injection. Do not sanitize static trusted CSS selectors/prefixes (e.g., `.dark`).

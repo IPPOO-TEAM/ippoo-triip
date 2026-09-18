@@ -26,8 +26,8 @@ export default defineConfig({
     // Tailwind is not being actively used – do not remove them
     figmaAssetResolver(),
     react(),
-    tailwindcss(),
-  ],
+    !process.env.VITEST && tailwindcss(),
+  ].filter(Boolean),
   resolve: {
     alias: {
       // Alias @ to the src directory
