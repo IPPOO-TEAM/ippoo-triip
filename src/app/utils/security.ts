@@ -13,7 +13,7 @@ export function sanitizeCSSIdentifier(identifier: string): string {
 
 /**
  * Sanitizes dynamic values intended to be injected into CSS property values or CSS variables.
- * Prevents CSS injection attacks, break-out attempts, and XSS.
+ * Prevents CSS injection attacks, break-out attempts, and XSS without corrupting valid CSS keywords/colors.
  */
 export function sanitizeCSSValue(value: string): string {
   if (typeof value !== "string") return "";
@@ -21,11 +21,13 @@ export function sanitizeCSSValue(value: string): string {
   // 1. Remove HTML tag delimiters, structural CSS delimiters, backslashes, and comment markers
   let cleaned = value.replace(/[{}<>;\\]/g, "").replace(/\/\*[\s\S]*?\*\//g, "");
 
-  // 2. Iteratively strip dangerous CSS function tokens/protocols or key terms ('url(', 'expression(', 'javascript:', 'style') to prevent nested bypasses
+  // 2. Iteratively strip dangerous CSS function calls, protocols, or style tags (e.g., 'url(', 'expression(', 'javascript:')
   let previous: string;
   do {
     previous = cleaned;
-    cleaned = cleaned.replace(/(url|expression|javascript|style)/gi, "");
+    cleaned = cleaned
+      .replace(/(url|expression)\s*\(/gi, "")
+      .replace(/javascript\s*:/gi, "");
   } while (cleaned !== previous);
 
   return cleaned.trim();

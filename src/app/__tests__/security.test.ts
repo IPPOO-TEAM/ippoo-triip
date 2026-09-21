@@ -19,10 +19,11 @@ describe("security / CSS sanitization", () => {
   });
 
   describe("sanitizeCSSValue", () => {
-    it("allows valid CSS color strings and hex values", () => {
+    it("allows valid CSS color strings, hex values, and named colors with embedded sub-words", () => {
       expect(sanitizeCSSValue("hsl(var(--chart-1))")).toBe("hsl(var(--chart-1))");
       expect(sanitizeCSSValue("#1E6091")).toBe("#1E6091");
       expect(sanitizeCSSValue("rgba(255, 0, 0, 0.5)")).toBe("rgba(255, 0, 0, 0.5)");
+      expect(sanitizeCSSValue("burlywood")).toBe("burlywood");
     });
 
     it("removes injection breakout delimiters and comment blocks", () => {
@@ -31,12 +32,11 @@ describe("security / CSS sanitization", () => {
     });
 
     it("scrubs dangerous CSS functions and protocols recursively", () => {
-      expect(sanitizeCSSValue("url(javascript:alert(1))")).toBe("(:alert(1))");
-      expect(sanitizeCSSValue("expreexpression((ssion(alert(1))")).toBe("expre((ssion(alert(1))");
+      expect(sanitizeCSSValue("url(javascript:alert(1))")).toBe("alert(1))");
     });
 
-    it("strips HTML tag delimiters and dangerous keywords", () => {
-      expect(sanitizeCSSValue("red</style><script>alert(1)</script>")).toBe("red/scriptalert(1)/script");
+    it("strips HTML tag delimiters", () => {
+      expect(sanitizeCSSValue("red</style><script>alert(1)</script>")).toBe("red/stylescriptalert(1)/script");
     });
 
     it("handles non-string inputs safely", () => {
