@@ -1,0 +1,4 @@
+## 2026-06-26 - Sanitizing Dynamic Identifiers and Values in Embedded CSS
+**Vulnerability:** Unsanitized dynamic identifiers (`id`, config `key`) and property values (`color`) injected directly into `<style dangerouslySetInnerHTML>` in components like `ChartStyle` in `chart.tsx`.
+**Learning:** Even when themes or static selector prefixes (like `.dark`) are hardcoded, dynamic keys or values passed into CSS template strings can allow CSS injection or XSS if malicious values escape CSS selector context. However, static prefixes (e.g., `.dark`) must not be run through generic identifier sanitizers that strip dot prefixes.
+**Prevention:** Use dedicated CSS sanitization utilities (`sanitizeCSSIdentifier` and `sanitizeCSSValue`) for dynamic dynamic component keys, IDs, and color values before constructing style tag HTML strings.
