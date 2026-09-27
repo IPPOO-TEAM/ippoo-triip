@@ -1,0 +1,4 @@
+## 2026-03-27 - CSS Injection in ChartStyle
+**Vulnerability:** Dynamic chart identifiers and color values were directly interpolated into a `<style>` element using `dangerouslySetInnerHTML` in `ChartStyle` without sanitization.
+**Learning:** Even internal UI theme components using `dangerouslySetInnerHTML` to build inline styles can be vulnerable to CSS breakout and injection attacks if keys or values originate from user/external inputs. Static selectors like theme prefixes (`.dark`) must not be stripped of dot prefixes, but dynamic identifiers and values require strict sanitization.
+**Prevention:** Use dedicated sanitization functions (`sanitizeCSSIdentifier` and `sanitizeCSSValue`) to strip HTML tags, backslashes, comment markers, CSS rule delimiters (`{`, `}`, `;`), and dangerous functions (`url()`, `expression()`) before rendering CSS dynamically.
