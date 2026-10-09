@@ -286,11 +286,30 @@ export function onForegroundMessage(handler: FcmMessageHandler): () => void {
   return onMessage(msg, handler);
 }
 
+/**
+ * Valide si une URL est sûre pour la navigation FCM.
+ * Autorise uniquement les chemins relatifs ou same-origin.
+ * Bloque javascript:, data:, protocol-relative (//) et origines externes.
+ */
+export function isSafeUrl(url: string): boolean {
+  if (!url || typeof url !== "string") return false;
+  const trimmed = url.trim();
+  if (/^(javascript|data|vbscript):/i.test(trimmed)) return false;
+  if (trimmed.startsWith("//")) return false;
+  if (trimmed.startsWith("/") && !trimmed.startsWith("//")) return true;
+  try {
+    const parsed = new URL(trimmed, window.location.origin);
+    return parsed.origin === window.location.origin;
+  } catch {
+    return false;
+  }
+}
+
 /* ----------------------------------------------------------------
    Ouvre l'URL reçue dans un message FCM (foreground navigation).
 ---------------------------------------------------------------- */
 export function handleFcmClick(url: string) {
-  if (url && url !== window.location.href) {
+  if (url && isSafeUrl(url) && url !== window.location.href) {
     window.location.href = url;
   }
 }
