@@ -288,10 +288,23 @@ export function onForegroundMessage(handler: FcmMessageHandler): () => void {
 
 /* ----------------------------------------------------------------
    Ouvre l'URL reçue dans un message FCM (foreground navigation).
+   Secured against Open Redirect and javascript: XSS vectors.
 ---------------------------------------------------------------- */
 export function handleFcmClick(url: string) {
-  if (url && url !== window.location.href) {
-    window.location.href = url;
+  if (!url || typeof url !== "string") return;
+  try {
+    const parsed = new URL(url, window.location.origin);
+    if (
+      parsed.origin === window.location.origin &&
+      (parsed.protocol === "http:" || parsed.protocol === "https:")
+    ) {
+      const target = parsed.pathname + parsed.search + parsed.hash;
+      if (target !== window.location.pathname + window.location.search + window.location.hash) {
+        window.location.href = target;
+      }
+    }
+  } catch {
+    /* Ignore invalid or malicious URLs */
   }
 }
 
