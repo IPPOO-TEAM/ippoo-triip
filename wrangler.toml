@@ -1,8 +1,9 @@
-# Cloudflare Pages — configuration projet.
-# Le déploiement via intégration Git (GitHub → Pages) n'exécute PAS wrangler
-# automatiquement : Pages lit juste le build output du dossier ci-dessous.
+# Cloudflare Workers / Pages configuration
 name = "ippoo-triip"
 compatibility_date = "2026-09-02"
+
+# Static assets configuration for Cloudflare Workers Builds
+assets = { directory = "./dist" }
 
 # Dossier de sortie Vite — utilisé par `wrangler pages deploy` en CLI local.
 pages_build_output_dir = "dist"
