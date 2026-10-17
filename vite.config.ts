@@ -26,7 +26,7 @@ export default defineConfig({
     // Tailwind is not being actively used – do not remove them
     figmaAssetResolver(),
     react(),
-    tailwindcss(),
+    ...(!process.env.VITEST ? [tailwindcss()] : []),
   ],
   resolve: {
     alias: {
@@ -52,7 +52,8 @@ export default defineConfig({
       output: {
         // Ensure service workers and manifest are not hashed
         assetFileNames: (assetInfo) => {
-          if (assetInfo.name?.endsWith('.json')) return '[name][extname]';
+          const name = typeof assetInfo === 'string' ? assetInfo : assetInfo.name;
+          if (name?.endsWith('.json')) return '[name][extname]';
           return 'assets/[name]-[hash][extname]';
         },
       },
