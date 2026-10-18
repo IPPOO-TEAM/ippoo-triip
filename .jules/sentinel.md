@@ -1,0 +1,4 @@
+## 2026-03-31 - CSS Injection Protection in Dynamic Chart Styles
+**Vulnerability:** The `ChartStyle` component in `src/app/components/ui/chart.tsx` directly injected unescaped/unsanitized `id`, `key`, and `color` variables into a `<style>` block using `dangerouslySetInnerHTML`.
+**Learning:** React elements rendering `<style>` tag contents via `dangerouslySetInnerHTML` bypass JSX default string escaping, enabling attackers or dynamic configuration data to break out of CSS property declarations or inject `<script>` tags / external resource requests (`url()`). Additionally, standard CSS identifier sanitization must avoid stripping trusted static prefix selectors like `.dark`.
+**Prevention:** Centralize CSS identifier and value sanitization functions in `src/app/utils/security.ts`. Strip HTML tags, comment markers, CSS control delimiters (`{`, `}`, `;`), and dangerous functions like `url()` or `expression()`.
