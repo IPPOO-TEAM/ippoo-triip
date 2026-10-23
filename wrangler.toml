@@ -4,5 +4,8 @@
 name = "ippoo-triip"
 compatibility_date = "2026-09-02"
 
-# Dossier de sortie Vite — utilisé par `wrangler pages deploy` en CLI local.
+# Dossier de sortie Vite — utilisé par `wrangler pages deploy` en CLI local et Cloudflare Workers Builds CI.
 pages_build_output_dir = "dist"
+
+[assets]
+directory = "./dist"
