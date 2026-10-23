@@ -288,10 +288,31 @@ export function onForegroundMessage(handler: FcmMessageHandler): () => void {
 
 /* ----------------------------------------------------------------
    Ouvre l'URL reçue dans un message FCM (foreground navigation).
+   Sécurisé : empêche la redirection ouverte (Open Redirect) vers des domaines externes.
 ---------------------------------------------------------------- */
 export function handleFcmClick(url: string) {
-  if (url && url !== window.location.href) {
-    window.location.href = url;
+  if (!url || typeof url !== "string") return;
+
+  try {
+    // Les URLs relatives (ex: "/app/notifications") ou relatives à l'origine courante sont autorisées
+    if (url.startsWith("/") && !url.startsWith("//")) {
+      if (url !== window.location.pathname + window.location.search + window.location.hash) {
+        window.location.href = url;
+      }
+      return;
+    }
+
+    const parsed = new URL(url, window.location.origin);
+    // Uniquement la même origine (évite javascript:, data:, et domaines externes)
+    if (parsed.origin === window.location.origin) {
+      if (parsed.href !== window.location.href) {
+        window.location.href = parsed.href;
+      }
+    } else {
+      console.warn("[FCM] Redirection externe bloquée pour des raisons de sécurité:", url);
+    }
+  } catch {
+    console.warn("[FCM] URL invalide ignorée:", url);
   }
 }
 
