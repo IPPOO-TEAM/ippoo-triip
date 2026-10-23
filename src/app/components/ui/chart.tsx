@@ -4,6 +4,7 @@ import * as React from "react";
 import * as RechartsPrimitive from "recharts";
 
 import { cn } from "./utils";
+import { sanitizeCSSIdentifier, sanitizeCSSValue } from "../../utils/security";
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const;
@@ -47,7 +48,8 @@ function ChartContainer({
   >["children"];
 }) {
   const uniqueId = React.useId();
-  const chartId = `chart-${id || uniqueId.replace(/:/g, "")}`;
+  const rawChartId = `chart-${id || uniqueId.replace(/:/g, "")}`;
+  const chartId = sanitizeCSSIdentifier(rawChartId);
 
   return (
     <ChartContext.Provider value={{ config }}>
@@ -78,20 +80,25 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
     return null;
   }
 
+  const safeChartId = sanitizeCSSIdentifier(id);
+
   return (
     <style
       dangerouslySetInnerHTML={{
         __html: Object.entries(THEMES)
           .map(
             ([theme, prefix]) => `
-${prefix} [data-chart=${id}] {
+${prefix} [data-chart=${safeChartId}] {
 ${colorConfig
   .map(([key, itemConfig]) => {
-    const color =
+    const rawColor =
       itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
       itemConfig.color;
-    return color ? `  --color-${key}: ${color};` : null;
+    const safeKey = sanitizeCSSIdentifier(key);
+    const safeColor = rawColor ? sanitizeCSSValue(rawColor) : "";
+    return safeKey && safeColor ? `  --color-${safeKey}: ${safeColor};` : null;
   })
+  .filter(Boolean)
   .join("\n")}
 }
 `,

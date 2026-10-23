@@ -1,0 +1,4 @@
+## 2025-02-22 - Dynamic Chart CSS Injection Sanitization
+**Vulnerability:** Dynamic chart container identifiers and color values injected into `<style>` elements via `dangerouslySetInnerHTML` in UI components without sanitization allow CSS injection and potential XSS payload injection.
+**Learning:** Component library utilities (like `ChartStyle` in `chart.tsx`) often dynamically generate inline CSS rules using component properties (`id`, config keys, theme color values) which bypass standard React HTML escaping.
+**Prevention:** Always sanitize dynamic identifiers with a strict character whitelist (alphanumeric, hyphens, underscores) and sanitize dynamic CSS values to strip control characters (`;`, `{`, `}`, `\`) and block dangerous directives (`url()`, `expression()`, `javascript:`, `</style>`).
