@@ -1,0 +1,4 @@
+## 2025-06-10 - Chart Style CSS Injection
+**Vulnerability:** The ChartStyle component in `src/app/components/ui/chart.tsx` dynamically interpolated dynamic keys and user-supplied styles into a `style` tag via `dangerouslySetInnerHTML`. An attacker could inject malicious selectors or property values to compromise the page styling or execute CSS/XSS injection.
+**Learning:** Dynamic style blocks constructed from dynamic chart configurations bypass standard JSX safety filters. Untrusted identifiers and values like colors or custom property names must be explicitly validated and sanitized prior to injection.
+**Prevention:** Always filter dynamic CSS keys using a strict alphanumeric/hyphen/underscore whitelist, and strip unsafe CSS tokens (like `;`, `}`, `\`, and keywords like `url(`, `expression(`, `javascript:`, and HTML tags) from dynamic property values.
