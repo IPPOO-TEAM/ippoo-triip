@@ -1,0 +1,4 @@
+## 2025-02-21 - CSS Injection via Dynamic Chart Custom Properties in ChartStyle
+**Vulnerability:** The `<ChartStyle>` component in `src/app/components/ui/chart.tsx` injected dynamic chart identifiers, custom property keys, and color values directly into a `<style>` block using `dangerouslySetInnerHTML` without input sanitization.
+**Learning:** Dynamic CSS generation with `dangerouslySetInnerHTML` allows attackers to escape CSS rules or inject HTML `<script>` tags if chart identifiers or custom property values stem from dynamic or untrusted user input.
+**Prevention:** Always sanitize dynamic identifiers with a strict whitelist (`/[^a-zA-Z0-9-_]/g`) and strip dangerous CSS functions (`url()`, `expression()`), HTML tags, and rule delimiters (`{`, `}`, `;`, `<`, `>`) from dynamic values before embedding them in `<style>` tags.
