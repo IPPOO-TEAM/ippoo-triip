@@ -4,5 +4,9 @@
 name = "ippoo-triip"
 compatibility_date = "2026-09-02"
 
+# Configuration assets pour Cloudflare Workers Builds
+[assets]
+directory = "./dist"
+
 # Dossier de sortie Vite — utilisé par `wrangler pages deploy` en CLI local.
 pages_build_output_dir = "dist"
