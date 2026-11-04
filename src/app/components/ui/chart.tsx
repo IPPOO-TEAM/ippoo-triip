@@ -3,6 +3,7 @@
 import * as React from "react";
 import * as RechartsPrimitive from "recharts";
 
+import { sanitizeCSSIdentifier, sanitizeCSSValue } from "../../utils/security";
 import { cn } from "./utils";
 
 // Format: { THEME_NAME: CSS_SELECTOR }
@@ -78,24 +79,33 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
     return null;
   }
 
+  // Security: Sanitize the chart id to prevent CSS selector injection
+  const safeId = sanitizeCSSIdentifier(id);
+  if (!safeId) {
+    return null;
+  }
+
   return (
     <style
       dangerouslySetInnerHTML={{
         __html: Object.entries(THEMES)
-          .map(
-            ([theme, prefix]) => `
-${prefix} [data-chart=${id}] {
-${colorConfig
-  .map(([key, itemConfig]) => {
-    const color =
-      itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
-      itemConfig.color;
-    return color ? `  --color-${key}: ${color};` : null;
-  })
-  .join("\n")}
-}
-`,
-          )
+          .map(([theme, prefix]) => {
+            const rules = colorConfig
+              .map(([key, itemConfig]) => {
+                const color =
+                  itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
+                  itemConfig.color;
+                if (!color) return null;
+                // Security: Sanitize variable keys and color values against CSS injection / XSS
+                const safeKey = sanitizeCSSIdentifier(key);
+                const safeColor = sanitizeCSSValue(color);
+                return safeKey && safeColor ? `  --color-${safeKey}: ${safeColor};` : null;
+              })
+              .filter(Boolean)
+              .join("\n");
+            return rules ? `\n${prefix} [data-chart=${safeId}] {\n${rules}\n}\n` : null;
+          })
+          .filter(Boolean)
           .join("\n"),
       }}
     />
