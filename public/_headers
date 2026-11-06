@@ -1,3 +1,8 @@
+# Cloudflare Pages — en-têtes personnalisés.
+# Cloudflare déduit déjà le type MIME par extension (.js -> text/javascript),
+# ce qui suffit à FCM. On force explicitement + on autorise un scope large pour
+# le service worker PWA, et on empêche la mise en cache des SW.
+
 /sw.js
   Content-Type: text/javascript; charset=utf-8
   Service-Worker-Allowed: /
